@@ -746,6 +746,41 @@
   @media screen and (min-width: 600px) and (max-width: 900px){
     .grid, .grid.col-3, .grid.col-4{ grid-template-columns: 1fr 1fr; }
   }
+
+  /* PHONE — finer-grained mobile tweaks (≤700px) */
+  @media screen and (max-width: 700px){
+    /* Hash table horizontal-scrolls instead of squishing 5 cols */
+    .strain-table-wrap{
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border: 1px solid rgba(0,0,0,.1);
+      margin: 0 -2px;
+    }
+    .strain-table{ min-width: 560px; font-size:11px; }
+    /* Bigger tap targets — Apple HIG min is 44pt */
+    .card .ptable > .pcell{ min-height: 56px; padding: 10px 10px 12px; }
+    .card .ptable .val{ font-size: 13px; }
+    .card .ptable .val[contenteditable]{ padding: 4px 6px; min-height: 22px; display:inline-block; }
+    .card .name[contenteditable], .card .sub[contenteditable]{ padding: 2px 4px; }
+    .strain-table tbody td[contenteditable]{ padding: 10px 8px; }
+    /* Tighter toolbar so all controls fit */
+    .toolbar{ font-size:10px; padding:8px; gap:6px; }
+    .toolbar button{ padding:6px 8px; font-size:10px; }
+    .font-picker label{ font-size:9px; }
+    .font-picker select{ font-size:10px; padding:5px 6px; max-width: 130px; }
+    /* Disable hover-only thumbnail controls on touch */
+    image-slot .ctl{ opacity:1 !important; pointer-events:auto !important; }
+  }
+
+  /* SMALL PHONE (≤480px) */
+  @media screen and (max-width: 480px){
+    .stack{ padding:8px 4px 32px; gap:10px; }
+    .page{ padding:18px 12px; }
+    .ph h1{ font-size:22px; }
+    .sh h2{ font-size:16px; }
+    .font-picker label{ display:none; }
+    .toolbar > span:nth-of-type(1){ font-size:9px; letter-spacing:.04em; }
+  }
 </style>
 </head>
 <body>
@@ -1206,18 +1241,20 @@
         <span class="tag">Rotating · Pricing dynamic</span>
       </div>
 
-      <table class="strain-table" id="hash-table">
-        <thead>
-          <tr>
-            <th style="width:24%">Item</th>
-            <th style="width:22%">Strain</th>
-            <th style="width:18%; text-align:right">Cost</th>
-            <th style="width:18%; text-align:right">MSRP</th>
-            <th style="width:18%; text-align:right">Pack / QTY</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+      <div class="strain-table-wrap">
+        <table class="strain-table" id="hash-table">
+          <thead>
+            <tr>
+              <th style="width:24%">Item</th>
+              <th style="width:22%">Strain</th>
+              <th style="width:18%; text-align:right">Cost</th>
+              <th style="width:18%; text-align:right">MSRP</th>
+              <th style="width:18%; text-align:right">Pack / QTY</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
 
       <div class="hashc-note">
         <b>Inquire for live rosin, resin, current strains,</b> bulk, branded private-label orders, co-packing or full menu. The lab makes a ton of product — white-label &amp; private-label welcome.
