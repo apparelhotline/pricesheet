@@ -71,26 +71,37 @@
   let loaded = false;
   let loadP = null;
 
+  // Optional: a remote sync endpoint that lets multiple visitors share image
+  // state across a static-hosted page (e.g. a Cloudflare Worker backed by KV).
+  // Set window.IMAGE_SLOT_SYNC_URL before this script loads to enable.
+  // Endpoint contract: GET → JSON of {slotId: {u, s, x, y}}, PUT → REPLACE.
+  const SYNC_URL = (typeof window !== 'undefined' && window.IMAGE_SLOT_SYNC_URL) || null;
+
   function load() {
     if (loadP) return loadP;
-    loadP = fetch(STATE_FILE)
+    const sidecarP = fetch(STATE_FILE)
       .then((r) => (r.ok ? r.json() : null))
-      .then((j) => {
-        // Merge: sidecar loses to any in-memory change that raced ahead of
-        // the fetch (drop or clear) so neither is clobbered by hydration.
-        if (j && typeof j === 'object') {
-          const merged = Object.assign({}, j, slots);
-          // A framing-only write that raced ahead of hydration must not
-          // drop a user image that's only on disk — inherit u from the
-          // sidecar for any in-memory entry that lacks one.
-          for (const k in slots) {
-            if (merged[k] && !merged[k].u && j[k]) {
-              merged[k].u = typeof j[k] === 'string' ? j[k] : j[k].u;
-            }
+      .catch(() => null);
+    const remoteP = SYNC_URL
+      ? fetch(SYNC_URL, { cache: 'no-store' })
+          .then((r) => (r.ok ? r.json() : null))
+          .catch(() => null)
+      : Promise.resolve(null);
+    loadP = Promise.all([sidecarP, remoteP])
+      .then(([sidecar, remote]) => {
+        // Merge order: in-memory > remote > sidecar. Remote (worker) is the
+        // shared source of truth; sidecar is just the baseline that ships
+        // with the page. In-memory always wins to avoid clobbering a drop
+        // that raced ahead of hydration.
+        const baseline = Object.assign({}, sidecar || {}, remote || {});
+        const merged = Object.assign({}, baseline, slots);
+        for (const k in slots) {
+          if (merged[k] && !merged[k].u && baseline[k]) {
+            merged[k].u = typeof baseline[k] === 'string' ? baseline[k] : baseline[k].u;
           }
-          for (const id of tombstones) delete merged[id];
-          slots = merged;
         }
+        for (const id of tombstones) delete merged[id];
+        slots = merged;
         tombstones.clear();
       })
       .catch(() => {})
@@ -99,19 +110,29 @@
   }
 
   // Serialize writes so two near-simultaneous drops on different slots
-  // can't reorder at the backend and leave the sidecar with only the
-  // first. A save requested mid-flight just marks dirty and re-fires on
-  // completion with the then-current slots.
+  // can't reorder at the backend and leave storage with only the first.
+  // A save requested mid-flight just marks dirty and re-fires on completion
+  // with the then-current slots.
   let saving = false;
   let saveDirty = false;
   function save() {
     if (saving) { saveDirty = true; return; }
     const w = window.omelette && window.omelette.writeFile;
-    if (!w) return;
+    if (!w && !SYNC_URL) return;
     saving = true;
-    Promise.resolve(w(STATE_FILE, JSON.stringify(slots)))
-      .catch(() => {})
-      .then(() => { saving = false; if (saveDirty) { saveDirty = false; save(); } });
+    const writes = [];
+    if (w) writes.push(Promise.resolve(w(STATE_FILE, JSON.stringify(slots))).catch(() => {}));
+    if (SYNC_URL) writes.push(
+      fetch(SYNC_URL, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(slots),
+      }).catch(() => {})
+    );
+    Promise.all(writes).then(() => {
+      saving = false;
+      if (saveDirty) { saveDirty = false; save(); }
+    });
   }
 
   const S_MAX = 5;
@@ -591,7 +612,9 @@
       this._ring.style.display = mask ? 'none' : '';
 
       // Controls and reframe entry gate on this so share links stay read-only.
-      const editable = !!(window.omelette && window.omelette.writeFile);
+      // Editable when EITHER the host writeFile API is available (Claude Design)
+      // OR a remote sync URL is configured (e.g. Cloudflare Worker for static-host deploys).
+      const editable = !!((window.omelette && window.omelette.writeFile) || SYNC_URL);
       this.toggleAttribute('data-editable', editable);
       this._sub.style.display = editable ? '' : 'none';
 
