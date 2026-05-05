@@ -176,6 +176,23 @@
     border:1px solid #fff;
   }
   .edit-fab:hover[data-label]::after{ opacity:1; }
+
+  /* Back-to-top — bottom-right, hidden until you scroll down past one viewport */
+  .scroll-top{
+    position:fixed; bottom:18px; right:18px; z-index:55;
+    width:42px; height:42px; border-radius:50%;
+    background:#000; color:#fff; border:1px solid #fff;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-size:20px; line-height:1; font-family:inherit;
+    box-shadow:0 4px 12px rgba(0,0,0,.3);
+    opacity:0; pointer-events:none; transform:translateY(8px);
+    transition: opacity .25s, transform .25s, background .15s, right .2s;
+  }
+  .scroll-top.visible{ opacity:1; pointer-events:auto; transform:translateY(0); }
+  .scroll-top:hover{ background:#333; transform:translateY(-2px); }
+  /* Slide left when the toolbar is open so it doesn't collide with the gear */
+  body:has(.toolbar.open) .scroll-top{ right: 70px; }
+  @media print{ .scroll-top{ display:none !important; } }
   .toolbar .dot{width:8px;height:8px;border-radius:50%;background:#fff;display:inline-block}
   .toolbar .spacer{flex:1}
   .toolbar button{
@@ -1014,6 +1031,23 @@
 
 <button class="tool-toggle" id="tool-toggle" onclick="toggleToolbar()" title="Show / hide tools" aria-label="Toggle tools">⚙</button>
 <button class="edit-fab" id="edit-toggle-fab" onclick="toggleEditMode()" title="Add or rearrange products" aria-label="Add / edit products" data-label="Add / Edit">+</button>
+<button class="scroll-top" id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top" aria-label="Back to top">↑</button>
+<script>
+  // Show the back-to-top button only after you've scrolled down ~400px
+  (function(){
+    let ticking = false;
+    const btn = () => document.getElementById('scroll-top');
+    window.addEventListener('scroll', () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const b = btn();
+        if (b) b.classList.toggle('visible', window.scrollY > 400);
+        ticking = false;
+      });
+    }, { passive: true });
+  })();
+</script>
 
 <div class="toolbar" id="toolbar">
   <span class="dot"></span>
