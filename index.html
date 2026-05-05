@@ -89,6 +89,18 @@
     line-height:1.2;
   }
 
+  /* Generic editable affordance for everything we tag at runtime
+     (titles, eyebrows, footers, hash note, placeholder labels, etc.) */
+  [contenteditable="true"]{ outline:none; }
+  [contenteditable="true"]:hover{ cursor:text; background:rgba(255,245,214,.45); }
+  [contenteditable="true"]:focus{ background:#fff5d6; box-shadow:inset 0 -1px 0 #000; }
+  /* Hide that affordance in print/PDF */
+  @media print{
+    [contenteditable="true"]:hover, [contenteditable="true"]:focus{
+      background:transparent !important; box-shadow:none !important;
+    }
+  }
+
   /* Editable name / sub */
   .card .name[contenteditable],
   .card .sub[contenteditable]{
@@ -1731,6 +1743,51 @@
 (() => {
   const WORKER_URL = 'https://pricesheet-edits.matt-c61.workers.dev/';
 
+  // Make every text element on every page contenteditable + tagged with a
+  // stable key, so all titles / headers / footers / eyebrows / etc. can be
+  // edited live and synced across visitors. Excludes UI chrome (toolbar,
+  // modal, gear button) by only iterating inside section.page elements.
+  function makeAllTextEditable(){
+    const tagOne = (el, key) => {
+      if (!el || el.dataset.editKey) return;
+      el.setAttribute('contenteditable', 'true');
+      el.setAttribute('spellcheck', 'false');
+      el.dataset.editKey = key;
+    };
+    document.querySelectorAll('section.page').forEach((page, pi) => {
+      const pk = 'page' + String(pi + 1).padStart(2, '0');
+
+      // Page header
+      tagOne(page.querySelector('.ph .eyebrow'), pk + '__eyebrow');
+      tagOne(page.querySelector('.ph h1'),       pk + '__title');
+      page.querySelectorAll('.ph .meta > div').forEach((el, i) => tagOne(el, pk + '__meta' + i));
+
+      // Section headers (one per .section)
+      page.querySelectorAll('.section').forEach((section, si) => {
+        tagOne(section.querySelector('.sh .num'), pk + '__sec' + si + '__num');
+        tagOne(section.querySelector('.sh h2'),   pk + '__sec' + si + '__h2');
+        tagOne(section.querySelector('.sh .tag'), pk + '__sec' + si + '__tag');
+      });
+
+      // Page footer
+      page.querySelectorAll('.pf span').forEach((el, i) => tagOne(el, pk + '__footer' + i));
+
+      // Cover strip (page 5)
+      tagOne(page.querySelector('.cover-strip .lede'), pk + '__lede');
+      page.querySelectorAll('.cover-strip .toc > div').forEach((el, i) => tagOne(el, pk + '__toc' + i));
+
+      // Hash & Concentrate note
+      tagOne(page.querySelector('.hashc-note'), pk + '__hashnote');
+
+      // Vape / Pre-Roll placeholder cards
+      page.querySelectorAll('.placeholder-card').forEach((pc, pci) => {
+        tagOne(pc.querySelector('.label'), pk + '__plc' + pci + '__label');
+        tagOne(pc.querySelector('.desc'),  pk + '__plc' + pci + '__desc');
+        pc.querySelectorAll('.skuline span').forEach((el, i) => tagOne(el, pk + '__plc' + pci + '__sku' + i));
+      });
+    });
+  }
+
   // Tag every editable element with a stable key so its value can be
   // saved/restored across visitors.
   function tagEditable(){
@@ -1828,6 +1885,7 @@
   // Run AFTER all generated cards (flower/gummies/hash) and after the
   // localStorage layout-restore (loadState at 50ms) have settled.
   setTimeout(() => {
+    makeAllTextEditable();
     tagEditable();
     loadEdits();
   }, 250);
