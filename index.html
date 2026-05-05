@@ -1718,5 +1718,116 @@
   setTimeout(loadState, 50);
 </script>
 
+<!-- ============ CLOUDFLARE WORKER SYNC ============
+     Reads/writes edits to all editable cells (prices, names, hash table)
+     via a tiny Cloudflare Worker. Anyone visiting the page sees everyone's
+     latest edits, and edits made by any visitor are saved for everyone. -->
+<script>
+(() => {
+  const WORKER_URL = 'https://pricesheet-edits.matt-c61.workers.dev/';
+
+  // Tag every editable element with a stable key so its value can be
+  // saved/restored across visitors.
+  function tagEditable(){
+    document.querySelectorAll('[data-card]').forEach(card => {
+      const slot = card.querySelector('image-slot');
+      const baseId = (slot && slot.id) || ('anon-' + Array.from(card.parentNode.children).indexOf(card));
+
+      const name = card.querySelector('.name[contenteditable]');
+      if (name && !name.dataset.editKey) name.dataset.editKey = baseId + '__name';
+
+      const sub = card.querySelector('.sub[contenteditable]');
+      if (sub && !sub.dataset.editKey) sub.dataset.editKey = baseId + '__sub';
+
+      const valLabels = ['cost','msrp','pack'];
+      card.querySelectorAll('.val[contenteditable]').forEach((cell, i) => {
+        if (!cell.dataset.editKey) cell.dataset.editKey = baseId + '__' + (valLabels[i] || ('val' + i));
+      });
+    });
+
+    // Hash & Concentrate table
+    const hashLabels = ['item','strain','cost','msrp','pack'];
+    document.querySelectorAll('#hash-table tbody tr').forEach((row, i) => {
+      row.querySelectorAll('td[contenteditable]').forEach((cell, j) => {
+        if (!cell.dataset.editKey) cell.dataset.editKey = 'hash__' + i + '__' + (hashLabels[j] || ('col' + j));
+      });
+    });
+  }
+
+  async function loadEdits(){
+    try {
+      const r = await fetch(WORKER_URL, { cache: 'no-store' });
+      if (!r.ok) return;
+      const edits = await r.json();
+      let applied = 0;
+      Object.entries(edits).forEach(([key, value]) => {
+        if (typeof value !== 'string') return;
+        const el = document.querySelector('[data-edit-key="' + CSS.escape(key) + '"]');
+        if (el && el.textContent.trim() !== value) {
+          el.textContent = value;
+          applied++;
+        }
+      });
+      if (applied) console.log('[edits] applied', applied, 'saved values');
+    } catch (e) {
+      console.warn('[edits] load failed:', e);
+    }
+  }
+
+  // Debounced save — coalesces rapid edits into one PUT
+  const pending = {};
+  let saveTimer = null;
+  function queueSave(){
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(async () => {
+      const batch = Object.assign({}, pending);
+      Object.keys(pending).forEach(k => delete pending[k]);
+      if (Object.keys(batch).length === 0) return;
+      try {
+        const r = await fetch(WORKER_URL, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(batch),
+        });
+        if (r.ok) flashSaved();
+      } catch (e) {
+        console.warn('[edits] save failed:', e);
+      }
+    }, 600);
+  }
+
+  function flashSaved(){
+    let el = document.getElementById('saved-flash');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'saved-flash';
+      el.style.cssText = 'position:fixed;bottom:60px;right:18px;background:#000;color:#fff;padding:8px 14px;font-family:var(--font-mono),monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;z-index:300;opacity:0;transition:opacity .25s;pointer-events:none;border:1px solid #fff';
+      document.body.appendChild(el);
+    }
+    el.textContent = '✓ saved';
+    el.style.opacity = '1';
+    clearTimeout(el._t);
+    el._t = setTimeout(() => { el.style.opacity = '0'; }, 1500);
+  }
+
+  // Fire on blur of any tagged editable element (capture phase so it works for any descendant)
+  document.addEventListener('blur', (e) => {
+    const t = e.target;
+    if (t && t.dataset && t.dataset.editKey) {
+      const v = t.textContent.trim();
+      pending[t.dataset.editKey] = v;
+      queueSave();
+    }
+  }, true);
+
+  // Run AFTER all generated cards (flower/gummies/hash) and after the
+  // localStorage layout-restore (loadState at 50ms) have settled.
+  setTimeout(() => {
+    tagEditable();
+    loadEdits();
+  }, 250);
+})();
+</script>
+
 </body>
 </html>
