@@ -138,22 +138,34 @@
   }
   .toolbar.open{ display:flex; }
 
-  /* Floating toggle button — always visible, opens/closes the toolbar */
-  .tool-toggle{
-    position:fixed; top:12px; right:12px; z-index:60;
+  /* Floating toggle buttons — always visible, top-right corner */
+  .tool-toggle, .edit-fab{
+    position:fixed; right:12px; z-index:60;
     width:44px; height:44px; border-radius:50%;
     background:#000; color:#fff; border:1px solid #fff;
     display:flex; align-items:center; justify-content:center;
-    cursor:pointer; font-size:18px; font-family:inherit;
+    cursor:pointer; font-size:18px; font-family:inherit; line-height:1;
     box-shadow:0 4px 12px rgba(0,0,0,.3);
     transition: transform .15s;
   }
-  .tool-toggle:hover{ transform:scale(1.05); }
-  .tool-toggle.open{ background:#fff; color:#000; }
-  @media print{ .tool-toggle{ display:none !important; } }
-  /* When toolbar is open, push toggle down so it doesn't overlap controls */
-  .toolbar.open ~ .tool-toggle,
+  .tool-toggle{ top:12px; }
+  .edit-fab{ top:64px; font-size:22px; font-weight:300; }
+  .tool-toggle:hover, .edit-fab:hover{ transform:scale(1.05); }
+  .tool-toggle.open, .edit-fab.open{ background:#fff; color:#000; }
+  @media print{ .tool-toggle, .edit-fab{ display:none !important; } }
+  /* When toolbar is open, push toggle buttons down so they don't overlap controls */
   body:has(.toolbar.open) .tool-toggle{ top: auto; bottom: 18px; }
+  body:has(.toolbar.open) .edit-fab{ top: auto; bottom: 70px; }
+  /* Subtle label next to the FAB on hover */
+  .edit-fab[data-label]::after{
+    content: attr(data-label);
+    position:absolute; right: calc(100% + 8px); top: 50%; transform:translateY(-50%);
+    background:#000; color:#fff; padding:4px 8px; font-size:10px;
+    letter-spacing:.1em; text-transform:uppercase; white-space:nowrap;
+    opacity:0; transition: opacity .15s; pointer-events:none;
+    border:1px solid #fff;
+  }
+  .edit-fab:hover[data-label]::after{ opacity:1; }
   .toolbar .dot{width:8px;height:8px;border-radius:50%;background:#fff;display:inline-block}
   .toolbar .spacer{flex:1}
   .toolbar button{
@@ -991,6 +1003,7 @@
 </script>
 
 <button class="tool-toggle" id="tool-toggle" onclick="toggleToolbar()" title="Show / hide tools" aria-label="Toggle tools">⚙</button>
+<button class="edit-fab" id="edit-toggle-fab" onclick="toggleEditMode()" title="Add or rearrange products" aria-label="Add / edit products" data-label="Add / Edit">+</button>
 
 <div class="toolbar" id="toolbar">
   <span class="dot"></span>
@@ -1562,8 +1575,16 @@
   function toggleEditMode(){
     const on = document.body.classList.toggle('edit-mode');
     const btn = document.getElementById('edit-toggle');
-    btn.classList.toggle('active', on);
-    btn.textContent = on ? 'Done Editing' : 'Edit Layout';
+    if (btn) {
+      btn.classList.toggle('active', on);
+      btn.textContent = on ? 'Done Editing' : 'Edit Layout';
+    }
+    const fab = document.getElementById('edit-toggle-fab');
+    if (fab) {
+      fab.classList.toggle('open', on);
+      fab.textContent = on ? '✓' : '+';
+      fab.setAttribute('data-label', on ? 'Done editing' : 'Add / Edit');
+    }
   }
 
   // Inject controls + add-product tile into every grid
@@ -1676,14 +1697,14 @@
     card.innerHTML = `
       <div class="thumb"><image-slot id="${slotId}" placeholder="${escapeHtml(p.name)}"></image-slot></div>
       <div class="info">
-        <div class="name" contenteditable="true">${escapeHtml(p.name)}</div>
-        <div class="sub" contenteditable="true">${escapeHtml(p.sub)}</div>
+        <div class="name" contenteditable="true" data-edit-key="${slotId}__name">${escapeHtml(p.name)}</div>
+        <div class="sub" contenteditable="true" data-edit-key="${slotId}__sub">${escapeHtml(p.sub)}</div>
       </div>
       <div class="ptable-head"><div>Cost</div><div>MSRP</div><div>Pack / QTY</div></div>
       <div class="ptable">
-        <div class="pcell"><span class="lbl">Cost</span><span class="val" contenteditable="true">${escapeHtml(p.cost)}</span></div>
-        <div class="pcell"><span class="lbl">MSRP</span><span class="val" contenteditable="true">${escapeHtml(p.msrp)}</span></div>
-        <div class="pcell"><span class="lbl">Pack</span><span class="val" contenteditable="true">${escapeHtml(p.pack)}</span></div>
+        <div class="pcell"><span class="lbl">Cost</span><span class="val" contenteditable="true" data-edit-key="${slotId}__cost">${escapeHtml(p.cost)}</span></div>
+        <div class="pcell"><span class="lbl">MSRP</span><span class="val" contenteditable="true" data-edit-key="${slotId}__msrp">${escapeHtml(p.msrp)}</span></div>
+        <div class="pcell"><span class="lbl">Pack</span><span class="val" contenteditable="true" data-edit-key="${slotId}__pack">${escapeHtml(p.pack)}</span></div>
       </div>
     `;
     // insert before the add-card tile
@@ -1698,41 +1719,67 @@
   }
 
   // ===== Persistence (order + added/removed cards) =====
+  // Layout (which products exist + their order) syncs through the same
+  // Cloudflare Worker as text edits + photos, so any visitor's add /
+  // delete / reorder shows for everyone. localStorage is kept as a
+  // fast offline fallback if the worker is unreachable.
+  const LAYOUT_URL = 'https://pricesheet-edits.matt-c61.workers.dev/layout';
+  let layoutSaveTimer = null;
+  function captureState(){
+    const state = {};
+    document.querySelectorAll('[data-grid]').forEach(grid => {
+      const cards = [...grid.querySelectorAll('[data-card]')].map(c => c.outerHTML);
+      state[grid.dataset.grid] = cards;
+    });
+    return state;
+  }
   function saveState(){
-    try {
-      const state = {};
-      document.querySelectorAll('[data-grid]').forEach(grid => {
-        const cards = [...grid.querySelectorAll('[data-card]')].map(c => c.outerHTML);
-        state[grid.dataset.grid] = cards;
-      });
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    } catch(e) { console.warn('saveState failed', e); }
+    const state = captureState();
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+    // Debounced PUT to worker so rapid drags coalesce into one request
+    if (layoutSaveTimer) clearTimeout(layoutSaveTimer);
+    layoutSaveTimer = setTimeout(() => {
+      fetch(LAYOUT_URL, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(state),
+      }).then(r => { if (r.ok && window.flashSaved) window.flashSaved(); })
+        .catch(e => console.warn('layout save failed', e));
+    }, 600);
   }
-  function loadState(){
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
-      const state = JSON.parse(raw);
-      Object.keys(state).forEach(gridKey => {
-        const grid = document.querySelector(`[data-grid="${gridKey}"]`);
-        if (!grid) return;
-        // wipe existing cards (keep add-card tile)
-        grid.querySelectorAll('[data-card]').forEach(c => c.remove());
-        const addTile = grid.querySelector('.add-card');
-        state[gridKey].forEach(html => {
-          const tmp = document.createElement('div');
-          tmp.innerHTML = html;
-          const card = tmp.firstElementChild;
-          // strip stale controls (will be re-added by decorateGrid)
-          card.querySelectorAll('.card-controls').forEach(c => c.remove());
-          grid.insertBefore(card, addTile);
-        });
-        decorateGrid(grid);
+  function applyState(state){
+    Object.keys(state).forEach(gridKey => {
+      const grid = document.querySelector(`[data-grid="${gridKey}"]`);
+      if (!grid) return;
+      grid.querySelectorAll('[data-card]').forEach(c => c.remove());
+      const addTile = grid.querySelector('.add-card');
+      state[gridKey].forEach(html => {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        const card = tmp.firstElementChild;
+        if (!card) return;
+        card.querySelectorAll('.card-controls').forEach(c => c.remove());
+        grid.insertBefore(card, addTile);
       });
-    } catch(e) { console.warn('loadState failed', e); }
+      decorateGrid(grid);
+    });
   }
+  // Returns a Promise that resolves when layout has been applied (or skipped).
+  // Worker wins; falls back to localStorage if worker has nothing or is down.
+  async function loadState(){
+    let state = null;
+    try {
+      const r = await fetch(LAYOUT_URL, { cache: 'no-store' });
+      if (r.ok) state = await r.json();
+    } catch(e) { console.warn('layout fetch failed, using localStorage', e); }
+    if (!state) {
+      try { state = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch(e) {}
+    }
+    if (state && typeof state === 'object') applyState(state);
+  }
+  window.loadState = loadState;
   // Defer load so generated cards (flower/gummies) populate first
-  setTimeout(loadState, 50);
+  window.layoutLoadP = new Promise(resolve => setTimeout(() => resolve(loadState()), 50));
 </script>
 
 <!-- ============ CLOUDFLARE WORKER SYNC ============
@@ -1882,13 +1929,18 @@
     }
   }, true);
 
-  // Run AFTER all generated cards (flower/gummies/hash) and after the
-  // localStorage layout-restore (loadState at 50ms) have settled.
-  setTimeout(() => {
+  // Expose flashSaved so other scripts (layout sync) can show the same chip
+  window.flashSaved = flashSaved;
+
+  // Run AFTER all generated cards (flower/gummies/hash) AND after the
+  // worker-backed layout restore has finished applying any cross-visitor
+  // additions/reorderings/deletions. Otherwise we'd tag the wrong cards.
+  (async () => {
+    if (window.layoutLoadP) { try { await window.layoutLoadP; } catch(e){} }
     makeAllTextEditable();
     tagEditable();
     loadEdits();
-  }, 250);
+  })();
 })();
 </script>
 
