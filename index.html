@@ -768,14 +768,54 @@
 
   /* PHONE — finer-grained mobile tweaks (≤700px) */
   @media screen and (max-width: 700px){
-    /* Hash table horizontal-scrolls instead of squishing 5 cols */
-    .strain-table-wrap{
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      border: 1px solid rgba(0,0,0,.1);
-      margin: 0 -2px;
+    /* Hash table: convert to stacked cards on mobile (one block per strain).
+       Avoids the 5-cols-don't-fit problem entirely — no sideways swipe. */
+    .strain-table-wrap{ overflow:visible; border:none; margin:0; }
+    .strain-table{ min-width:0; display:block; border-collapse:separate; }
+    .strain-table thead{ display:none; }
+    .strain-table tbody, .strain-table tr{ display:block; }
+    .strain-table tr{
+      border:1px solid rgba(0,0,0,.18);
+      margin-bottom:8px;
+      padding:10px 12px;
+      background:#fff;
     }
-    .strain-table{ min-width: 560px; font-size:11px; }
+    .strain-table tr:nth-child(even){ background:#fafafa; }
+    .strain-table tr:last-child td{ border-bottom:none !important; }
+    .strain-table td{
+      display:block;
+      padding:3px 0 !important;
+      border:none !important;
+      text-align:left !important;
+      white-space:normal;
+    }
+    .strain-table td.item{
+      font-size:13px; font-weight:600;
+      text-transform:uppercase; letter-spacing:.04em;
+    }
+    .strain-table td.strain{
+      font-size:11px; color:var(--ink-2);
+      padding-bottom:8px !important;
+      margin-bottom:6px;
+      border-bottom:1px dotted rgba(0,0,0,.2) !important;
+    }
+    /* The 3 numeric cells (Cost / MSRP / Pack) sit in a row with labels above */
+    .strain-table td.moq{
+      display:inline-block;
+      width:32%;
+      vertical-align:top;
+      padding:4px 4px 4px 0 !important;
+      font-size:11px;
+    }
+    .strain-table td.moq:nth-of-type(3):before{ content:"COST"; }
+    .strain-table td.moq:nth-of-type(4):before{ content:"MSRP"; }
+    .strain-table td.moq:nth-of-type(5):before{ content:"PACK"; }
+    .strain-table td.moq:before{
+      display:block;
+      font-size:8.5px; letter-spacing:.16em;
+      color:var(--muted); font-weight:500;
+      margin-bottom:2px;
+    }
     /* Bigger tap targets — Apple HIG min is 44pt */
     .card .ptable > .pcell{ min-height: 56px; padding: 10px 10px 12px; }
     .card .ptable .val{ font-size: 13px; }
