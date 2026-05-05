@@ -112,13 +112,31 @@
   .font-picker select:focus{ outline:1px solid #fff; outline-offset:1px; }
   .toolbar{
     position:sticky; top:0; z-index:50;
-    display:flex; align-items:center; gap:12px;
+    display:none; align-items:center; gap:12px;
     padding:10px 16px;
     background:#000; color:#fff;
     font-family: var(--font-mono);
     font-size:12px; letter-spacing:.04em;
     border-bottom:1px solid #000;
   }
+  .toolbar.open{ display:flex; }
+
+  /* Floating toggle button — always visible, opens/closes the toolbar */
+  .tool-toggle{
+    position:fixed; top:12px; right:12px; z-index:60;
+    width:44px; height:44px; border-radius:50%;
+    background:#000; color:#fff; border:1px solid #fff;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-size:18px; font-family:inherit;
+    box-shadow:0 4px 12px rgba(0,0,0,.3);
+    transition: transform .15s;
+  }
+  .tool-toggle:hover{ transform:scale(1.05); }
+  .tool-toggle.open{ background:#fff; color:#000; }
+  @media print{ .tool-toggle{ display:none !important; } }
+  /* When toolbar is open, push toggle down so it doesn't overlap controls */
+  .toolbar.open ~ .tool-toggle,
+  body:has(.toolbar.open) .tool-toggle{ top: auto; bottom: 18px; }
   .toolbar .dot{width:8px;height:8px;border-radius:50%;background:#fff;display:inline-block}
   .toolbar .spacer{flex:1}
   .toolbar button{
@@ -302,20 +320,21 @@
   .grid.col-2{ grid-template-columns: repeat(2, 1fr); }
   .grid.col-4{ grid-template-columns: repeat(4, 1fr); }
 
-  /* When body has .cols-4 set, ALL .grid blocks become 4-up
-     (except the explicit col-2 ones — IPA pack stays 2-up) */
-  body.cols-4 .grid:not(.col-2){ grid-template-columns: repeat(4, 1fr); gap:12px; }
-  body.cols-3 .grid:not(.col-2){ grid-template-columns: repeat(3, 1fr); gap:14px; }
-
-  /* Tighten card chrome at 4-up so labels still fit */
-  body.cols-4 .card .info{ padding:8px 10px 10px; }
-  body.cols-4 .card .name{ font-size:13.5px; }
-  body.cols-4 .card .sub{ font-size:9px; }
-  body.cols-4 .card .ptable-head{ font-size:9px; }
-  body.cols-4 .card .ptable-head > div{ padding:6px 8px; }
-  body.cols-4 .card .ptable > .pcell{ padding:7px 8px 9px; min-height:54px; }
-  body.cols-4 .card .ptable .val{ font-size:11px; }
-  body.cols-4 .card .ptable .lbl{ font-size:8px; }
+  /* Column-toggle rules ONLY apply at desktop widths.
+     Below 901px the mobile media-query wins → always 1 column. */
+  @media screen and (min-width: 901px){
+    body.cols-4 .grid:not(.col-2){ grid-template-columns: repeat(4, 1fr); gap:12px; }
+    body.cols-3 .grid:not(.col-2){ grid-template-columns: repeat(3, 1fr); gap:14px; }
+    /* Tighten card chrome at 4-up so labels still fit */
+    body.cols-4 .card .info{ padding:8px 10px 10px; }
+    body.cols-4 .card .name{ font-size:13.5px; }
+    body.cols-4 .card .sub{ font-size:9px; }
+    body.cols-4 .card .ptable-head{ font-size:9px; }
+    body.cols-4 .card .ptable-head > div{ padding:6px 8px; }
+    body.cols-4 .card .ptable > .pcell{ padding:7px 8px 9px; min-height:54px; }
+    body.cols-4 .card .ptable .val{ font-size:11px; }
+    body.cols-4 .card .ptable .lbl{ font-size:8px; }
+  }
 
   /* Product card — unified */
   .card{
@@ -914,7 +933,9 @@
   try { window.parent.postMessage({type:'__edit_mode_available'}, '*'); } catch(e){}
 </script>
 
-<div class="toolbar">
+<button class="tool-toggle" id="tool-toggle" onclick="toggleToolbar()" title="Show / hide tools" aria-label="Toggle tools">⚙</button>
+
+<div class="toolbar" id="toolbar">
   <span class="dot"></span>
   <span>PRICE SHEET / CANNABIS CONVENTION 2026</span>
   <span class="hint">— click prices/titles to edit · hover thumbnails to replace or remove</span>
@@ -957,6 +978,22 @@
 </div>
 
 <script>
+  function toggleToolbar(){
+    const open = document.getElementById('toolbar').classList.toggle('open');
+    document.getElementById('tool-toggle').classList.toggle('open', open);
+    try { localStorage.setItem('priceSheetToolbarOpen', open ? '1' : '0'); } catch(e){}
+  }
+  window.toggleToolbar = toggleToolbar;
+  // Restore toolbar state on load (default = hidden)
+  document.addEventListener('DOMContentLoaded', () => {
+    try {
+      if (localStorage.getItem('priceSheetToolbarOpen') === '1') {
+        document.getElementById('toolbar').classList.add('open');
+        document.getElementById('tool-toggle').classList.add('open');
+      }
+    } catch(e){}
+  });
+
   function setFont(key){
     document.body.classList.remove('font-grotesk','font-archivo','font-fraunces','font-bebas','font-syne','font-manrope');
     document.body.classList.add('font-' + key);
