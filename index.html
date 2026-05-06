@@ -390,6 +390,10 @@
     body.cols-4 .card .ptable > .pcell{ padding:7px 8px 9px; min-height:54px; }
     body.cols-4 .card .ptable .val{ font-size:11px; }
     body.cols-4 .card .ptable .lbl{ font-size:8px; }
+
+    /* layout=2col — force ALL grids to 2 columns (matches Sacred 7 / Bev Bros).
+       Activated by visiting the page with ?layout=2col in the URL. */
+    body.layout-2col .grid:not(.col-2){ grid-template-columns: repeat(2, 1fr); gap:14px; }
   }
 
   /* Product card — unified */
@@ -1108,6 +1112,11 @@
       c = localStorage.getItem('priceSheetCols') || '3';
     } catch(e){}
     document.body.classList.add('font-' + f, 'cols-' + c);
+    // ?layout=2col flips every grid to 2 columns (everywhere matches Sacred 7 / Bev Bros).
+    try {
+      const q = new URLSearchParams(location.search);
+      if (q.get('layout') === '2col') document.body.classList.add('layout-2col');
+    } catch(e){}
     document.addEventListener('DOMContentLoaded', () => {
       const sf = document.getElementById('font-select'); if (sf) sf.value = f;
       const sc = document.getElementById('cols-select'); if (sc) sc.value = c;
