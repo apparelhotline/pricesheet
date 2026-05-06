@@ -1712,7 +1712,11 @@
         <div class="name" contenteditable="true" data-edit-key="${slotId}__name">${escapeHtml(p.name)}</div>
         <div class="sub" contenteditable="true" data-edit-key="${slotId}__sub">${escapeHtml(p.sub)}</div>
       </div>
-      <div class="ptable-head"><div>Cost</div><div>MSRP</div><div>Pack / QTY</div></div>
+      <div class="ptable-head">
+        <div contenteditable="true" data-edit-key="${slotId}__head_cost">Cost</div>
+        <div contenteditable="true" data-edit-key="${slotId}__head_msrp">MSRP</div>
+        <div contenteditable="true" data-edit-key="${slotId}__head_pack">Pack / QTY</div>
+      </div>
       <div class="ptable">
         <div class="pcell"><span class="lbl">Cost</span><span class="val" contenteditable="true" data-edit-key="${slotId}__cost">${escapeHtml(p.cost)}</span></div>
         <div class="pcell"><span class="lbl">MSRP</span><span class="val" contenteditable="true" data-edit-key="${slotId}__msrp">${escapeHtml(p.msrp)}</span></div>
@@ -1863,6 +1867,16 @@
       const valLabels = ['cost','msrp','pack'];
       card.querySelectorAll('.val[contenteditable]').forEach((cell, i) => {
         if (!cell.dataset.editKey) cell.dataset.editKey = baseId + '__' + (valLabels[i] || ('val' + i));
+      });
+
+      // Black header strip labels (COST · MSRP · PACK / QTY) — make editable
+      const headLabels = ['head_cost','head_msrp','head_pack'];
+      card.querySelectorAll('.ptable-head > div').forEach((cell, i) => {
+        if (!cell.dataset.editKey) {
+          cell.setAttribute('contenteditable', 'true');
+          cell.setAttribute('spellcheck', 'false');
+          cell.dataset.editKey = baseId + '__' + (headLabels[i] || ('head' + i));
+        }
       });
     });
 
