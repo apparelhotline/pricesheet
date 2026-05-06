@@ -222,19 +222,17 @@
     '  transition:border-color .12s}' +
     ':host([data-over]) .ring{border-color:#c96442}' +
     ':host([data-filled]) .ring{display:none}' +
-    // X overlay on filled thumbnails — hidden by default. Reveals on hover
-    // (desktop) OR when the slot is tapped (mobile / touch). Click X clears
-    // the image, which reveals the empty-state "browse files" link below.
-    '.x-clear{position:absolute;top:6px;right:6px;z-index:3;' +
-    '  width:24px;height:24px;border-radius:50%;padding:0;' +
-    '  background:rgba(0,0,0,.65);color:#fff;border:1px solid rgba(255,255,255,.55);' +
+    // Tiny × in the corner — hidden until hover (desktop) or tap (mobile).
+    // Minimal: no circle border, semi-transparent dark backdrop only.
+    '.x-clear{position:absolute;top:4px;right:4px;z-index:3;' +
+    '  width:20px;height:20px;border-radius:50%;padding:0;border:0;' +
+    '  background:rgba(0,0,0,.45);color:#fff;' +
     '  display:none;align-items:center;justify-content:center;cursor:pointer;' +
-    '  font:600 14px/1 system-ui,-apple-system,sans-serif;' +
-    '  -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);' +
-    '  transition:background .15s,transform .15s,opacity .15s;' +
-    '  opacity:0;animation: xclear-in .15s forwards}' +
-    '@keyframes xclear-in{to{opacity:1}}' +
-    '.x-clear:hover{background:#c00;transform:scale(1.08)}' +
+    '  font:500 13px/1 system-ui,-apple-system,sans-serif;' +
+    '  transition:background .15s,opacity .15s;' +
+    '  opacity:0;animation: xclear-in .12s forwards}' +
+    '@keyframes xclear-in{to{opacity:.85}}' +
+    '.x-clear:hover{background:rgba(204,0,0,.95);opacity:1}' +
     ':host([data-filled][data-editable]:hover) .x-clear{display:flex}' +
     ':host([data-filled][data-editable][data-x-visible]) .x-clear{display:flex}' +
     ':host([data-reframe]) .x-clear{display:none}' +
