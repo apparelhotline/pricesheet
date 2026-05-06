@@ -203,6 +203,8 @@
   }
   .toolbar button:hover{background:#fff;color:#000}
   .toolbar button.active{background:#fff;color:#000}
+  .toolbar button:disabled{opacity:.4;cursor:not-allowed}
+  .toolbar button:disabled:hover{background:transparent;color:#fff}
   .toolbar .hint{opacity:.55; font-size:11px}
 
   /* ============ EDIT MODE ============ */
@@ -1058,6 +1060,8 @@
   <span>PRICE SHEET / CANNABIS CONVENTION 2026</span>
   <span class="hint">— click prices/titles to edit · hover thumbnails to replace or remove</span>
   <span class="spacer"></span>
+  <button id="undo-btn" onclick="undoEdit()" title="Undo last text edit (Cmd/Ctrl+Z)" disabled>↶ Undo</button>
+  <button id="redo-btn" onclick="redoEdit()" title="Redo (Cmd/Ctrl+Shift+Z)" disabled>↷ Redo</button>
   <button id="edit-toggle" onclick="toggleEditMode()">Edit Layout</button>
   <button onclick="window.print()">Print / Save PDF</button>
 </div>
@@ -1965,6 +1969,75 @@
       queueSave();
     }
   }, true);
+
+  // ====== UNDO / REDO (text edits) ======
+  // Stacks live in memory — cleared on page reload. Each entry is the
+  // before/after snapshot of one editable cell.
+  const undoStack = [];
+  const redoStack = [];
+  const MAX_UNDO = 200;
+
+  function snapshotBefore(el){
+    if (el && el.dataset && el.dataset.editKey) {
+      el._undoBefore = el.textContent.trim();
+    }
+  }
+  function recordChange(el){
+    if (!el || !el.dataset || !el.dataset.editKey) return;
+    const before = el._undoBefore;
+    const after = el.textContent.trim();
+    if (before === undefined || before === after) return;
+    undoStack.push({ key: el.dataset.editKey, before, after });
+    if (undoStack.length > MAX_UNDO) undoStack.shift();
+    redoStack.length = 0;
+    updateUndoButtons();
+  }
+  function applyValue(key, value){
+    const el = document.querySelector('[data-edit-key="' + CSS.escape(key) + '"]');
+    if (el && el.textContent.trim() !== value) el.textContent = value;
+    // Also queue the worker save so the undo/redo persists for everyone
+    pending[key] = value;
+    queueSave();
+  }
+  function undoEdit(){
+    if (undoStack.length === 0) return;
+    const action = undoStack.pop();
+    applyValue(action.key, action.before);
+    redoStack.push(action);
+    updateUndoButtons();
+  }
+  function redoEdit(){
+    if (redoStack.length === 0) return;
+    const action = redoStack.pop();
+    applyValue(action.key, action.after);
+    undoStack.push(action);
+    updateUndoButtons();
+  }
+  function updateUndoButtons(){
+    const u = document.getElementById('undo-btn');
+    const r = document.getElementById('redo-btn');
+    if (u) u.disabled = undoStack.length === 0;
+    if (r) r.disabled = redoStack.length === 0;
+  }
+  window.undoEdit = undoEdit;
+  window.redoEdit = redoEdit;
+
+  document.addEventListener('focusin',  (e) => snapshotBefore(e.target));
+  document.addEventListener('focusout', (e) => recordChange(e.target));
+
+  // Keyboard shortcuts: Cmd/Ctrl+Z and Cmd/Ctrl+Shift+Z (or Ctrl+Y).
+  // Skip when focus is inside a contenteditable so the browser's native
+  // typing-level undo within that field still works.
+  document.addEventListener('keydown', (e) => {
+    const ae = document.activeElement;
+    const inEdit = ae && ae.matches && ae.matches('[contenteditable="true"]');
+    if (inEdit) return;
+    const cmd = e.metaKey || e.ctrlKey;
+    if (!cmd) return;
+    const k = (e.key || '').toLowerCase();
+    if (k === 'z' && !e.shiftKey) { e.preventDefault(); undoEdit(); }
+    else if ((k === 'z' && e.shiftKey) || k === 'y') { e.preventDefault(); redoEdit(); }
+  });
 
   // Expose flashSaved so other scripts (layout sync) can show the same chip
   window.flashSaved = flashSaved;
