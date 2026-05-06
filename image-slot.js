@@ -222,18 +222,19 @@
     '  transition:border-color .12s}' +
     ':host([data-over]) .ring{border-color:#c96442}' +
     ':host([data-filled]) .ring{display:none}' +
-    // Controls sit BELOW the mask (top:100%), absolutely positioned so the
-    // author-declared slot height is unaffected. The gap is padding, not a
-    // top offset, so the hover target stays contiguous with the frame.
-    '.ctl{position:absolute;top:100%;left:50%;transform:translateX(-50%);padding-top:8px;' +
-    '  display:flex;gap:6px;opacity:0;pointer-events:none;transition:opacity .12s;z-index:2;' +
-    '  white-space:nowrap}' +
-    ':host([data-filled][data-editable]:hover) .ctl,:host([data-reframe]) .ctl' +
-    '  {opacity:1;pointer-events:auto}' +
-    '.ctl button{appearance:none;border:0;border-radius:6px;padding:5px 10px;cursor:pointer;' +
-    '  background:rgba(0,0,0,.65);color:#fff;font:11px/1 system-ui,-apple-system,sans-serif;' +
-    '  backdrop-filter:blur(6px)}' +
-    '.ctl button:hover{background:rgba(0,0,0,.8)}' +
+    // Always-visible X overlay on filled thumbnails. Click clears the image,
+    // which reveals the empty-state "browse files" link for uploading a new one.
+    '.x-clear{position:absolute;top:6px;right:6px;z-index:3;' +
+    '  width:26px;height:26px;border-radius:50%;padding:0;' +
+    '  background:rgba(0,0,0,.65);color:#fff;border:1px solid rgba(255,255,255,.55);' +
+    '  display:none;align-items:center;justify-content:center;cursor:pointer;' +
+    '  font:600 16px/1 system-ui,-apple-system,sans-serif;' +
+    '  -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);' +
+    '  transition:background .15s,transform .15s}' +
+    '.x-clear:hover{background:#c00;transform:scale(1.08)}' +
+    ':host([data-filled][data-editable]) .x-clear{display:flex}' +
+    ':host([data-reframe]) .x-clear{display:none}' +
+    '@media print{.x-clear{display:none !important}}' +
     '.err{position:absolute;left:8px;bottom:8px;right:8px;color:#b3261e;font-size:11px;' +
     '  background:rgba(255,255,255,.85);padding:4px 6px;border-radius:5px;pointer-events:none}';
 
@@ -267,8 +268,7 @@
         '  <div class="handle" data-c="nw"></div><div class="handle" data-c="ne"></div>' +
         '  <div class="handle" data-c="sw"></div><div class="handle" data-c="se"></div>' +
         '</div>' +
-        '<div class="ctl"><button data-act="replace" title="Replace image">Replace</button>' +
-        '  <button data-act="clear" title="Remove image">Remove</button></div>' +
+        '<button class="x-clear" data-act="clear" title="Remove image" aria-label="Remove image">×</button>' +
         '<input type="file" accept="' + ACCEPT.join(',') + '" hidden>';
       this._frame = root.querySelector('.frame');
       this._ring = root.querySelector('.ring');
@@ -289,8 +289,10 @@
       this._empty.addEventListener('click', () => this._input.click());
       root.addEventListener('click', (e) => {
         const act = e.target && e.target.getAttribute && e.target.getAttribute('data-act');
-        if (act === 'replace') { this._exitReframe(true); this._input.click(); }
         if (act === 'clear') {
+          // Stop propagation so the host click (which would re-open file picker
+          // on the empty state) doesn't immediately fire after the clear.
+          e.stopPropagation();
           this._exitReframe(false);
           this._gen++;
           this._local = null;
