@@ -222,17 +222,21 @@
     '  transition:border-color .12s}' +
     ':host([data-over]) .ring{border-color:#c96442}' +
     ':host([data-filled]) .ring{display:none}' +
-    // Always-visible X overlay on filled thumbnails. Click clears the image,
-    // which reveals the empty-state "browse files" link for uploading a new one.
+    // X overlay on filled thumbnails — hidden by default. Reveals on hover
+    // (desktop) OR when the slot is tapped (mobile / touch). Click X clears
+    // the image, which reveals the empty-state "browse files" link below.
     '.x-clear{position:absolute;top:6px;right:6px;z-index:3;' +
-    '  width:26px;height:26px;border-radius:50%;padding:0;' +
+    '  width:24px;height:24px;border-radius:50%;padding:0;' +
     '  background:rgba(0,0,0,.65);color:#fff;border:1px solid rgba(255,255,255,.55);' +
     '  display:none;align-items:center;justify-content:center;cursor:pointer;' +
-    '  font:600 16px/1 system-ui,-apple-system,sans-serif;' +
+    '  font:600 14px/1 system-ui,-apple-system,sans-serif;' +
     '  -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);' +
-    '  transition:background .15s,transform .15s}' +
+    '  transition:background .15s,transform .15s,opacity .15s;' +
+    '  opacity:0;animation: xclear-in .15s forwards}' +
+    '@keyframes xclear-in{to{opacity:1}}' +
     '.x-clear:hover{background:#c00;transform:scale(1.08)}' +
-    ':host([data-filled][data-editable]) .x-clear{display:flex}' +
+    ':host([data-filled][data-editable]:hover) .x-clear{display:flex}' +
+    ':host([data-filled][data-editable][data-x-visible]) .x-clear{display:flex}' +
     ':host([data-reframe]) .x-clear{display:none}' +
     '@media print{.x-clear{display:none !important}}' +
     '.err{position:absolute;left:8px;bottom:8px;right:8px;color:#b3261e;font-size:11px;' +
@@ -296,7 +300,16 @@
           this._exitReframe(false);
           this._gen++;
           this._local = null;
+          this.removeAttribute('data-x-visible');
           if (this.id) setSlot(this.id, null); else this._render();
+          return;
+        }
+        // Tap on a filled, editable thumbnail toggles the X overlay.
+        // (Hover still reveals X automatically on devices with a real cursor.)
+        if (this.hasAttribute('data-filled') &&
+            this.hasAttribute('data-editable') &&
+            !this.hasAttribute('data-reframe')) {
+          this.toggleAttribute('data-x-visible');
         }
       });
       this._input.addEventListener('change', () => {
@@ -663,4 +676,15 @@
   if (!customElements.get('image-slot')) {
     customElements.define('image-slot', ImageSlot);
   }
+
+  // Click outside any image-slot → hide the tap-revealed X on all slots.
+  // composedPath() handles the case where the click happens inside a slot's
+  // shadow DOM (target reports as the host, but the path includes shadow
+  // descendants so contains() / direct comparison alone aren't enough).
+  document.addEventListener('click', (e) => {
+    const path = (e.composedPath && e.composedPath()) || [];
+    document.querySelectorAll('image-slot[data-x-visible]').forEach(slot => {
+      if (path.indexOf(slot) === -1) slot.removeAttribute('data-x-visible');
+    });
+  });
 })();
