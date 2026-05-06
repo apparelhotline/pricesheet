@@ -398,6 +398,54 @@
     body.layout-2col .grid:not(.col-2){ grid-template-columns: repeat(2, 1fr); gap:14px; }
   }
 
+  /* Variant pricing table — replaces single-row .ptable for products with
+     multiple sizes/SKUs. Header strip + 4 rows of (Size · Cost · MSRP). */
+  .vtable-head{
+    display:grid;
+    grid-template-columns: 1.1fr 1fr 1fr;
+    background:#000; color:#fff;
+    font-family: var(--font-mono);
+    font-size:10px; letter-spacing:.16em; text-transform:uppercase;
+    font-weight:500;
+  }
+  .vtable-head > div{
+    padding:7px 10px;
+    border-right:1px solid #2a2a2a;
+    outline:none;
+  }
+  .vtable-head > div:last-child{ border-right:0; }
+  .vtable{
+    display:flex; flex-direction:column;
+    margin-top:auto;
+  }
+  .vrow{
+    display:grid;
+    grid-template-columns: 1.1fr 1fr 1fr;
+    border-bottom:1px solid var(--hair);
+  }
+  .vrow:last-child{ border-bottom:0; }
+  .vcell{
+    padding:8px 10px;
+    border-right:1px solid var(--hair);
+    font-family: var(--font-mono);
+    font-size:12px; font-weight:600;
+    color:var(--ink);
+    outline:none;
+    display:flex; align-items:center;
+    word-break:break-word;
+    min-height:34px;
+  }
+  .vcell:last-child{ border-right:0; }
+  .vcell.vcell-size{ color:var(--ink-2); font-weight:500; }
+  /* Inverted tone overrides */
+  body.tone-inverted .vrow{ border-color:rgba(255,255,255,.15); }
+  body.tone-inverted .vcell{ color:#fff; border-color:rgba(255,255,255,.15); }
+  body.tone-inverted .vcell.vcell-size{ color:#aaa; }
+  /* Mobile: bigger tap targets */
+  @media screen and (max-width: 700px){
+    .vcell{ padding:11px 10px; min-height:42px; font-size:13px; }
+  }
+
   /* Product card — unified */
   .card{
     display:flex; flex-direction:column;
@@ -1168,11 +1216,14 @@
             <div class="name">MGM-15 Tablets · 250mg</div>
             <div class="sub">Sacred 7 · 10 ct · 25 mg / tablet</div>
           </div>
-          <div class="ptable-head"><div>Cost</div><div>MSRP</div><div>Pack / QTY</div></div>
-          <div class="ptable">
-            <div class="pcell"><span class="lbl">Cost</span><span class="val" contenteditable="true">$ —</span></div>
-            <div class="pcell"><span class="lbl">MSRP</span><span class="val" contenteditable="true">$ —</span></div>
-            <div class="pcell"><span class="lbl">Pack</span><span class="val" contenteditable="true">10 ct / box</span></div>
+          <div class="vtable-head">
+            <div>Size / QTY</div><div>Cost</div><div>MSRP</div>
+          </div>
+          <div class="vtable">
+            <div class="vrow"><span class="vcell vcell-size" contenteditable="true">10 ct / box</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">$ —</span></div>
+            <div class="vrow"><span class="vcell vcell-size" contenteditable="true">—</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">$ —</span></div>
+            <div class="vrow"><span class="vcell vcell-size" contenteditable="true">—</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">$ —</span></div>
+            <div class="vrow"><span class="vcell vcell-size" contenteditable="true">—</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">$ —</span></div>
           </div>
         </div>
 
@@ -1182,11 +1233,14 @@
             <div class="name">EPN Gummies · 2000 mcg</div>
             <div class="sub">Sacred 7 · 10 ct · 200 mcg / gummy</div>
           </div>
-          <div class="ptable-head"><div>Cost</div><div>MSRP</div><div>Pack / QTY</div></div>
-          <div class="ptable">
-            <div class="pcell"><span class="lbl">Cost</span><span class="val" contenteditable="true">$ —</span></div>
-            <div class="pcell"><span class="lbl">MSRP</span><span class="val" contenteditable="true">$ —</span></div>
-            <div class="pcell"><span class="lbl">Pack</span><span class="val" contenteditable="true">10 ct / pouch</span></div>
+          <div class="vtable-head">
+            <div>Size / QTY</div><div>Cost</div><div>MSRP</div>
+          </div>
+          <div class="vtable">
+            <div class="vrow"><span class="vcell vcell-size" contenteditable="true">10 ct / pouch</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">$ —</span></div>
+            <div class="vrow"><span class="vcell vcell-size" contenteditable="true">—</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">$ —</span></div>
+            <div class="vrow"><span class="vcell vcell-size" contenteditable="true">—</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">$ —</span></div>
+            <div class="vrow"><span class="vcell vcell-size" contenteditable="true">—</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">$ —</span></div>
           </div>
         </div>
 
@@ -1209,11 +1263,14 @@
             <div class="name">Sticky IPA · 4-Pack</div>
             <div class="sub">Bev Bros Co. · PPG Enterprise</div>
           </div>
-          <div class="ptable-head"><div>Cost</div><div>MSRP</div><div>Pack / QTY</div></div>
-          <div class="ptable">
-            <div class="pcell"><span class="lbl">Cost</span><span class="val" contenteditable="true">$ —</span></div>
-            <div class="pcell"><span class="lbl">MSRP</span><span class="val" contenteditable="true">$24.99</span></div>
-            <div class="pcell"><span class="lbl">Pack</span><span class="val" contenteditable="true">4 × 16 oz</span></div>
+          <div class="vtable-head">
+            <div>Size / QTY</div><div>Cost</div><div>MSRP</div>
+          </div>
+          <div class="vtable">
+            <div class="vrow"><span class="vcell vcell-size" contenteditable="true">4 × 16 oz</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">$24.99</span></div>
+            <div class="vrow"><span class="vcell vcell-size" contenteditable="true">—</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">$ —</span></div>
+            <div class="vrow"><span class="vcell vcell-size" contenteditable="true">—</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">$ —</span></div>
+            <div class="vrow"><span class="vcell vcell-size" contenteditable="true">—</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">$ —</span></div>
           </div>
         </div>
 
@@ -1223,11 +1280,14 @@
             <div class="name">Lucky Lager · 4-Pack</div>
             <div class="sub">Bev Bros Co. · PPG Enterprise</div>
           </div>
-          <div class="ptable-head"><div>Cost</div><div>MSRP</div><div>Pack / QTY</div></div>
-          <div class="ptable">
-            <div class="pcell"><span class="lbl">Cost</span><span class="val" contenteditable="true">$ —</span></div>
-            <div class="pcell"><span class="lbl">MSRP</span><span class="val" contenteditable="true">$24.99</span></div>
-            <div class="pcell"><span class="lbl">Pack</span><span class="val" contenteditable="true">4 × 16 oz</span></div>
+          <div class="vtable-head">
+            <div>Size / QTY</div><div>Cost</div><div>MSRP</div>
+          </div>
+          <div class="vtable">
+            <div class="vrow"><span class="vcell vcell-size" contenteditable="true">4 × 16 oz</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">$24.99</span></div>
+            <div class="vrow"><span class="vcell vcell-size" contenteditable="true">—</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">$ —</span></div>
+            <div class="vrow"><span class="vcell vcell-size" contenteditable="true">—</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">$ —</span></div>
+            <div class="vrow"><span class="vcell vcell-size" contenteditable="true">—</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">$ —</span></div>
           </div>
         </div>
 
@@ -1311,11 +1371,12 @@
             <div class="name">Puff Tuff Jar · 20 ct</div>
             <div class="sub">Hemp Label · Sativa / Hybrid / Indica</div>
           </div>
-          <div class="ptable-head"><div>Cost</div><div>MSRP</div><div>Pack / QTY</div></div>
-          <div class="ptable">
-            <div class="pcell"><span class="lbl">Cost</span><span class="val" contenteditable="true">$ —</span></div>
-            <div class="pcell"><span class="lbl">MSRP</span><span class="val" contenteditable="true">$ —</span></div>
-            <div class="pcell"><span class="lbl">QTY</span><span class="val" contenteditable="true">20 / jar</span></div>
+          <div class="vtable-head"><div>Size / QTY</div><div>Cost</div><div>MSRP</div></div>
+          <div class="vtable">
+            <div class="vrow"><span class="vcell vcell-size" contenteditable="true">20 / jar</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">$ —</span></div>
+            <div class="vrow"><span class="vcell vcell-size" contenteditable="true">—</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">$ —</span></div>
+            <div class="vrow"><span class="vcell vcell-size" contenteditable="true">—</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">$ —</span></div>
+            <div class="vrow"><span class="vcell vcell-size" contenteditable="true">—</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">$ —</span></div>
           </div>
         </div>
         <div class="card" data-card>
@@ -1324,11 +1385,12 @@
             <div class="name">Puff Tuff Jar · 40 ct</div>
             <div class="sub">Hemp Label · Sativa / Hybrid / Indica</div>
           </div>
-          <div class="ptable-head"><div>Cost</div><div>MSRP</div><div>Pack / QTY</div></div>
-          <div class="ptable">
-            <div class="pcell"><span class="lbl">Cost</span><span class="val" contenteditable="true">$ —</span></div>
-            <div class="pcell"><span class="lbl">MSRP</span><span class="val" contenteditable="true">$ —</span></div>
-            <div class="pcell"><span class="lbl">QTY</span><span class="val" contenteditable="true">40 / jar</span></div>
+          <div class="vtable-head"><div>Size / QTY</div><div>Cost</div><div>MSRP</div></div>
+          <div class="vtable">
+            <div class="vrow"><span class="vcell vcell-size" contenteditable="true">40 / jar</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">$ —</span></div>
+            <div class="vrow"><span class="vcell vcell-size" contenteditable="true">—</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">$ —</span></div>
+            <div class="vrow"><span class="vcell vcell-size" contenteditable="true">—</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">$ —</span></div>
+            <div class="vrow"><span class="vcell vcell-size" contenteditable="true">—</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">$ —</span></div>
           </div>
         </div>
         <div class="card" data-card>
@@ -1337,11 +1399,12 @@
             <div class="name">Puff Tuff · Custom Pack</div>
             <div class="sub">Specify on order</div>
           </div>
-          <div class="ptable-head"><div>Cost</div><div>MSRP</div><div>Pack / QTY</div></div>
-          <div class="ptable">
-            <div class="pcell"><span class="lbl">Cost</span><span class="val" contenteditable="true">$ —</span></div>
-            <div class="pcell"><span class="lbl">MSRP</span><span class="val" contenteditable="true">$ —</span></div>
-            <div class="pcell"><span class="lbl">QTY</span><span class="val" contenteditable="true">— / jar</span></div>
+          <div class="vtable-head"><div>Size / QTY</div><div>Cost</div><div>MSRP</div></div>
+          <div class="vtable">
+            <div class="vrow"><span class="vcell vcell-size" contenteditable="true">— / jar</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">$ —</span></div>
+            <div class="vrow"><span class="vcell vcell-size" contenteditable="true">—</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">$ —</span></div>
+            <div class="vrow"><span class="vcell vcell-size" contenteditable="true">—</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">$ —</span></div>
+            <div class="vrow"><span class="vcell vcell-size" contenteditable="true">—</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">$ —</span></div>
           </div>
         </div>
       </div>
@@ -1507,11 +1570,12 @@
           <div class="name">${s.name}</div>
           <div class="sub">Goldy's Flower${s.tag ? ' · ' + s.tag : ''}</div>
         </div>
-        <div class="ptable-head"><div>Cost</div><div>MSRP</div><div>Pack / QTY</div></div>
-        <div class="ptable">
-          <div class="pcell"><span class="lbl">Cost / ⅛</span><span class="val" contenteditable="true">$ —</span></div>
-          <div class="pcell"><span class="lbl">MSRP / ⅛</span><span class="val" contenteditable="true">${s.msrp}</span></div>
-          <div class="pcell"><span class="lbl">MOQ</span><span class="val" contenteditable="true">— g</span></div>
+        <div class="vtable-head"><div>Size</div><div>Cost</div><div>MSRP</div></div>
+        <div class="vtable">
+          <div class="vrow"><span class="vcell vcell-size" contenteditable="true">3.5g</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">${s.msrp}</span></div>
+          <div class="vrow"><span class="vcell vcell-size" contenteditable="true">7g</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">$ —</span></div>
+          <div class="vrow"><span class="vcell vcell-size" contenteditable="true">14g</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">$ —</span></div>
+          <div class="vrow"><span class="vcell vcell-size" contenteditable="true">28g</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">$ —</span></div>
         </div>
       </div>
     `);
@@ -1537,11 +1601,12 @@
           <div class="name">${g.name}</div>
           <div class="sub">Goldy's · ${g.sub}</div>
         </div>
-        <div class="ptable-head"><div>Cost</div><div>MSRP</div><div>Pack / QTY</div></div>
-        <div class="ptable">
-          <div class="pcell"><span class="lbl">Cost</span><span class="val" contenteditable="true">$ —</span></div>
-          <div class="pcell"><span class="lbl">MSRP</span><span class="val" contenteditable="true">${g.msrp}</span></div>
-          <div class="pcell"><span class="lbl">QTY</span><span class="val" contenteditable="true">— / pouch</span></div>
+        <div class="vtable-head"><div>Size / QTY</div><div>Cost</div><div>MSRP</div></div>
+        <div class="vtable">
+          <div class="vrow"><span class="vcell vcell-size" contenteditable="true">— / pouch</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">${g.msrp}</span></div>
+          <div class="vrow"><span class="vcell vcell-size" contenteditable="true">—</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">$ —</span></div>
+          <div class="vrow"><span class="vcell vcell-size" contenteditable="true">—</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">$ —</span></div>
+          <div class="vrow"><span class="vcell vcell-size" contenteditable="true">—</span><span class="vcell" contenteditable="true">$ —</span><span class="vcell" contenteditable="true">$ —</span></div>
         </div>
       </div>
     `);
@@ -1727,15 +1792,32 @@
         <div class="name" contenteditable="true" data-edit-key="${slotId}__name">${escapeHtml(p.name)}</div>
         <div class="sub" contenteditable="true" data-edit-key="${slotId}__sub">${escapeHtml(p.sub)}</div>
       </div>
-      <div class="ptable-head">
-        <div contenteditable="true" data-edit-key="${slotId}__head_cost">Cost</div>
-        <div contenteditable="true" data-edit-key="${slotId}__head_msrp">MSRP</div>
-        <div contenteditable="true" data-edit-key="${slotId}__head_pack">Pack / QTY</div>
+      <div class="vtable-head">
+        <div contenteditable="true" data-edit-key="${slotId}__vhead_size">Size / QTY</div>
+        <div contenteditable="true" data-edit-key="${slotId}__vhead_cost">Cost</div>
+        <div contenteditable="true" data-edit-key="${slotId}__vhead_msrp">MSRP</div>
       </div>
-      <div class="ptable">
-        <div class="pcell"><span class="lbl">Cost</span><span class="val" contenteditable="true" data-edit-key="${slotId}__cost">${escapeHtml(p.cost)}</span></div>
-        <div class="pcell"><span class="lbl">MSRP</span><span class="val" contenteditable="true" data-edit-key="${slotId}__msrp">${escapeHtml(p.msrp)}</span></div>
-        <div class="pcell"><span class="lbl">Pack</span><span class="val" contenteditable="true" data-edit-key="${slotId}__pack">${escapeHtml(p.pack)}</span></div>
+      <div class="vtable">
+        <div class="vrow">
+          <span class="vcell vcell-size" contenteditable="true" data-edit-key="${slotId}__var1_size">${escapeHtml(p.pack)}</span>
+          <span class="vcell" contenteditable="true" data-edit-key="${slotId}__var1_cost">${escapeHtml(p.cost)}</span>
+          <span class="vcell" contenteditable="true" data-edit-key="${slotId}__var1_msrp">${escapeHtml(p.msrp)}</span>
+        </div>
+        <div class="vrow">
+          <span class="vcell vcell-size" contenteditable="true" data-edit-key="${slotId}__var2_size">—</span>
+          <span class="vcell" contenteditable="true" data-edit-key="${slotId}__var2_cost">$ —</span>
+          <span class="vcell" contenteditable="true" data-edit-key="${slotId}__var2_msrp">$ —</span>
+        </div>
+        <div class="vrow">
+          <span class="vcell vcell-size" contenteditable="true" data-edit-key="${slotId}__var3_size">—</span>
+          <span class="vcell" contenteditable="true" data-edit-key="${slotId}__var3_cost">$ —</span>
+          <span class="vcell" contenteditable="true" data-edit-key="${slotId}__var3_msrp">$ —</span>
+        </div>
+        <div class="vrow">
+          <span class="vcell vcell-size" contenteditable="true" data-edit-key="${slotId}__var4_size">—</span>
+          <span class="vcell" contenteditable="true" data-edit-key="${slotId}__var4_cost">$ —</span>
+          <span class="vcell" contenteditable="true" data-edit-key="${slotId}__var4_msrp">$ —</span>
+        </div>
       </div>
     `;
     // insert before the add-card tile
@@ -1866,10 +1948,57 @@
     });
   }
 
+  // Migrate any card still using the old single-row .ptable structure into
+  // the new 4-variant .vtable structure. Idempotent (skips if already migrated).
+  // Old values (cost / msrp / pack) get preserved in variant-1 of the new table.
+  function escapeText(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function migrateCardToVariants(card){
+    if (card.querySelector('.vtable')) return;
+    const oldTable = card.querySelector('.ptable');
+    if (!oldTable) return;
+    const oldHead  = card.querySelector('.ptable-head');
+    const slot = card.querySelector('image-slot');
+    const slotId = (slot && slot.id) || 'anon';
+
+    const vals = [...oldTable.querySelectorAll('.val')].map(v => v.textContent.trim());
+    const cost = vals[0] || '$ —';
+    const msrp = vals[1] || '$ —';
+    const pack = vals[2] || '—';
+    const variants = [
+      { size: pack, cost: cost, msrp: msrp },
+      { size: '—', cost: '$ —', msrp: '$ —' },
+      { size: '—', cost: '$ —', msrp: '$ —' },
+      { size: '—', cost: '$ —', msrp: '$ —' },
+    ];
+    const rowsHTML = variants.map((v, i) => {
+      const n = i + 1;
+      return '<div class="vrow">' +
+        '<span class="vcell vcell-size" contenteditable="true" data-edit-key="' + slotId + '__var' + n + '_size">' + escapeText(v.size) + '</span>' +
+        '<span class="vcell" contenteditable="true" data-edit-key="' + slotId + '__var' + n + '_cost">' + escapeText(v.cost) + '</span>' +
+        '<span class="vcell" contenteditable="true" data-edit-key="' + slotId + '__var' + n + '_msrp">' + escapeText(v.msrp) + '</span>' +
+      '</div>';
+    }).join('');
+
+    const newHeadHTML =
+      '<div class="vtable-head">' +
+        '<div contenteditable="true" data-edit-key="' + slotId + '__vhead_size">Size / QTY</div>' +
+        '<div contenteditable="true" data-edit-key="' + slotId + '__vhead_cost">Cost</div>' +
+        '<div contenteditable="true" data-edit-key="' + slotId + '__vhead_msrp">MSRP</div>' +
+      '</div>';
+    if (oldHead) oldHead.outerHTML = newHeadHTML;
+    oldTable.outerHTML = '<div class="vtable">' + rowsHTML + '</div>';
+  }
+  window.migrateCardToVariants = migrateCardToVariants;
+
   // Tag every editable element with a stable key so its value can be
   // saved/restored across visitors.
   function tagEditable(){
     document.querySelectorAll('[data-card]').forEach(card => {
+      // Convert any leftover old-structure card to the new variant table first
+      migrateCardToVariants(card);
+
       const slot = card.querySelector('image-slot');
       const baseId = (slot && slot.id) || ('anon-' + Array.from(card.parentNode.children).indexOf(card));
 
@@ -1879,12 +2008,34 @@
       const sub = card.querySelector('.sub[contenteditable]');
       if (sub && !sub.dataset.editKey) sub.dataset.editKey = baseId + '__sub';
 
+      // Variant table rows (4 rows × Size / Cost / MSRP)
+      const vrowLabels = ['size','cost','msrp'];
+      card.querySelectorAll('.vtable .vrow').forEach((row, ri) => {
+        const cells = row.querySelectorAll('.vcell');
+        cells.forEach((cell, ci) => {
+          if (!cell.dataset.editKey) {
+            cell.setAttribute('contenteditable', 'true');
+            cell.setAttribute('spellcheck', 'false');
+            cell.dataset.editKey = baseId + '__var' + (ri + 1) + '_' + (vrowLabels[ci] || ('col' + ci));
+          }
+        });
+      });
+
+      // Variant table header strip
+      const vheadLabels = ['vhead_size','vhead_cost','vhead_msrp'];
+      card.querySelectorAll('.vtable-head > div').forEach((cell, i) => {
+        if (!cell.dataset.editKey) {
+          cell.setAttribute('contenteditable', 'true');
+          cell.setAttribute('spellcheck', 'false');
+          cell.dataset.editKey = baseId + '__' + (vheadLabels[i] || ('vhead' + i));
+        }
+      });
+
+      // Backward-compat: also tag any leftover old-structure cells we didn't migrate
       const valLabels = ['cost','msrp','pack'];
       card.querySelectorAll('.val[contenteditable]').forEach((cell, i) => {
         if (!cell.dataset.editKey) cell.dataset.editKey = baseId + '__' + (valLabels[i] || ('val' + i));
       });
-
-      // Black header strip labels (COST · MSRP · PACK / QTY) — make editable
       const headLabels = ['head_cost','head_msrp','head_pack'];
       card.querySelectorAll('.ptable-head > div').forEach((cell, i) => {
         if (!cell.dataset.editKey) {
@@ -1916,6 +2067,31 @@
         if (el && el.textContent.trim() !== value) {
           el.textContent = value;
           applied++;
+        }
+      });
+      // Backward-compat: route old single-row keys into new variant-1 cells
+      // so customer's prior Cost/MSRP/Pack edits still appear after migration.
+      const oldToNew = {
+        '__cost': '__var1_cost',
+        '__msrp': '__var1_msrp',
+        '__pack': '__var1_size',
+        '__head_cost': '__vhead_cost',
+        '__head_msrp': '__vhead_msrp',
+        '__head_pack': '__vhead_size',
+      };
+      const placeholderTexts = new Set(['$ —', '—', '', 'Cost', 'MSRP', 'Pack / QTY', 'Size / QTY']);
+      Object.entries(edits).forEach(([key, value]) => {
+        if (typeof value !== 'string') return;
+        for (const [oldSfx, newSfx] of Object.entries(oldToNew)) {
+          if (key.endsWith(oldSfx) && key.indexOf('__var') === -1 && key.indexOf('__vhead') === -1) {
+            const newKey = key.slice(0, -oldSfx.length) + newSfx;
+            const el = document.querySelector('[data-edit-key="' + CSS.escape(newKey) + '"]');
+            // Only override if the cell is still showing its placeholder
+            if (el && placeholderTexts.has(el.textContent.trim())) {
+              el.textContent = value;
+              applied++;
+            }
+          }
         }
       });
       if (applied) console.log('[edits] applied', applied, 'saved values');
