@@ -124,8 +124,8 @@ function importFromBackup() {
   }
 
   // Find the backup tab (try common name variants)
-  const candidateNames = ['Order backup', 'order backup', 'ORDER BACKUP', 'Orders Backup',
-                           'Backup', 'BACKUP', 'Order Backup'];
+  const candidateNames = ['ORDERS BACKUP', 'Order backup', 'order backup', 'ORDER BACKUP',
+                           'Orders Backup', 'Backup', 'BACKUP', 'Order Backup'];
   let backupSheet = null;
   for (const name of candidateNames) {
     backupSheet = ss.getSheetByName(name);
