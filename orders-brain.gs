@@ -2,18 +2,24 @@
  * ORDERS brain — single Apps Script that owns the ORDERS tab.
  * Paste this into your "ORDERS auto-mover" project (replace Code.gs entirely).
  *
+ * THE RULE (from Matt): an order is OPEN until it gets a TRACKING NUMBER. Once tracking
+ * appears, the order is done and should leave ORDERS (move to COMPLETED). That's the only
+ * signal we trust — no guessing Etsy's "open" count.
+ *
  * Responsibilities:
  *   - onSheetChange  -> processNewRows(): formats NEW rows (TYPE classify, order-ID
- *                       hyperlink, DETAILS rebuild) and removes duplicates. (your old logic,
- *                       MINUS the hard 5/20 date-delete that was deleting synced orders)
- *   - runMaintenance -> reconcileWithEtsy() + buildDashboard(), on a 30-min time trigger:
- *       reconcileWithEtsy(): moves orders NO LONGER OPEN on Etsy to COMPLETED, so ORDERS
- *                            matches Etsy's open set. Driven by the RECON tab (Make keeps it
- *                            fresh every 2h with "#<receipt_id>" of every open Etsy order).
- *       buildDashboard():    rewrites the DASHBOARD tab + the mobile HTML cell (DASHBOARD!Z1).
+ *                       hyperlink, DETAILS rebuild) and removes duplicates.
+ *   - runMaintenance -> archiveShipped() + buildDashboard(), on a 30-min time trigger:
+ *       archiveShipped():  moves any ORDERS row that has a TRACKING NUMBER to COMPLETED.
+ *                          Tracking comes from the row itself OR from the RECON tab, which
+ *                          Make refreshes every 2h ("ETSY tracking snapshot" writes
+ *                          "#<receipt_id> | <tracking_code>" for every Etsy order that has
+ *                          a tracking number).
+ *       buildDashboard():  rewrites the DASHBOARD tab + the mobile HTML cell (DASHBOARD!Z1).
+ *   - enforceBaseline(): ONE-TIME reset — archives every ORDERS row whose order id is NOT in
+ *                        BASELINE_OPEN_IDS (Matt's authoritative open list). Run it once.
  *
- * SAFETY: reconcile skips entirely if RECON looks empty/short (MIN_OPEN), never archives
- * orders newer than RECENT_DAYS, and MOVES rows to COMPLETED (never hard-deletes data).
+ * SAFETY: everything MOVES rows to COMPLETED (never hard-deletes order data).
  *
  * TRIGGERS (set once under the clock icon):
  *   - From spreadsheet -> On change  -> processNewRows
@@ -22,12 +28,32 @@
 
 var SHEET_ID = '1ysZPOFHIwNATn8rrUwiy9Y-G3-nbDwcUxMxoMUXTTys';
 var SHEET_NAME = 'ORDERS';
-var RECON_NAME = 'RECON';
+var RECON_NAME = 'RECON';   // tracking snapshot: col A = "#<receipt_id>", col B = tracking_code
 var COMPLETED_NAME = 'COMPLETED';
 var DASH_NAME = 'DASHBOARD';
 var COLS = 17;
-var MIN_OPEN = 40;     // skip reconcile if RECON has fewer open ids than this (safety)
-var RECENT_DAYS = 2;   // never archive orders newer than this many days (protect fresh syncs)
+var TRACKING_COL = 14;      // ORDERS column N = TRACKING NUMBER (1-indexed)
+
+// Matt's authoritative OPEN order ids (no "#"). enforceBaseline() keeps ONLY these on ORDERS.
+var BASELINE_OPEN_IDS = [
+  '4045577683','4069227121','4063439494','4069465673','4064348090','4064350962','4070237529',
+  '4070578707','4064941130','4070743459','4070775337','4070801185','4065059854','4065102302',
+  '4070948509','4065464016','4065476462','4071203671','4071302743','4071408039','4071533731',
+  '4065967318','4066040764','4066046314','4033631855','4057814692','4063334863','4058900066',
+  '4060625276','4052224754','4055016994','4062443129','4057104846','4058509066','4064727187',
+  '4059217178','4065336757','4059774174','4060498302','4067172945','4061575796','4067754001',
+  '4062014798','4067780193','4067787513','4062940408','4068717157','4063141150','4063988204',
+  '4070556053','4070784409','4021780193','4030658698','4042939743','4047382911','4048987702',
+  '4049203716','4052122678','4059475133','4060814509','4061232307','4057081922','4066657771',
+  '4068665001','4042985289','4044176323','4049149995','4047587142','4054939447','4050574662',
+  '4057396911','4058556797','4058652119','4054041360','4059583143','4055058078','4060346405',
+  '4055253480','4061402313','4056792786','4062146099','4062313847','4062602451','4062851107',
+  '4062876917','4057512656','4063284829','4063353671','4057969332','4059215434','4065171735',
+  '4065434369','4065997931','4060377810','4066058367','4066331201','4066487539','4066886485',
+  '4067088807','4061595360','4061677934','4062070534','4067920207','4062495300','4062544590',
+  '4063237742','4063261980','4069152611','4070120771','4017426432','4047280571','4049069419',
+  '4044461256','4049924665','4053907369','4064497307','4061002356','4068149013','4069976015'
+];
 
 var BOLD_LABELS = ['FRONT:','BACK:','LEFT:','RIGHT:','L SLEEVE:','R SLEEVE:','SHIRT:','SHORTS:','FONT:','THREAD:','ADDITIONAL NOTES:'];
 var ETSY_MSG_REGEX = /(ETSY\s+MESSAGES?|IN\s+MESSAGES?|VIA\s+MESSAGES?|ETSY\s+CHAT|SEE\s+ETSY\s+MESSAGES|ETSY\s+DM)/g;
@@ -41,7 +67,7 @@ var HEADERS = ['STATUS','ORDER ID','ORDERED','ITEM NAME','TYPE','SKU','QTY','COL
 function onSheetChange(e) { processNewRows(); }
 
 function runMaintenance() {
-  reconcileWithEtsy();
+  archiveShipped();
   buildDashboard();
 }
 
@@ -78,41 +104,37 @@ function processNewRows() {
   if (changed || rowsToDelete.length > 0) sortByOrdered(sh);
 }
 
-// ─── reconcile vs Etsy open set (RECON) → archive closed orders ───────────────
+// ─── archive shipped orders (anything with a tracking number) → COMPLETED ─────
 
-function reconcileWithEtsy() {
+function archiveShipped() {
   var ss = SpreadsheetApp.openById(SHEET_ID);
   var sh = ss.getSheetByName(SHEET_NAME);
-  var recon = ss.getSheetByName(RECON_NAME);
-  if (!sh || !recon) return;
+  if (!sh) return;
 
-  var open = {}, openCount = 0;
-  var rLast = recon.getLastRow();
-  if (rLast >= 1) {
-    recon.getRange(1, 1, rLast, 1).getValues().forEach(function (row) {
-      var v = String(row[0] || '').trim();
-      if (v.charAt(0) === '#') { open[v] = true; openCount++; }
+  // tracking map from the RECON snapshot (id -> tracking_code), if present
+  var trackMap = {};
+  var recon = ss.getSheetByName(RECON_NAME);
+  if (recon && recon.getLastRow() >= 1) {
+    recon.getRange(1, 1, recon.getLastRow(), 2).getValues().forEach(function (row) {
+      var id = String(row[0] || '').trim();
+      var trk = String(row[1] || '').trim();
+      if (id.charAt(0) === '#' && trk) trackMap[id] = trk;
     });
   }
-  if (openCount < MIN_OPEN) { Logger.log('reconcile: RECON only ' + openCount + ' (<' + MIN_OPEN + '); skip'); return; }
 
   var last = sh.getLastRow();
   if (last < 2) return;
-  var ids = sh.getRange(2, 2, last - 1, 1).getValues();      // ORDER ID (col B)
-  var ordered = sh.getRange(2, 3, last - 1, 1).getValues();  // ORDERED (col C)
-  var cutoff = new Date(); cutoff.setDate(cutoff.getDate() - RECENT_DAYS);
+  var data = sh.getRange(2, 1, last - 1, COLS).getValues();
 
-  var toArchive = [];
-  for (var i = 0; i < ids.length; i++) {
-    var id = String(ids[i][0] || '').trim();
+  var toArchive = [];   // { row, vals }
+  for (var i = 0; i < data.length; i++) {
+    var id = String(data[i][1] || '').trim();
     if (!id) continue;
-    if (open[id]) continue;                         // still open on Etsy -> keep
-    var od = ordered[i][0];
-    var d = (od instanceof Date) ? od : (od ? new Date(od) : null);
-    if (d && !isNaN(d.getTime()) && d > cutoff) continue;  // too new -> protect
-    toArchive.push(i + 2);                          // sheet row number
+    var trk = String(data[i][TRACKING_COL - 1] || '').trim();
+    if (!trk && trackMap[id]) { trk = trackMap[id]; data[i][TRACKING_COL - 1] = trk; } // fill from snapshot
+    if (trk) toArchive.push({ row: i + 2, vals: data[i] });
   }
-  if (!toArchive.length) { Logger.log('reconcile: nothing to archive'); return; }
+  if (!toArchive.length) { Logger.log('archiveShipped: nothing to archive'); return; }
 
   var completed = ss.getSheetByName(COMPLETED_NAME);
   if (!completed) {
@@ -120,13 +142,59 @@ function reconcileWithEtsy() {
     completed.getRange(1, 1, 1, COLS).setValues([HEADERS]).setFontWeight('bold');
     completed.setFrozenRows(1);
   }
-  toArchive.sort(function (a, b) { return b - a; });   // delete bottom-up
-  toArchive.forEach(function (rn) {
-    var vals = sh.getRange(rn, 1, 1, COLS).getValues();
-    completed.getRange(completed.getLastRow() + 1, 1, 1, COLS).setValues(vals);
-    sh.deleteRow(rn);
+  toArchive.sort(function (a, b) { return b.row - a.row; });   // delete bottom-up
+  toArchive.forEach(function (item) {
+    completed.getRange(completed.getLastRow() + 1, 1, 1, COLS).setValues([item.vals]);
+    sh.deleteRow(item.row);
   });
-  Logger.log('reconcile: archived ' + toArchive.length + ' closed order(s)');
+  Logger.log('archiveShipped: archived ' + toArchive.length + ' shipped line item(s)');
+}
+
+// ─── ONE-TIME baseline reset: keep ONLY the authoritative open ids on ORDERS ───
+
+function enforceBaseline() {
+  var ss = SpreadsheetApp.openById(SHEET_ID);
+  var sh = ss.getSheetByName(SHEET_NAME);
+  if (!sh) return;
+
+  var keep = {};
+  BASELINE_OPEN_IDS.forEach(function (id) { keep['#' + String(id).replace(/^#/, '').trim()] = true; });
+
+  var last = sh.getLastRow();
+  if (last < 2) return;
+  var data = sh.getRange(2, 1, last - 1, COLS).getValues();
+
+  var present = {}, toArchive = [];
+  for (var i = 0; i < data.length; i++) {
+    var id = String(data[i][1] || '').trim();
+    if (!id) continue;
+    present[id] = true;
+    if (!keep[id]) toArchive.push({ row: i + 2, vals: data[i] });
+  }
+
+  var missing = Object.keys(keep).filter(function (k) { return !present[k]; });
+  if (missing.length) Logger.log('enforceBaseline: WARNING ' + missing.length + ' baseline id(s) NOT on ORDERS: ' + missing.join(', '));
+
+  if (toArchive.length) {
+    var completed = ss.getSheetByName(COMPLETED_NAME);
+    if (!completed) {
+      completed = ss.insertSheet(COMPLETED_NAME);
+      completed.getRange(1, 1, 1, COLS).setValues([HEADERS]).setFontWeight('bold');
+      completed.setFrozenRows(1);
+    }
+    toArchive.sort(function (a, b) { return b.row - a.row; });
+    toArchive.forEach(function (item) {
+      completed.getRange(completed.getLastRow() + 1, 1, 1, COLS).setValues([item.vals]);
+      sh.deleteRow(item.row);
+    });
+  }
+
+  buildDashboard();
+  Logger.log('enforceBaseline: archived ' + toArchive.length + ' non-baseline row(s); ' +
+             missing.length + ' baseline id(s) missing from sheet');
+  ss.toast('Baseline set. Archived ' + toArchive.length + ' non-open row(s). ' +
+           (missing.length ? missing.length + ' baseline id(s) MISSING — see log.' : 'All 119 present.'),
+           'enforceBaseline', 8);
 }
 
 // ─── dashboard + mobile HTML ──────────────────────────────────────────────────

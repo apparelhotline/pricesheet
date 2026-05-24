@@ -14,6 +14,10 @@ This repo backs an Etsy order-management workflow built on **Make.com + a Google
 ## Standing preferences (remember these)
 
 - **ALWAYS reconcile** so the Google Sheet matches the Etsy orders dashboard — both directions, automatically. Add missing open orders; archive (move to COMPLETED) orders that are no longer open on Etsy.
+- **DEFINITION OF OPEN (authoritative, from Matt 2026-05-24):** an order is OPEN until it gets a
+  **tracking number**; once tracking appears it's done → archive to COMPLETED. This is the ONLY
+  open/closed signal we trust. Do NOT use Etsy's `was_shipped` flag — it returned 145 when the
+  dashboard showed 119 open (≈26 had tracking but `was_shipped:false`).
 - **Act autonomously — do NOT stop to ask for confirmation or give recommendations mid-task.** Just build it as correct and stable as possible, fix all bugs, then report what was done.
 - **NO Etsy API key.** The user does not have / will not create an Etsy developer key (avoiding account flags). Etsy data must come ONLY through the existing authorized Make Etsy connection (conn 4725481). Never build anything that needs a raw Etsy API key.
 - New orders synced from Etsy are tagged STATUS = `NEW`.
@@ -34,27 +38,36 @@ This repo backs an Etsy order-management workflow built on **Make.com + a Google
 - The ORDERS tab is a Google Sheets **Table object** — this can make appended rows land
   outside the table; prefer a plain range + STATUS data-validation dropdown.
 
-## Final architecture (one brain owns ORDERS)
+## Final architecture (one brain owns ORDERS) — rev 2026-05-24 (tracking-based)
+
+Matt supplied an authoritative list of **119 open order ids** (the only thing that should be
+on ORDERS as of 2026-05-24). The old `was_shipped`-based RECON snapshot over-counted to 145,
+so the whole open/closed model switched to **tracking-number-based**.
 
 - **Make = Etsy feeder ONLY** (holds the Etsy OAuth, never deletes):
-  - `ETSY -> ORDERS live sync (15-min, append)` (id 4749764): appends new open Etsy orders to ORDERS (tagged NEW).
-  - `RECON: refresh Etsy open snapshot (2h)` (id 4749776): clears RECON!A, writes `#<receipt_id>` for every open Etsy order.
-  - `RECON: add missing open orders (getReceipt)` (id 4749779, every 2h): self-healing backfill.
-    Writes a scalar `TEXTJOIN` of RECON ids not yet in ORDERS to `RECON!H2`, reads it back,
-    `split`s it into an array, and for each id calls `etsy:getReceipt` → appends every
-    transaction (line item) to ORDERS as STATUS=NEW. Cheap (~6 ops) when nothing is missing.
-    This closed the original 50-order gap (ORDERS went 95→145 unique, matching Etsy open=145).
+  - `ETSY -> ORDERS live sync (15-min, append)` (id 4749764): appends NEW open Etsy orders
+    (tagged NEW). Filter now requires the receipt to have **no tracking_code** (truly open)
+    AND not already in ORDERS.
+  - `ETSY tracking snapshot (2h)` (id 4749776): clears `RECON!A:B`, then for every Etsy receipt
+    that HAS a tracking number writes `#<receipt_id> | <tracking_code>`. (This is the renamed/
+    repurposed old "open snapshot" — RECON now means the **shipped/tracking** map, col A=id,
+    col B=tracking.)
   - `Mobile Dashboard - serve HTML` (id 4749749, hook 2725745): webhook returns DASHBOARD!Z1.
     URL: https://hook.us1.make.com/q3wdjh2el239v8qjzi2nvqbtb8uqvqhy
+  - DELETED: `RECON: add missing open orders (getReceipt)` (was 4749779) and the old open-set
+    snapshot — both caused the 145 over-count. Do not recreate.
 - **`orders-brain.gs` = the single ORDERS manager** (paste into the "ORDERS auto-mover"
   project, replacing Code.gs):
-  - `processNewRows` (on-change): format + dedupe new rows. **The 5/20 date-delete is removed.**
-  - `runMaintenance` (30-min time trigger): `reconcileWithEtsy()` moves orders not in RECON
-    (closed on Etsy) to COMPLETED with safety guards; `buildDashboard()` rewrites DASHBOARD + Z1.
-- Decision taken: **match Etsy's full open set** (no date cutoff) — reconcile via RECON.
+  - `processNewRows` (on-change): format + dedupe new rows.
+  - `runMaintenance` (30-min trigger): `archiveShipped()` moves any ORDERS row that has a
+    tracking number (its own col N, or matched in the RECON tracking map) → COMPLETED;
+    `buildDashboard()` rewrites DASHBOARD + Z1.
+  - `enforceBaseline()`: ONE-TIME — archives every ORDERS row whose id is NOT in
+    `BASELINE_OPEN_IDS` (the 119). Run once to set the baseline. Logs any of the 119 missing
+    from the sheet (would need an Etsy backfill).
 
-Loop: Make appends open Etsy orders + snapshots them in RECON → orders-brain formats &
-archives everything no longer open → ORDERS == Etsy's open set. One writer, no tug-of-war.
+Loop: Make adds new no-tracking orders + snapshots tracking → orders-brain archives anything
+that has a tracking number → ORDERS == open (untracked) orders. One writer, no tug-of-war.
 
 ## Make.com gotchas learned the hard way
 
