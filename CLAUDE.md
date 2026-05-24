@@ -19,24 +19,37 @@ This repo backs an Etsy order-management workflow built on **Make.com + a Google
 - New orders synced from Etsy are tagged STATUS = `NEW`.
 - Quantities: the QTY column is usually blank, so "qty to order" = count of line items per item/color/size.
 
-## Final architecture (stable split)
+## Actual setup (discovered 2026-05-24)
 
-Make is unreliable for sheet logic (silent `addRow` drops, JSON-escaping breaks on
-special chars, opaque per-run behavior, webhook bindings break on edit). So:
+- The Google Sheet is titled **"ETSY ORDERS"** (id 1ysZ…). Its tabs are **ORDERS,
+  DASHBOARD, Backup, RECON** — the working tab is `ORDERS` (NOT a tab named "ETSY ORDERS").
+- The user has two Apps Script projects:
+  - **"ETSY ORDERS" / `untitled.gs`** (`syncEtsySheet`): points at a tab named "ETSY ORDERS"
+    that does not exist → throws and does nothing. **Legacy — delete this project.**
+  - **"ORDERS auto-mover" / `Code.gs`** (`processNewRows`, on-change trigger): the REAL
+    manager of ORDERS. Formats rows (classifyType→TYPE, hyperlinks ORDER ID, rebuilds the
+    DETAILS cell with bold labels + image links), dedupes, sorts. It ALSO deleted any order
+    dated before `MIN_ORDERED_DATE = 2026-05-20` — **that hard date-delete was silently
+    deleting Make-synced orders and caused all the count churn.**
+- The ORDERS tab is a Google Sheets **Table object** — this can make appended rows land
+  outside the table; prefer a plain range + STATUS data-validation dropdown.
 
-- **Make = Etsy bridge ONLY** (it holds the Etsy OAuth):
-  - `ETSY -> ORDERS live sync (15-min, append)` (id 4749764): pulls last 45 min of Etsy
-    orders, `:append`s new ones to ORDERS (deduped, tagged NEW).
-  - `RECON: refresh Etsy open snapshot (2h)` (id 4749776): clears RECON!A then writes
-    `#<receipt_id>` for every currently-open Etsy order.
-  - `Mobile Dashboard - serve HTML` (id 4749749, hook 2725745): webhook returns
-    DASHBOARD!Z1 as the mobile page. URL: https://hook.us1.make.com/q3wdjh2el239v8qjzi2nvqbtb8uqvqhy
-- **Apps Script = ALL sheet logic** (`dashboard-reconcile.gs`, `runReconcile` on a 30-min
-  time trigger): dedupe ORDERS, archive stale orders (not in RECON) to COMPLETED with
-  safety guards, and rebuild the DASHBOARD tab + the mobile HTML cell (Z1). No Etsy calls.
+## Final architecture (one brain owns ORDERS)
 
-Reconciliation loop: Make adds (live sync) + Make snapshots open orders (RECON) +
-Apps Script archives the rest → ORDERS stays equal to Etsy's open set.
+- **Make = Etsy feeder ONLY** (holds the Etsy OAuth, never deletes):
+  - `ETSY -> ORDERS live sync (15-min, append)` (id 4749764): appends new open Etsy orders to ORDERS (tagged NEW).
+  - `RECON: refresh Etsy open snapshot (2h)` (id 4749776): clears RECON!A, writes `#<receipt_id>` for every open Etsy order.
+  - `Mobile Dashboard - serve HTML` (id 4749749, hook 2725745): webhook returns DASHBOARD!Z1.
+    URL: https://hook.us1.make.com/q3wdjh2el239v8qjzi2nvqbtb8uqvqhy
+- **`orders-brain.gs` = the single ORDERS manager** (paste into the "ORDERS auto-mover"
+  project, replacing Code.gs):
+  - `processNewRows` (on-change): format + dedupe new rows. **The 5/20 date-delete is removed.**
+  - `runMaintenance` (30-min time trigger): `reconcileWithEtsy()` moves orders not in RECON
+    (closed on Etsy) to COMPLETED with safety guards; `buildDashboard()` rewrites DASHBOARD + Z1.
+- Decision taken: **match Etsy's full open set** (no date cutoff) — reconcile via RECON.
+
+Loop: Make appends open Etsy orders + snapshots them in RECON → orders-brain formats &
+archives everything no longer open → ORDERS == Etsy's open set. One writer, no tug-of-war.
 
 ## Make.com gotchas learned the hard way
 
