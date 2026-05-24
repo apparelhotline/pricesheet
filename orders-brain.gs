@@ -67,6 +67,7 @@ var HEADERS = ['STATUS','ORDER ID','ORDERED','ITEM NAME','TYPE','SKU','QTY','COL
 function onSheetChange(e) { processNewRows(); }
 
 function runMaintenance() {
+  processNewRows();   // format + sort rows Make appended via API (onChange doesn't fire for API writes)
   archiveShipped();
   buildDashboard();
 }
