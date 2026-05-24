@@ -83,3 +83,7 @@ that has a tracking number → ORDERS == open (untracked) orders. One writer, no
   to one cell, GET it, then `split(value; ",")` into an array — never rely on a spilled range.
 - A `contains(join(flatten(...);"|"); id+"|")` dedup filter proved unreliable (passed ~2 of 50);
   compute the missing set in-sheet with `MATCH`/`ISNA` instead of string-matching in Make.
+- **Make filter condition groups are OR'd; conditions WITHIN a group are AND'd.** To require
+  two conditions together (e.g. on-sheet AND has-tracking), put them in the SAME inner array
+  `[[{a},{b}]]`. Splitting them into separate groups `[[{a}],[{b}]]` means a OR b — this bug
+  made the tracking snapshot write every shipped receipt (~500 rows → Sheets 429 + credit burn).
