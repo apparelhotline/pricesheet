@@ -39,6 +39,11 @@ This repo backs an Etsy order-management workflow built on **Make.com + a Google
 - **Make = Etsy feeder ONLY** (holds the Etsy OAuth, never deletes):
   - `ETSY -> ORDERS live sync (15-min, append)` (id 4749764): appends new open Etsy orders to ORDERS (tagged NEW).
   - `RECON: refresh Etsy open snapshot (2h)` (id 4749776): clears RECON!A, writes `#<receipt_id>` for every open Etsy order.
+  - `RECON: add missing open orders (getReceipt)` (id 4749779, every 2h): self-healing backfill.
+    Writes a scalar `TEXTJOIN` of RECON ids not yet in ORDERS to `RECON!H2`, reads it back,
+    `split`s it into an array, and for each id calls `etsy:getReceipt` → appends every
+    transaction (line item) to ORDERS as STATUS=NEW. Cheap (~6 ops) when nothing is missing.
+    This closed the original 50-order gap (ORDERS went 95→145 unique, matching Etsy open=145).
   - `Mobile Dashboard - serve HTML` (id 4749749, hook 2725745): webhook returns DASHBOARD!Z1.
     URL: https://hook.us1.make.com/q3wdjh2el239v8qjzi2nvqbtb8uqvqhy
 - **`orders-brain.gs` = the single ORDERS manager** (paste into the "ORDERS auto-mover"
@@ -58,3 +63,10 @@ archives everything no longer open → ORDERS == Etsy's open set. One writer, no
 - QUERY `contains` mis-detects column types; use `SEARCH()` inside `ARRAYFORMULA` for text matching.
 - Referencing a cell that holds `#ERROR!` propagates the error — keep dashboard metric cells error-free.
 - Deeply-escaped `""` (empty-string literals) inside a formula written through Make's JSON body often break; prefer `LEN(x)>0` over `x<>""`.
+- **Spill/array formulas (FILTER, etc.) do NOT recalc in time** for an immediate read-back
+  in the same Make run — a `:append`-then-GET returns the cell empty. SCALAR formulas
+  (`CONCATENATE`, `SUMPRODUCT`, `TEXTJOIN(...,ARRAYFORMULA(...))`) DO compute synchronously
+  on read. To pass a computed list to Make, write a scalar `TEXTJOIN(",",TRUE,ARRAYFORMULA(...))`
+  to one cell, GET it, then `split(value; ",")` into an array — never rely on a spilled range.
+- A `contains(join(flatten(...);"|"); id+"|")` dedup filter proved unreliable (passed ~2 of 50);
+  compute the missing set in-sheet with `MATCH`/`ISNA` instead of string-matching in Make.
