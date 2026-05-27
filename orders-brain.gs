@@ -130,14 +130,18 @@ function archiveShipped() {
   var sh = ss.getSheetByName(SHEET_NAME);
   if (!sh) return;
 
-  // tracking map from the RECON snapshot (id -> tracking_code), if present
-  var trackMap = {};
+  // shipped set from the RECON snapshot. The snapshot's filter only writes orders that
+  // HAVE a tracking number, so presence of the id in RECON col A == shipped. Col B holds
+  // the tracking_code when available (used to fill ORDERS col N), but is NOT required.
+  var shippedSet = {}, trackMap = {};
   var recon = ss.getSheetByName(RECON_NAME);
   if (recon && recon.getLastRow() >= 1) {
     recon.getRange(1, 1, recon.getLastRow(), 2).getValues().forEach(function (row) {
       var id = String(row[0] || '').trim();
+      if (id.charAt(0) !== '#') return;
+      shippedSet[id] = true;
       var trk = String(row[1] || '').trim();
-      if (id.charAt(0) === '#' && trk) trackMap[id] = trk;
+      if (trk) trackMap[id] = trk;
     });
   }
 
@@ -150,8 +154,10 @@ function archiveShipped() {
     var id = String(data[i][1] || '').trim();
     if (!id) continue;
     var trk = String(data[i][TRACKING_COL - 1] || '').trim();
-    if (!trk && trackMap[id]) { trk = trackMap[id]; data[i][TRACKING_COL - 1] = trk; } // fill from snapshot
-    if (trk) toArchive.push({ row: i + 2, vals: data[i] });
+    if (trk || shippedSet[id]) {
+      if (!trk && trackMap[id]) data[i][TRACKING_COL - 1] = trackMap[id]; // fill tracking if we have it
+      toArchive.push({ row: i + 2, vals: data[i] });
+    }
   }
   if (!toArchive.length) { Logger.log('archiveShipped: nothing to archive'); return; }
 
