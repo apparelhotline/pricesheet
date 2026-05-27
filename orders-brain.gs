@@ -9,12 +9,17 @@
  * Responsibilities:
  *   - onSheetChange  -> processNewRows(): formats NEW rows (TYPE classify, order-ID
  *                       hyperlink, DETAILS rebuild) and removes duplicates.
- *   - runMaintenance -> archiveShipped() + buildDashboard(), on a 30-min time trigger:
+ *   - runMaintenance -> archiveShipped() + archiveCancelled() + buildDashboard(), 30-min trigger:
  *       archiveShipped():  moves any ORDERS row that has a TRACKING NUMBER to COMPLETED.
  *                          Tracking comes from the row itself OR from the RECON tab, which
  *                          Make refreshes every 2h ("ETSY tracking snapshot" writes
  *                          "#<receipt_id> | <tracking_code>" for every Etsy order that has
  *                          a tracking number).
+ *       archiveCancelled(): moves any ORDERS row whose id is in RECON col D to COMPLETED
+ *                          (STATUS set to CANCELLED). Make's "ETSY cancelled snapshot (6h)"
+ *                          writes "#<receipt_id>" to RECON!D for every Etsy order with
+ *                          status=canceled. (Cancellations never get tracking, so this is
+ *                          the only way they leave ORDERS.)
  *       buildDashboard():  rewrites the DASHBOARD tab + the mobile HTML cell (DASHBOARD!Z1).
  *   - enforceBaseline(): ONE-TIME reset — archives every ORDERS row whose order id is NOT in
  *                        BASELINE_OPEN_IDS (Matt's authoritative open list). Run it once.
@@ -28,7 +33,7 @@
 
 var SHEET_ID = '1ysZPOFHIwNATn8rrUwiy9Y-G3-nbDwcUxMxoMUXTTys';
 var SHEET_NAME = 'ORDERS';
-var RECON_NAME = 'RECON';   // tracking snapshot: col A = "#<receipt_id>", col B = tracking_code
+var RECON_NAME = 'RECON';   // col A = "#<receipt_id>", col B = tracking_code (shipped); col D = "#<receipt_id>" (cancelled)
 var COMPLETED_NAME = 'COMPLETED';
 var DASH_NAME = 'DASHBOARD';
 var COLS = 17;
@@ -81,6 +86,7 @@ function onSheetChange(e) { processNewRows(); }
 function runMaintenance() {
   processNewRows();   // format + sort rows Make appended via API (onChange doesn't fire for API writes)
   archiveShipped();
+  archiveCancelled();
   buildDashboard();
 }
 
@@ -161,6 +167,49 @@ function archiveShipped() {
     sh.deleteRow(item.row);
   });
   Logger.log('archiveShipped: archived ' + toArchive.length + ' shipped line item(s)');
+}
+
+// ─── archive cancelled orders (Etsy status=canceled, from RECON col D) → COMPLETED ─
+
+function archiveCancelled() {
+  var ss = SpreadsheetApp.openById(SHEET_ID);
+  var sh = ss.getSheetByName(SHEET_NAME);
+  if (!sh) return;
+
+  // cancelled-id set from the RECON snapshot (col D), if present
+  var cancelSet = {};
+  var recon = ss.getSheetByName(RECON_NAME);
+  if (recon && recon.getLastRow() >= 1) {
+    recon.getRange(1, 4, recon.getLastRow(), 1).getValues().forEach(function (row) {  // col D
+      var id = String(row[0] || '').trim();
+      if (id.charAt(0) === '#') cancelSet[id] = true;
+    });
+  }
+  if (!Object.keys(cancelSet).length) return;
+
+  var last = sh.getLastRow();
+  if (last < 2) return;
+  var data = sh.getRange(2, 1, last - 1, COLS).getValues();
+
+  var toArchive = [];
+  for (var i = 0; i < data.length; i++) {
+    var id = String(data[i][1] || '').trim();
+    if (id && cancelSet[id]) { data[i][0] = 'CANCELLED'; toArchive.push({ row: i + 2, vals: data[i] }); }
+  }
+  if (!toArchive.length) { Logger.log('archiveCancelled: nothing to archive'); return; }
+
+  var completed = ss.getSheetByName(COMPLETED_NAME);
+  if (!completed) {
+    completed = ss.insertSheet(COMPLETED_NAME);
+    completed.getRange(1, 1, 1, COLS).setValues([HEADERS]).setFontWeight('bold');
+    completed.setFrozenRows(1);
+  }
+  toArchive.sort(function (a, b) { return b.row - a.row; });   // delete bottom-up
+  toArchive.forEach(function (item) {
+    completed.getRange(completed.getLastRow() + 1, 1, 1, COLS).setValues([item.vals]);
+    sh.deleteRow(item.row);
+  });
+  Logger.log('archiveCancelled: archived ' + toArchive.length + ' cancelled line item(s)');
 }
 
 // ─── ONE-TIME baseline reset: keep ONLY the authoritative open ids on ORDERS ───
