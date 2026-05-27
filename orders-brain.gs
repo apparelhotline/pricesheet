@@ -64,6 +64,18 @@ var HEADERS = ['STATUS','ORDER ID','ORDERED','ITEM NAME','TYPE','SKU','QTY','COL
 
 // ─── entry points ────────────────────────────────────────────────────────────
 
+// Run this ONCE by hand to (re)install the triggers. Safe to re-run — it clears
+// duplicates first. Without these, nothing runs automatically.
+function installTriggers() {
+  ScriptApp.getProjectTriggers().forEach(function (t) {
+    var fn = t.getHandlerFunction();
+    if (fn === 'onSheetChange' || fn === 'runMaintenance') ScriptApp.deleteTrigger(t);
+  });
+  ScriptApp.newTrigger('onSheetChange').forSpreadsheet(SpreadsheetApp.openById(SHEET_ID)).onChange().create();
+  ScriptApp.newTrigger('runMaintenance').timeBased().everyMinutes(30).create();
+  runMaintenance();   // run once now so the sheet + dashboard are current immediately
+}
+
 function onSheetChange(e) { processNewRows(); }
 
 function runMaintenance() {
