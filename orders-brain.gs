@@ -267,9 +267,8 @@ function buildDashboard() {
   var last = sh.getLastRow();
   var data = last >= 2 ? sh.getRange(2, 1, last - 1, COLS).getValues() : [];
 
-  var lineItems = 0, mockneck = 0, addedToday = 0;
+  var lineItems = 0;
   var orderCounts = {}, byStatus = {}, byCombo = {};
-  var today = Utilities.formatDate(new Date(), ss.getSpreadsheetTimeZone(), 'yyyy-MM-dd');
 
   data.forEach(function (row) {
     var id = String(row[1] || '').trim();
@@ -278,47 +277,44 @@ function buildDashboard() {
     orderCounts[id] = (orderCounts[id] || 0) + 1;
     var status = String(row[0] || '').trim() || '(no status)';
     byStatus[status] = (byStatus[status] || 0) + 1;
-    if (String(row[3] || '').toUpperCase().indexOf('MOCK') >= 0) mockneck++;
     var color = String(row[7] || '').trim() || '-';
     var size = String(row[8] || '').trim() || '-';
-    var key = _trim(row[3], 28) + ' / ' + color + (size !== '-' ? ' / ' + size : '');
+    var key = _trim(row[3], 30) + ' / ' + color + (size !== '-' ? ' / ' + size : '');
     byCombo[key] = (byCombo[key] || 0) + 1;
-    if (String(row[16] || '').indexOf(today) === 0) addedToday++;
   });
 
   var unique = Object.keys(orderCounts).length;
-  var multi = Object.keys(orderCounts).filter(function (k) { return orderCounts[k] > 1; }).length;
-  var openItems = lineItems - (byStatus['COMPLETED'] || 0);
   var statusList = Object.keys(byStatus).map(function (k) { return [k, byStatus[k]]; }).sort(function (a, b) { return b[1] - a[1]; });
   var comboList = Object.keys(byCombo).map(function (k) { return [k, byCombo[k]]; }).sort(function (a, b) { return b[1] - a[1]; });
+  var updated = Utilities.formatDate(new Date(), ss.getSpreadsheetTimeZone(), 'MMM d, h:mm a');
 
   var dash = ss.getSheetByName(DASH_NAME) || ss.insertSheet(DASH_NAME);
-  dash.getRange(1, 1, 250, 6).clearContent();
-  var rows = [
-    ['ORDERS DASHBOARD', '', '', '', '', ''],
-    ['Updated ' + Utilities.formatDate(new Date(), ss.getSpreadsheetTimeZone(), 'MMM d, h:mm a'), '', '', '', '', ''],
-    ['', '', '', '', '', ''],
-    ['Open line items', openItems, '', '', '', ''],
-    ['Unique orders', unique, '', '', '', ''],
-    ['Orders w/ multiple line items', multi, '', '', '', ''],
-    ['Mockneck line items', mockneck, '', '', '', ''],
-    ['Added today', addedToday, '', '', '', ''],
-    ['', '', '', '', '', ''],
-    ['OPEN ORDERS BY STATUS', 'LINE ITEMS', '', 'NEED TO ORDER', 'QTY', '']
-  ];
-  var n = Math.max(statusList.length, comboList.length);
-  for (var i = 0; i < n; i++) {
-    rows.push([
-      statusList[i] ? statusList[i][0] : '', statusList[i] ? statusList[i][1] : '', '',
-      comboList[i] ? comboList[i][0] : '', comboList[i] ? comboList[i][1] : '', ''
-    ]);
-  }
-  dash.getRange(1, 1, rows.length, 6).setValues(rows);
+  dash.getRange(1, 1, 1000, 26).clearContent();   // wipe whole tab (clears stale columns from old layouts)
+
+  var rows = [];
+  rows.push(['ORDERS DASHBOARD', '']);
+  rows.push(['Updated ' + updated, '']);
+  rows.push(['', '']);
+  rows.push(['Open orders', unique]);
+  rows.push(['Open line items', lineItems]);
+  rows.push(['', '']);
+  var statusHdr = rows.length + 1;
+  rows.push(['OPEN ORDERS BY STATUS', 'LINE ITEMS']);
+  statusList.forEach(function (s) { rows.push([s[0], s[1]]); });
+  rows.push(['', '']);
+  var needHdr = rows.length + 1;
+  rows.push(['NEED TO ORDER  (item / color / size)', 'QTY']);
+  comboList.forEach(function (c) { rows.push([c[0], c[1]]); });
+
+  dash.getRange(1, 1, rows.length, 2).setValues(rows);
+  dash.getRange('A1').setFontWeight('bold').setFontSize(14);
+  dash.getRange(statusHdr, 1, 1, 2).setFontWeight('bold');
+  dash.getRange(needHdr, 1, 1, 2).setFontWeight('bold');
+  dash.setColumnWidth(1, 320);
 
   dash.getRange('Z1').setValue(_mobileHtml({
-    openItems: openItems, unique: unique, multi: multi, mockneck: mockneck,
-    statusList: statusList, comboList: comboList,
-    updated: Utilities.formatDate(new Date(), ss.getSpreadsheetTimeZone(), 'MMM d, h:mm a')
+    openItems: lineItems, unique: unique,
+    statusList: statusList, comboList: comboList, updated: updated
   }));
 }
 
@@ -453,8 +449,7 @@ function _mobileHtml(d) {
     "<div style='font-size:23px;font-weight:700'>Orders Dashboard</div>" +
     "<div style='font-size:12px;opacity:.85'>Updated " + _esc(d.updated) + "</div></div>" +
     "<div style='display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px'>" +
-    card(d.openItems, 'OPEN LINE ITEMS', true) + card(d.unique, 'UNIQUE ORDERS') +
-    card(d.multi, 'MULTI-ITEM ORDERS') + card(d.mockneck, 'MOCKNECK ITEMS') + "</div>" +
+    card(d.unique, 'OPEN ORDERS', true) + card(d.openItems, 'OPEN LINE ITEMS') + "</div>" +
     "<div style='background:#fff;border-radius:16px;padding:6px 16px;margin-top:14px'>" +
     "<div style='font-size:11px;color:#8e8e93;margin:12px 0 6px'>OPEN ORDERS BY STATUS</div>" + statusRows + "</div>" +
     "<div style='background:#fff;border-radius:16px;padding:6px 16px;margin-top:14px'>" +
