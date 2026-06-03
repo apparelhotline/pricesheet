@@ -1,8 +1,86 @@
 {
-  "updated": "2026-06-03T14:05:49.000Z",
+  "updated": "2026-06-03T17:30:00.000Z",
   "source": "Airtable · Vendor Order Tracking",
-  "orderCount": 19,
+  "orderCount": 24,
   "orders": [
+    {
+      "id": "recy299rctVpKct2Q",
+      "orderNumber": "73269607",
+      "vendor": "S&S Activewear",
+      "vendorSO": "Inv 99227592",
+      "orderDate": "2026-06-02",
+      "status": "Shipped",
+      "expectedDelivery": "2026-06-03",
+      "orderTotal": 1291.2,
+      "totalPieces": null,
+      "carrier": "UPS",
+      "source": "Email",
+      "lastUpdated": "2026-06-03T12:00:00.000Z",
+      "orderUrl": null,
+      "flag": "🔵 In progress",
+      "shipments": [
+        {
+          "tracking": "1ZK58W750309163014",
+          "carrier": "UPS",
+          "shipDate": "2026-06-02",
+          "estDelivery": "2026-06-03",
+          "status": "In Transit",
+          "contents": "CN warehouse · PO GOLF DARTS"
+        }
+      ]
+    },
+    {
+      "id": "recB3LegIhrmLTAJy",
+      "orderNumber": "73263259",
+      "vendor": "S&S Activewear",
+      "vendorSO": "Inv 99219180",
+      "orderDate": "2026-06-02",
+      "status": "Shipped",
+      "expectedDelivery": "2026-06-08",
+      "orderTotal": 304.5,
+      "totalPieces": null,
+      "carrier": "UPS",
+      "source": "Email",
+      "lastUpdated": "2026-06-03T12:00:00.000Z",
+      "orderUrl": null,
+      "flag": "🔵 In progress",
+      "shipments": [
+        {
+          "tracking": "1ZK58W770306487079",
+          "carrier": "UPS",
+          "shipDate": "2026-06-02",
+          "estDelivery": "2026-06-08",
+          "status": "In Transit",
+          "contents": "MA warehouse"
+        }
+      ]
+    },
+    {
+      "id": "rec5MpCzNGOLRK9yZ",
+      "orderNumber": "73243557",
+      "vendor": "S&S Activewear",
+      "vendorSO": "Inv 99193930",
+      "orderDate": "2026-06-01",
+      "status": "Shipped",
+      "expectedDelivery": "2026-06-03",
+      "orderTotal": 474.81,
+      "totalPieces": null,
+      "carrier": "UPS",
+      "source": "Email",
+      "lastUpdated": "2026-06-03T12:00:00.000Z",
+      "orderUrl": null,
+      "flag": "🔵 In progress",
+      "shipments": [
+        {
+          "tracking": "1ZK58W750309140039",
+          "carrier": "UPS",
+          "shipDate": "2026-06-02",
+          "estDelivery": "2026-06-03",
+          "status": "In Transit",
+          "contents": "CN warehouse · PO QC GROWTH TSH"
+        }
+      ]
+    },
     {
       "id": "reclPR5M7IKPVwdqg",
       "orderNumber": "OT1076165",
@@ -60,22 +138,22 @@
       "vendor": "S&S Activewear",
       "vendorSO": "Inv 99166095",
       "orderDate": "2026-06-01",
-      "status": "Shipped",
-      "expectedDelivery": null,
+      "status": "Delivered",
+      "expectedDelivery": "2026-06-02",
       "orderTotal": 700,
       "totalPieces": null,
       "carrier": "UPS",
       "source": "Email",
-      "lastUpdated": "2026-06-02T20:40:00.000Z",
+      "lastUpdated": "2026-06-03T12:00:00.000Z",
       "orderUrl": null,
-      "flag": "🔵 In progress",
+      "flag": "🟢 Delivered",
       "shipments": [
         {
           "tracking": "1ZK58W750309107567",
           "carrier": "UPS",
           "shipDate": "2026-06-01",
-          "estDelivery": null,
-          "status": "In Transit",
+          "estDelivery": "2026-06-02",
+          "status": "Delivered",
           "contents": null
         }
       ]
@@ -87,12 +165,12 @@
       "vendorSO": "Inv 99068636",
       "orderDate": "2026-05-29",
       "status": "Shipped",
-      "expectedDelivery": null,
+      "expectedDelivery": "2026-06-01",
       "orderTotal": 350,
       "totalPieces": null,
       "carrier": "UPS",
       "source": "Email",
-      "lastUpdated": "2026-06-02T20:55:00.000Z",
+      "lastUpdated": "2026-06-03T12:00:00.000Z",
       "orderUrl": null,
       "flag": "🔵 In progress",
       "shipments": [
@@ -100,7 +178,7 @@
           "tracking": "1ZE9W0610303404059",
           "carrier": "UPS",
           "shipDate": "2026-05-29",
-          "estDelivery": null,
+          "estDelivery": "2026-06-01",
           "status": "In Transit",
           "contents": null
         }
@@ -163,30 +241,30 @@
       "vendor": "S&S Activewear",
       "vendorSO": "Inv 99010215 / 99010216",
       "orderDate": "2026-05-27",
-      "status": "Shipped",
-      "expectedDelivery": null,
+      "status": "Delivered",
+      "expectedDelivery": "2026-06-02",
       "orderTotal": 271.47,
       "totalPieces": null,
       "carrier": "UPS",
       "source": "Email",
-      "lastUpdated": "2026-06-02T20:55:00.000Z",
+      "lastUpdated": "2026-06-03T12:00:00.000Z",
       "orderUrl": null,
-      "flag": "🔵 In progress",
+      "flag": "🟢 Delivered",
       "shipments": [
         {
           "tracking": "1ZK58W750308976746",
           "carrier": "UPS",
           "shipDate": "2026-05-27",
-          "estDelivery": null,
-          "status": "In Transit",
+          "estDelivery": "2026-05-28",
+          "status": "Delivered",
           "contents": "CN warehouse – $61.47"
         },
         {
           "tracking": "1Z90A10R0314273121",
           "carrier": "UPS",
           "shipDate": "2026-05-28",
-          "estDelivery": null,
-          "status": "In Transit",
+          "estDelivery": "2026-06-02",
+          "status": "Delivered",
           "contents": "TX warehouse – $210.00"
         }
       ]
@@ -197,30 +275,30 @@
       "vendor": "S&S Activewear",
       "vendorSO": "Inv 98970142 / 98970143",
       "orderDate": "2026-05-26",
-      "status": "Shipped",
-      "expectedDelivery": null,
+      "status": "Delivered",
+      "expectedDelivery": "2026-05-28",
       "orderTotal": 226.22,
       "totalPieces": null,
       "carrier": "UPS",
       "source": "Email",
-      "lastUpdated": "2026-06-02T20:55:00.000Z",
+      "lastUpdated": "2026-06-03T12:00:00.000Z",
       "orderUrl": null,
-      "flag": "🔵 In progress",
+      "flag": "🟢 Delivered",
       "shipments": [
         {
           "tracking": "1Z031F880312194369",
           "carrier": "UPS",
           "shipDate": "2026-05-27",
-          "estDelivery": null,
-          "status": "In Transit",
+          "estDelivery": "2026-05-28",
+          "status": "Delivered",
           "contents": "DS warehouse – $25.52"
         },
         {
           "tracking": "1ZK58W750308940220",
           "carrier": "UPS",
           "shipDate": "2026-05-27",
-          "estDelivery": null,
-          "status": "In Transit",
+          "estDelivery": "2026-05-28",
+          "status": "Delivered",
           "contents": "CN warehouse – $200.70"
         }
       ]
@@ -260,35 +338,52 @@
       "shipments": []
     },
     {
+      "id": "recPfX0SzCM6c9EJC",
+      "orderNumber": "72988957",
+      "vendor": "S&S Activewear",
+      "vendorSO": "Inv 98873284",
+      "orderDate": "2026-05-22",
+      "status": "In Progress",
+      "expectedDelivery": null,
+      "orderTotal": -121.8,
+      "totalPieces": null,
+      "carrier": null,
+      "source": "Email",
+      "lastUpdated": "2026-06-03T12:00:00.000Z",
+      "orderUrl": null,
+      "flag": "🔵 In progress",
+      "shipments": []
+    },
+    {
       "id": "recM5s9KksLc6upjA",
       "orderNumber": "72958830",
       "vendor": "S&S Activewear",
       "vendorSO": "Inv 98837012 / 98837013",
       "orderDate": "2026-05-21",
-      "status": "Shipped",
-      "expectedDelivery": null,
+      "status": "Delivered",
+      "expectedDelivery": "2026-05-27",
       "orderTotal": 203,
       "totalPieces": null,
       "carrier": "UPS",
       "source": "Email",
-      "lastUpdated": "2026-06-02T20:55:00.000Z",
+      "lastUpdated": "2026-06-03T12:00:00.000Z",
       "orderUrl": null,
-      "flag": "🔵 In progress",
+      "flag": "🟢 Delivered",
       "shipments": [
         {
           "tracking": "1ZE9W0610303067192",
           "carrier": "UPS",
           "shipDate": "2026-05-21",
-          "estDelivery": null,
-          "status": "In Transit",
+          "estDelivery": "2026-05-27",
+          "status": "Delivered",
           "contents": "IL warehouse – $28.00"
         },
         {
           "tracking": "1ZK58W750308814170",
           "carrier": "UPS",
           "shipDate": "2026-05-22",
-          "estDelivery": null,
-          "status": "In Transit",
+          "estDelivery": "2026-05-24",
+          "status": "Delivered",
           "contents": "CN warehouse – $175.00"
         }
       ]
@@ -299,22 +394,22 @@
       "vendor": "S&S Activewear",
       "vendorSO": "Inv 98791792",
       "orderDate": "2026-05-20",
-      "status": "Shipped",
-      "expectedDelivery": null,
+      "status": "Delivered",
+      "expectedDelivery": "2026-05-22",
       "orderTotal": 221.45,
       "totalPieces": null,
       "carrier": "UPS",
       "source": "Email",
-      "lastUpdated": "2026-06-02T20:55:00.000Z",
+      "lastUpdated": "2026-06-03T12:00:00.000Z",
       "orderUrl": null,
-      "flag": "🔵 In progress",
+      "flag": "🟢 Delivered",
       "shipments": [
         {
           "tracking": "1ZK58W750308770388",
           "carrier": "UPS",
           "shipDate": "2026-05-21",
-          "estDelivery": null,
-          "status": "In Transit",
+          "estDelivery": "2026-05-22",
+          "status": "Delivered",
           "contents": null
         }
       ]
@@ -325,22 +420,22 @@
       "vendor": "S&S Activewear",
       "vendorSO": "Inv 98735844 (partial return)",
       "orderDate": "2026-05-19",
-      "status": "Shipped",
-      "expectedDelivery": null,
+      "status": "Delivered",
+      "expectedDelivery": "2026-05-20",
       "orderTotal": 509.85,
       "totalPieces": null,
       "carrier": "UPS",
       "source": "Email",
-      "lastUpdated": "2026-06-02T20:55:00.000Z",
+      "lastUpdated": "2026-06-03T12:00:00.000Z",
       "orderUrl": null,
-      "flag": "🔵 In progress",
+      "flag": "🟢 Delivered",
       "shipments": [
         {
           "tracking": "1ZK58W750308706546",
           "carrier": "UPS",
           "shipDate": "2026-05-19",
-          "estDelivery": null,
-          "status": "In Transit",
+          "estDelivery": "2026-05-20",
+          "status": "Delivered",
           "contents": null
         }
       ]
@@ -402,30 +497,30 @@
       "vendor": "S&S Activewear",
       "vendorSO": "Inv 98599158 / 98599159",
       "orderDate": "2026-05-15",
-      "status": "Shipped",
-      "expectedDelivery": null,
+      "status": "Delivered",
+      "expectedDelivery": "2026-05-20",
       "orderTotal": 252,
       "totalPieces": null,
       "carrier": "UPS",
       "source": "Email",
-      "lastUpdated": "2026-06-02T20:55:00.000Z",
+      "lastUpdated": "2026-06-03T12:00:00.000Z",
       "orderUrl": null,
-      "flag": "🔵 In progress",
+      "flag": "🟢 Delivered",
       "shipments": [
         {
           "tracking": "1Z90A10R0313809205",
           "carrier": "UPS",
           "shipDate": "2026-05-15",
-          "estDelivery": null,
-          "status": "In Transit",
+          "estDelivery": "2026-05-20",
+          "status": "Delivered",
           "contents": "TX warehouse – $245.00"
         },
         {
           "tracking": "1ZK58W750308587176",
           "carrier": "UPS",
           "shipDate": "2026-05-15",
-          "estDelivery": null,
-          "status": "In Transit",
+          "estDelivery": "2026-05-16",
+          "status": "Delivered",
           "contents": "CN warehouse – $7.00"
         }
       ]
@@ -436,23 +531,49 @@
       "vendor": "S&S Activewear",
       "vendorSO": "Inv 98551412",
       "orderDate": "2026-05-14",
-      "status": "Shipped",
-      "expectedDelivery": null,
+      "status": "Delivered",
+      "expectedDelivery": "2026-05-15",
       "orderTotal": 270.44,
       "totalPieces": null,
       "carrier": "UPS",
       "source": "Email",
-      "lastUpdated": "2026-06-02T20:55:00.000Z",
+      "lastUpdated": "2026-06-03T12:00:00.000Z",
       "orderUrl": null,
-      "flag": "🔵 In progress",
+      "flag": "🟢 Delivered",
       "shipments": [
         {
           "tracking": "1ZK58W750308541625",
           "carrier": "UPS",
           "shipDate": "2026-05-14",
-          "estDelivery": null,
-          "status": "In Transit",
+          "estDelivery": "2026-05-15",
+          "status": "Delivered",
           "contents": null
+        }
+      ]
+    },
+    {
+      "id": "recksLLiLzJ8K83g4",
+      "orderNumber": "72662710",
+      "vendor": "S&S Activewear",
+      "vendorSO": "Inv 98475483",
+      "orderDate": "2026-05-12",
+      "status": "Delivered",
+      "expectedDelivery": "2026-05-13",
+      "orderTotal": 1113,
+      "totalPieces": null,
+      "carrier": "UPS",
+      "source": "Email",
+      "lastUpdated": "2026-06-03T12:00:00.000Z",
+      "orderUrl": null,
+      "flag": "🟢 Delivered",
+      "shipments": [
+        {
+          "tracking": "1ZH929H60300169988",
+          "carrier": "UPS",
+          "shipDate": "2026-05-12",
+          "estDelivery": "2026-05-13",
+          "status": "Delivered",
+          "contents": "NV warehouse · PO hats"
         }
       ]
     }
