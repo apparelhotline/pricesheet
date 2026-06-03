@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Order &amp; Shipment Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ---------- Light (default, editorial b/w) ---------- */
+  :root{
+    --bg:#ffffff; --bg-2:#f4f4f4; --card:#ffffff;
+    --ink:#000000; --ink-2:#333333; --muted:#777777;
+    --hair:#e6e6e6; --hair-strong:#000000;
+    --accent:#000000; --accent-ink:#ffffff;
+    --chip:#f0f0f0; --chip-ink:#222222;
+    --good:#0a7d2c; --good-bg:#e7f6ec;
+    --transit:#1452c9; --transit-bg:#e6efff;
+    --warn:#b25b00; --warn-bg:#fdeddd;
+    --bad:#b81c1c; --bad-bg:#fdebeb;
+    --shadow:0 1px 2px rgba(0,0,0,.05),0 8px 24px rgba(0,0,0,.04);
+    --font-display:"Space Grotesk","Inter",system-ui,sans-serif;
+    --font-sans:"Inter",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+    --font-mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  }
+  /* ---------- Dark ---------- */
+  [data-theme="dark"]{
+    --bg:#0d0e10; --bg-2:#16181c; --card:#16181c;
+    --ink:#f3f4f6; --ink-2:#c8ccd2; --muted:#8b919b;
+    --hair:#262a30; --hair-strong:#3a3f47;
+    --accent:#f3f4f6; --accent-ink:#0d0e10;
+    --chip:#22262c; --chip-ink:#d4d8de;
+    --good:#54d486; --good-bg:#10371f;
+    --transit:#74a4ff; --transit-bg:#13233f;
+    --warn:#f0a85a; --warn-bg:#3a2811;
+    --bad:#f08a8a; --bad-bg:#3a1717;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:var(--font-sans); line-height:1.45;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  .wrap{max-width:1100px; margin:0 auto; padding:24px 20px 64px}
+  a{color:inherit}
+
+  /* Header */
+  header.top{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:8px}
+  h1{font-family:var(--font-display); font-weight:700; letter-spacing:-.02em; font-size:clamp(22px,4vw,32px); margin:0}
+  .sub{color:var(--muted); font-size:13px; margin-top:4px}
+  .sub b{color:var(--ink-2); font-weight:600}
+  .toggle{
+    display:inline-flex; align-items:center; gap:8px; cursor:pointer; user-select:none;
+    border:1px solid var(--hair-strong); background:var(--card); color:var(--ink);
+    border-radius:999px; padding:8px 14px; font-size:13px; font-weight:600;
+    font-family:var(--font-display);
+  }
+  .toggle:hover{background:var(--bg-2)}
+  .toggle svg{width:16px; height:16px}
+
+  /* Stat cards */
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:22px 0 26px}
+  @media(max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}}
+  .stat{
+    background:var(--card); border:1px solid var(--hair); border-radius:14px;
+    padding:14px 16px; box-shadow:var(--shadow);
+  }
+  .stat .n{font-family:var(--font-display); font-weight:700; font-size:26px; letter-spacing:-.02em}
+  .stat .l{color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.06em; margin-top:2px}
+
+  /* Controls */
+  .controls{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:18px}
+  .controls input,.controls select{
+    font:inherit; color:var(--ink); background:var(--card);
+    border:1px solid var(--hair-strong); border-radius:10px; padding:9px 12px;
+  }
+  .controls input{flex:1; min-width:180px}
+  .controls input::placeholder{color:var(--muted)}
+
+  /* Order card */
+  .order{
+    background:var(--card); border:1px solid var(--hair); border-radius:14px;
+    padding:16px 18px; margin-bottom:14px; box-shadow:var(--shadow);
+  }
+  .order-head{display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap}
+  .order-num{font-family:var(--font-mono); font-weight:600; font-size:16px}
+  .vendor{font-family:var(--font-display); font-weight:600; font-size:15px}
+  .meta{display:flex; gap:14px 22px; flex-wrap:wrap; color:var(--ink-2); font-size:13px; margin-top:10px}
+  .meta span{color:var(--muted)}
+  .meta b{font-weight:600; color:var(--ink)}
+
+  .badge{
+    display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600;
+    padding:3px 10px; border-radius:999px; font-family:var(--font-display); white-space:nowrap;
+  }
+  .badge::before{content:""; width:7px; height:7px; border-radius:50%; background:currentColor; opacity:.9}
+  .b-shipped,.b-intransit{color:var(--transit); background:var(--transit-bg)}
+  .b-delivered{color:var(--good); background:var(--good-bg)}
+  .b-inprogress{color:var(--warn); background:var(--warn-bg)}
+  .b-backordered{color:var(--bad); background:var(--bad-bg)}
+  .b-default{color:var(--chip-ink); background:var(--chip)}
+
+  /* Shipments */
+  .ships{margin-top:14px; border-top:1px dashed var(--hair); padding-top:12px}
+  .ships-title{font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:8px}
+  .ship{
+    display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+    padding:8px 0; border-bottom:1px solid var(--hair);
+  }
+  .ship:last-child{border-bottom:0}
+  .track{font-family:var(--font-mono); font-size:13px; font-weight:500; text-decoration:none; border-bottom:1px solid var(--hair-strong)}
+  .track:hover{opacity:.7}
+  .ship .right{display:flex; align-items:center; gap:12px; flex-wrap:wrap; color:var(--muted); font-size:12px}
+  .carrier{font-weight:600; color:var(--ink-2)}
+  .contents{color:var(--muted); font-size:12px; flex-basis:100%}
+  .no-ship{color:var(--muted); font-size:13px; font-style:italic; margin-top:10px}
+
+  .empty,.err{text-align:center; color:var(--muted); padding:60px 20px; font-size:15px}
+  .err{color:var(--bad)}
+  footer{margin-top:34px; color:var(--muted); font-size:12px; text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Order &amp; Shipment Tracker</h1>
+      <div class="sub" id="sub">Loading…</div>
+    </div>
+    <button class="toggle" id="themeBtn" type="button" aria-label="Toggle light/dark theme"></button>
+  </header>
+
+  <section class="stats" id="stats" hidden>
+    <div class="stat"><div class="n" id="s-orders">–</div><div class="l">Orders</div></div>
+    <div class="stat"><div class="n" id="s-transit">–</div><div class="l">In transit</div></div>
+    <div class="stat"><div class="n" id="s-vendors">–</div><div class="l">Vendors</div></div>
+    <div class="stat"><div class="n" id="s-back">–</div><div class="l">Backordered</div></div>
+  </section>
+
+  <section class="controls" id="controls" hidden>
+    <input type="search" id="q" placeholder="Search order #, vendor, tracking…">
+    <select id="vendor"><option value="">All vendors</option></select>
+    <select id="status"><option value="">All statuses</option></select>
+  </section>
+
+  <main id="list"><div class="empty">Loading orders…</div></main>
+
+  <footer id="foot"></footer>
+</div>
+
+<script>
+(function(){
+  // ---------- Theme: system default + manual toggle, persisted ----------
+  var root = document.documentElement, btn = document.getElementById('themeBtn');
+  var SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/></svg>';
+  var MOON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
+  function apply(t){
+    root.setAttribute('data-theme', t);
+    btn.innerHTML = (t==='dark' ? SUN : MOON) + '<span>' + (t==='dark'?'Light':'Dark') + '</span>';
+  }
+  var saved = null; try{ saved = localStorage.getItem('ost-theme'); }catch(e){}
+  var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  apply(saved || (prefersDark ? 'dark' : 'light'));
+  btn.addEventListener('click', function(){
+    var next = root.getAttribute('data-theme')==='dark' ? 'light' : 'dark';
+    apply(next); try{ localStorage.setItem('ost-theme', next); }catch(e){}
+  });
+
+  // ---------- Data ----------
+  var ALL = [], elList = document.getElementById('list');
+  var elQ = document.getElementById('q'), elVendor = document.getElementById('vendor'), elStatus = document.getElementById('status');
+
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function badgeClass(s){
+    var k = String(s||'').toLowerCase().replace(/[^a-z]/g,'');
+    if(k.indexOf('deliver')>-1) return 'b-delivered';
+    if(k.indexOf('transit')>-1) return 'b-intransit';
+    if(k.indexOf('ship')>-1) return 'b-shipped';
+    if(k.indexOf('progress')>-1) return 'b-inprogress';
+    if(k.indexOf('backorder')>-1) return 'b-backordered';
+    return 'b-default';
+  }
+  function trackUrl(carrier, t){
+    var c = String(carrier||'').toLowerCase();
+    if(c.indexOf('ups')>-1) return 'https://www.ups.com/track?loc=en_US&tracknum=' + encodeURIComponent(t);
+    if(c.indexOf('fedex')>-1) return 'https://www.fedex.com/fedextrack/?trknbr=' + encodeURIComponent(t);
+    if(c.indexOf('usps')>-1) return 'https://tools.usps.com/go/TrackConfirmAction?tLabels=' + encodeURIComponent(t);
+    if(c.indexOf('dhl')>-1) return 'https://www.dhl.com/us-en/home/tracking.html?tracking-id=' + encodeURIComponent(t);
+    return null;
+  }
+  function fmtMoney(n){ return n==null ? '' : '$' + Number(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+  function render(rows){
+    if(!rows.length){ elList.innerHTML = '<div class="empty">No orders match your filters.</div>'; return; }
+    elList.innerHTML = rows.map(function(o){
+      var ships = (o.shipments||[]).map(function(s){
+        var url = trackUrl(s.carrier, s.tracking);
+        var tn = url ? '<a class="track" href="'+url+'" target="_blank" rel="noopener">'+esc(s.tracking)+'</a>'
+                     : '<span class="track">'+esc(s.tracking)+'</span>';
+        return '<div class="ship"><div>'+tn+'</div>'+
+          '<div class="right">'+
+            (s.carrier?'<span class="carrier">'+esc(s.carrier)+'</span>':'')+
+            (s.shipDate?'<span>Shipped '+esc(s.shipDate)+'</span>':'')+
+            '<span class="badge '+badgeClass(s.status)+'">'+esc(s.status||'—')+'</span>'+
+          '</div>'+
+          (s.contents?'<div class="contents">'+esc(s.contents)+'</div>':'')+
+        '</div>';
+      }).join('');
+      var shipBlock = (o.shipments&&o.shipments.length)
+        ? '<div class="ships"><div class="ships-title">'+o.shipments.length+' shipment'+(o.shipments.length>1?'s':'')+'</div>'+ships+'</div>'
+        : '<div class="no-ship">No shipments yet</div>';
+      return '<article class="order">'+
+        '<div class="order-head">'+
+          '<div><span class="order-num">'+esc(o.orderNumber)+'</span> &nbsp;·&nbsp; <span class="vendor">'+esc(o.vendor||'—')+'</span></div>'+
+          '<span class="badge '+badgeClass(o.status)+'">'+esc(o.status||'—')+'</span>'+
+        '</div>'+
+        '<div class="meta">'+
+          (o.orderDate?'<div><span>Ordered </span><b>'+esc(o.orderDate)+'</b></div>':'')+
+          (o.vendorSO?'<div><span>Ref </span><b>'+esc(o.vendorSO)+'</b></div>':'')+
+          (o.orderTotal!=null?'<div><span>Total </span><b>'+esc(fmtMoney(o.orderTotal))+'</b></div>':'')+
+          (o.totalPieces!=null?'<div><span>Pieces </span><b>'+esc(o.totalPieces)+'</b></div>':'')+
+          (o.carrier?'<div><span>Carrier </span><b>'+esc(o.carrier)+'</b></div>':'')+
+        '</div>'+
+        shipBlock+
+      '</article>';
+    }).join('');
+  }
+
+  function applyFilters(){
+    var q = elQ.value.trim().toLowerCase(), v = elVendor.value, st = elStatus.value;
+    render(ALL.filter(function(o){
+      if(v && o.vendor!==v) return false;
+      if(st && o.status!==st) return false;
+      if(q){
+        var hay = [o.orderNumber,o.vendor,o.vendorSO,o.status].join(' ').toLowerCase();
+        var inShip = (o.shipments||[]).some(function(s){ return String(s.tracking||'').toLowerCase().indexOf(q)>-1; });
+        if(hay.indexOf(q)===-1 && !inShip) return false;
+      }
+      return true;
+    }));
+  }
+  [elQ,elVendor,elStatus].forEach(function(el){ el.addEventListener('input', applyFilters); });
+
+  function uniqSorted(arr){ return arr.filter(function(x,i){return x && arr.indexOf(x)===i;}).sort(); }
+
+  fetch('orders.json', {cache:'no-store'}).then(function(r){
+    if(!r.ok) throw new Error('HTTP '+r.status); return r.json();
+  }).then(function(d){
+    ALL = d.orders || [];
+    var transit = 0, back = 0, vendors = {};
+    ALL.forEach(function(o){
+      if(o.vendor) vendors[o.vendor]=1;
+      if(/backorder/i.test(o.status||'')) back++;
+      (o.shipments||[]).forEach(function(s){ if(/transit/i.test(s.status||'')) transit++; });
+    });
+    document.getElementById('s-orders').textContent = ALL.length;
+    document.getElementById('s-transit').textContent = transit;
+    document.getElementById('s-vendors').textContent = Object.keys(vendors).length;
+    document.getElementById('s-back').textContent = back;
+    document.getElementById('stats').hidden = false;
+    document.getElementById('controls').hidden = false;
+
+    uniqSorted(ALL.map(function(o){return o.vendor;})).forEach(function(v){
+      var o=document.createElement('option'); o.value=o.textContent=v; elVendor.appendChild(o);
+    });
+    uniqSorted(ALL.map(function(o){return o.status;})).forEach(function(s){
+      var o=document.createElement('option'); o.value=o.textContent=s; elStatus.appendChild(o);
+    });
+
+    var when = d.updated ? new Date(d.updated) : null;
+    document.getElementById('sub').innerHTML = '<b>'+(d.source||'Vendor orders')+'</b>'+
+      (when ? ' · updated ' + when.toLocaleString() : '');
+    document.getElementById('foot').textContent = 'Live snapshot from Airtable, synced to GitHub. Tracking numbers link to the carrier.';
+    render(ALL);
+  }).catch(function(e){
+    elList.innerHTML = '<div class="err">Couldn’t load orders.json — '+esc(e.message)+'</div>';
+    document.getElementById('sub').textContent = 'Failed to load data';
+  });
+})();
+</script>
+</body>
+</html>
