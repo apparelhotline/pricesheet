@@ -117,6 +117,11 @@
   .summary .hint{color:var(--muted)}
   .order.open .summary .hint{opacity:.55}
   .summary .no-ship{font-style:italic}
+  .summary .deliv-today{
+    display:inline-flex; align-items:center; font-size:11px; font-weight:600;
+    font-family:var(--font-display); color:var(--good); background:var(--good-bg);
+    padding:2px 9px; border-radius:999px; margin-right:2px;
+  }
 
   .badge{
     display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600;
@@ -288,11 +293,36 @@
   function fmtMoney(n){ return n==null ? '' : '$' + Number(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); }
 
   // ---- order classification + sort ----
+  function pad2(n){ return (n<10?'0':'')+n; }
+  function todayStr(){ var d=new Date(); return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); }
+
   function isDelivered(o){
     if(/deliver/i.test(o.status||'')) return true;
     var sh = o.shipments||[];
     return sh.length>0 && sh.every(function(s){ return /deliver/i.test(s.status||''); });
   }
+  // Best-known delivery date as YYYY-MM-DD (or '' if unknown).
+  function deliveredOn(o){
+    if(!isDelivered(o)) return '';
+    var best = '';
+    (o.shipments||[]).forEach(function(s){
+      if(/deliver/i.test(s.status||'')){
+        var dt = String(s.deliveredDate || s.estDelivery || '').slice(0,10);
+        if(dt && dt>best) best = dt;
+      }
+    });
+    if(!best && o.lastUpdated) best = String(o.lastUpdated).slice(0,10);
+    return best;
+  }
+  // Delivered before today → archive to the Delivered section.
+  // Delivered today (or unknown date) → keep in the main list with a Delivered badge.
+  function deliveredEarlier(o){
+    if(!isDelivered(o)) return false;
+    var d = deliveredOn(o);
+    return !!d && d < todayStr();
+  }
+  function deliveredToday(o){ return isDelivered(o) && !deliveredEarlier(o); }
+
   function hasTracking(o){ return (o.shipments||[]).some(function(s){ return s.tracking; }); }
   function latestShipDate(o){
     var d = '';
@@ -301,6 +331,7 @@
   }
   // Lower bucket = higher in the "arriving first" list.
   function bucket(o){
+    if(deliveredToday(o)) return 5;              // arrived today — done, sits at the bottom until tomorrow
     var st = (o.status||'').toLowerCase();
     if(/backorder/.test(st)) return 4;           // not arriving — sink toward bottom
     if(hasTracking(o)) return 0;                 // shipped + tracking → closest to delivery
@@ -368,12 +399,16 @@
     var open = !!OPEN[o.id];
     var ships = o.shipments||[];
     var count = ships.length;
+    var done = isDelivered(o);
+    var dispStatus = done ? 'Delivered' : (o.status||'—');
+    var dispClass  = done ? 'b-delivered' : badgeClass(o.status);
 
-    var summary = count
+    var pkgLine = count
       ? '<span class="pkg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96 12 12.01l8.73-5.05M12 22.08V12"/></svg>'+
           count+' shipment'+(count>1?'s':'')+'</span>'+
           '<span class="hint">· tap to view contents</span>'
       : '<span class="no-ship">No shipments yet</span>';
+    var summary = (deliveredToday(o) ? '<span class="deliv-today">Delivered today</span>' : '') + pkgLine;
 
     // order-level detail line (inside expand)
     var detail = '<div class="detail-grid">'+
@@ -394,7 +429,7 @@
         '<div class="order-id"><span class="order-num">'+esc(o.orderNumber)+'</span>'+
           '<span class="vendor">'+esc(o.vendor||'—')+'</span></div>'+
         '<div class="head-right">'+
-          '<span class="badge '+badgeClass(o.status)+'">'+esc(o.status||'—')+'</span>'+
+          '<span class="badge '+dispClass+'">'+esc(dispStatus)+'</span>'+
           CHEV+
         '</div>'+
       '</div>'+
@@ -411,14 +446,15 @@
   }
 
   function render(rows){
-    // split delivered vs active
+    // Delivered-earlier (before today) → Delivered section.
+    // Everything else, including delivered-today, stays in the active list.
     var active = [], delivered = [];
-    rows.forEach(function(o){ (isDelivered(o)?delivered:active).push(o); });
+    rows.forEach(function(o){ (deliveredEarlier(o)?delivered:active).push(o); });
 
     active.sort(sortActive);
     delivered.sort(function(a,b){
-      var da=sortKeyDate(a), db=sortKeyDate(b);
-      return da<db ? 1 : (da>db ? -1 : 0);
+      var da=deliveredOn(a)||sortKeyDate(a), db=deliveredOn(b)||sortKeyDate(b);
+      return da<db ? 1 : (da>db ? -1 : 0);   // most recently delivered first
     });
 
     elList.innerHTML = active.length
