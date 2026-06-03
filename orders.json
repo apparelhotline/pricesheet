@@ -1,0 +1,460 @@
+{
+  "updated": "2026-06-02T21:10:00.000Z",
+  "source": "Airtable · Vendor Order Tracking",
+  "orderCount": 19,
+  "orders": [
+    {
+      "id": "reclPR5M7IKPVwdqg",
+      "orderNumber": "OT1076165",
+      "vendor": "Otto Cap",
+      "vendorSO": "PO: extra",
+      "orderDate": "2026-06-02",
+      "status": "In Progress",
+      "expectedDelivery": null,
+      "orderTotal": null,
+      "totalPieces": null,
+      "carrier": null,
+      "source": "Email",
+      "lastUpdated": "2026-06-02T20:40:00.000Z",
+      "orderUrl": null,
+      "flag": "🔵 In progress",
+      "shipments": []
+    },
+    {
+      "id": "recvfB4aWfqkRU3tK",
+      "orderNumber": "OT1075802",
+      "vendor": "Otto Cap",
+      "vendorSO": "PO: THE A",
+      "orderDate": "2026-06-02",
+      "status": "In Progress",
+      "expectedDelivery": null,
+      "orderTotal": null,
+      "totalPieces": null,
+      "carrier": null,
+      "source": "Email",
+      "lastUpdated": "2026-06-02T20:40:00.000Z",
+      "orderUrl": null,
+      "flag": "🔵 In progress",
+      "shipments": []
+    },
+    {
+      "id": "recmzNbCcILlr5r7f",
+      "orderNumber": "OT1075793",
+      "vendor": "Otto Cap",
+      "vendorSO": "PO: RHP P",
+      "orderDate": "2026-06-02",
+      "status": "In Progress",
+      "expectedDelivery": null,
+      "orderTotal": null,
+      "totalPieces": null,
+      "carrier": null,
+      "source": "Email",
+      "lastUpdated": "2026-06-02T20:40:00.000Z",
+      "orderUrl": null,
+      "flag": "🔵 In progress",
+      "shipments": []
+    },
+    {
+      "id": "recDKKLrJl1hw4z1c",
+      "orderNumber": "73223300",
+      "vendor": "S&S Activewear",
+      "vendorSO": "Inv 99166095",
+      "orderDate": "2026-06-01",
+      "status": "Shipped",
+      "expectedDelivery": null,
+      "orderTotal": 700,
+      "totalPieces": null,
+      "carrier": "UPS",
+      "source": "Email",
+      "lastUpdated": "2026-06-02T20:40:00.000Z",
+      "orderUrl": null,
+      "flag": "🔵 In progress",
+      "shipments": [
+        {
+          "tracking": "1ZK58W750309107567",
+          "carrier": "UPS",
+          "shipDate": "2026-06-01",
+          "estDelivery": null,
+          "status": "In Transit",
+          "contents": null
+        }
+      ]
+    },
+    {
+      "id": "recy2cyprJVawJH4o",
+      "orderNumber": "73148873",
+      "vendor": "S&S Activewear",
+      "vendorSO": "Inv 99068636",
+      "orderDate": "2026-05-29",
+      "status": "Shipped",
+      "expectedDelivery": null,
+      "orderTotal": 350,
+      "totalPieces": null,
+      "carrier": "UPS",
+      "source": "Email",
+      "lastUpdated": "2026-06-02T20:55:00.000Z",
+      "orderUrl": null,
+      "flag": "🔵 In progress",
+      "shipments": [
+        {
+          "tracking": "1ZE9W0610303404059",
+          "carrier": "UPS",
+          "shipDate": "2026-05-29",
+          "estDelivery": null,
+          "status": "In Transit",
+          "contents": null
+        }
+      ]
+    },
+    {
+      "id": "recOWain2toNII04g",
+      "orderNumber": "OT1073651",
+      "vendor": "Otto Cap",
+      "vendorSO": "PO: TRUCKERS",
+      "orderDate": "2026-05-28",
+      "status": "Shipped",
+      "expectedDelivery": null,
+      "orderTotal": null,
+      "totalPieces": 290,
+      "carrier": "FedEx",
+      "source": "Email",
+      "lastUpdated": "2026-06-02T20:40:00.000Z",
+      "orderUrl": null,
+      "flag": "🔵 In progress",
+      "shipments": [
+        {
+          "tracking": "381687117877",
+          "carrier": "FedEx",
+          "shipDate": "2026-06-01",
+          "estDelivery": null,
+          "status": "In Transit",
+          "contents": "39-165 Col. Blue x100"
+        },
+        {
+          "tracking": "381689924667",
+          "carrier": "FedEx",
+          "shipDate": "2026-06-01",
+          "estDelivery": null,
+          "status": "In Transit",
+          "contents": "31-069 Nvy/Wht x40; 39-165 Navy x150"
+        }
+      ]
+    },
+    {
+      "id": "rec8ckaD5D0QoWC1m",
+      "orderNumber": "OT1072888",
+      "vendor": "Otto Cap",
+      "vendorSO": "PO: estra",
+      "orderDate": "2026-05-27",
+      "status": "Shipped",
+      "expectedDelivery": null,
+      "orderTotal": null,
+      "totalPieces": null,
+      "carrier": null,
+      "source": "Email",
+      "lastUpdated": "2026-06-02T20:40:00.000Z",
+      "orderUrl": null,
+      "flag": "🔵 In progress",
+      "shipments": []
+    },
+    {
+      "id": "recRi0UUJ6f4zUqV0",
+      "orderNumber": "73101190",
+      "vendor": "S&S Activewear",
+      "vendorSO": "Inv 99010215 / 99010216",
+      "orderDate": "2026-05-27",
+      "status": "Shipped",
+      "expectedDelivery": null,
+      "orderTotal": 271.47,
+      "totalPieces": null,
+      "carrier": "UPS",
+      "source": "Email",
+      "lastUpdated": "2026-06-02T20:55:00.000Z",
+      "orderUrl": null,
+      "flag": "🔵 In progress",
+      "shipments": [
+        {
+          "tracking": "1ZK58W750308976746",
+          "carrier": "UPS",
+          "shipDate": "2026-05-27",
+          "estDelivery": null,
+          "status": "In Transit",
+          "contents": "CN warehouse – $61.47"
+        },
+        {
+          "tracking": "1Z90A10R0314273121",
+          "carrier": "UPS",
+          "shipDate": "2026-05-28",
+          "estDelivery": null,
+          "status": "In Transit",
+          "contents": "TX warehouse – $210.00"
+        }
+      ]
+    },
+    {
+      "id": "recsNAV77xTJGXWja",
+      "orderNumber": "73069434",
+      "vendor": "S&S Activewear",
+      "vendorSO": "Inv 98970142 / 98970143",
+      "orderDate": "2026-05-26",
+      "status": "Shipped",
+      "expectedDelivery": null,
+      "orderTotal": 226.22,
+      "totalPieces": null,
+      "carrier": "UPS",
+      "source": "Email",
+      "lastUpdated": "2026-06-02T20:55:00.000Z",
+      "orderUrl": null,
+      "flag": "🔵 In progress",
+      "shipments": [
+        {
+          "tracking": "1Z031F880312194369",
+          "carrier": "UPS",
+          "shipDate": "2026-05-27",
+          "estDelivery": null,
+          "status": "In Transit",
+          "contents": "DS warehouse – $25.52"
+        },
+        {
+          "tracking": "1ZK58W750308940220",
+          "carrier": "UPS",
+          "shipDate": "2026-05-27",
+          "estDelivery": null,
+          "status": "In Transit",
+          "contents": "CN warehouse – $200.70"
+        }
+      ]
+    },
+    {
+      "id": "recdL0Vawvw73L9IH",
+      "orderNumber": "OT1070723",
+      "vendor": "Otto Cap",
+      "vendorSO": "PO: green",
+      "orderDate": "2026-05-22",
+      "status": "Shipped",
+      "expectedDelivery": null,
+      "orderTotal": null,
+      "totalPieces": null,
+      "carrier": null,
+      "source": "Email",
+      "lastUpdated": "2026-06-02T20:40:00.000Z",
+      "orderUrl": null,
+      "flag": "🔵 In progress",
+      "shipments": []
+    },
+    {
+      "id": "recPBpOj3sOKakHA5",
+      "orderNumber": "OT1070165",
+      "vendor": "Otto Cap",
+      "vendorSO": "PO: faire",
+      "orderDate": "2026-05-22",
+      "status": "In Progress",
+      "expectedDelivery": null,
+      "orderTotal": null,
+      "totalPieces": null,
+      "carrier": null,
+      "source": "Email",
+      "lastUpdated": "2026-06-02T20:40:00.000Z",
+      "orderUrl": null,
+      "flag": "🔵 In progress",
+      "shipments": []
+    },
+    {
+      "id": "recM5s9KksLc6upjA",
+      "orderNumber": "72958830",
+      "vendor": "S&S Activewear",
+      "vendorSO": "Inv 98837012 / 98837013",
+      "orderDate": "2026-05-21",
+      "status": "Shipped",
+      "expectedDelivery": null,
+      "orderTotal": 203,
+      "totalPieces": null,
+      "carrier": "UPS",
+      "source": "Email",
+      "lastUpdated": "2026-06-02T20:55:00.000Z",
+      "orderUrl": null,
+      "flag": "🔵 In progress",
+      "shipments": [
+        {
+          "tracking": "1ZE9W0610303067192",
+          "carrier": "UPS",
+          "shipDate": "2026-05-21",
+          "estDelivery": null,
+          "status": "In Transit",
+          "contents": "IL warehouse – $28.00"
+        },
+        {
+          "tracking": "1ZK58W750308814170",
+          "carrier": "UPS",
+          "shipDate": "2026-05-22",
+          "estDelivery": null,
+          "status": "In Transit",
+          "contents": "CN warehouse – $175.00"
+        }
+      ]
+    },
+    {
+      "id": "recXa3r4fTGoOYfyQ",
+      "orderNumber": "72922056",
+      "vendor": "S&S Activewear",
+      "vendorSO": "Inv 98791792",
+      "orderDate": "2026-05-20",
+      "status": "Shipped",
+      "expectedDelivery": null,
+      "orderTotal": 221.45,
+      "totalPieces": null,
+      "carrier": "UPS",
+      "source": "Email",
+      "lastUpdated": "2026-06-02T20:55:00.000Z",
+      "orderUrl": null,
+      "flag": "🔵 In progress",
+      "shipments": [
+        {
+          "tracking": "1ZK58W750308770388",
+          "carrier": "UPS",
+          "shipDate": "2026-05-21",
+          "estDelivery": null,
+          "status": "In Transit",
+          "contents": null
+        }
+      ]
+    },
+    {
+      "id": "recvQEEDS5btuJAUK",
+      "orderNumber": "72876486",
+      "vendor": "S&S Activewear",
+      "vendorSO": "Inv 98735844 (partial return)",
+      "orderDate": "2026-05-19",
+      "status": "Shipped",
+      "expectedDelivery": null,
+      "orderTotal": 509.85,
+      "totalPieces": null,
+      "carrier": "UPS",
+      "source": "Email",
+      "lastUpdated": "2026-06-02T20:55:00.000Z",
+      "orderUrl": null,
+      "flag": "🔵 In progress",
+      "shipments": [
+        {
+          "tracking": "1ZK58W750308706546",
+          "carrier": "UPS",
+          "shipDate": "2026-05-19",
+          "estDelivery": null,
+          "status": "In Transit",
+          "contents": null
+        }
+      ]
+    },
+    {
+      "id": "recAmEBWdTeR80lg4",
+      "orderNumber": "OT1067634",
+      "vendor": "Otto Cap",
+      "vendorSO": "PO: blue",
+      "orderDate": "2026-05-18",
+      "status": "In Progress",
+      "expectedDelivery": null,
+      "orderTotal": null,
+      "totalPieces": null,
+      "carrier": null,
+      "source": "Email",
+      "lastUpdated": "2026-06-02T20:40:00.000Z",
+      "orderUrl": null,
+      "flag": "🔵 In progress",
+      "shipments": []
+    },
+    {
+      "id": "recan0STQk4wAXprB",
+      "orderNumber": "SO5047406",
+      "vendor": "Otto Cap",
+      "vendorSO": "PO: 051526 (backorder)",
+      "orderDate": "2026-05-15",
+      "status": "Backordered",
+      "expectedDelivery": null,
+      "orderTotal": null,
+      "totalPieces": 106,
+      "carrier": null,
+      "source": "Email",
+      "lastUpdated": "2026-06-02T20:40:00.000Z",
+      "orderUrl": null,
+      "flag": "🔴 Backordered",
+      "shipments": []
+    },
+    {
+      "id": "recxKh87Oj8wEqSmt",
+      "orderNumber": "OT1066228",
+      "vendor": "Otto Cap",
+      "vendorSO": "PO: green",
+      "orderDate": "2026-05-15",
+      "status": "Shipped",
+      "expectedDelivery": null,
+      "orderTotal": null,
+      "totalPieces": null,
+      "carrier": null,
+      "source": "Email",
+      "lastUpdated": "2026-06-02T20:40:00.000Z",
+      "orderUrl": null,
+      "flag": "🔵 In progress",
+      "shipments": []
+    },
+    {
+      "id": "recdSp1J9gDAgVgmL",
+      "orderNumber": "72764378",
+      "vendor": "S&S Activewear",
+      "vendorSO": "Inv 98599158 / 98599159",
+      "orderDate": "2026-05-15",
+      "status": "Shipped",
+      "expectedDelivery": null,
+      "orderTotal": 252,
+      "totalPieces": null,
+      "carrier": "UPS",
+      "source": "Email",
+      "lastUpdated": "2026-06-02T20:55:00.000Z",
+      "orderUrl": null,
+      "flag": "🔵 In progress",
+      "shipments": [
+        {
+          "tracking": "1Z90A10R0313809205",
+          "carrier": "UPS",
+          "shipDate": "2026-05-15",
+          "estDelivery": null,
+          "status": "In Transit",
+          "contents": "TX warehouse – $245.00"
+        },
+        {
+          "tracking": "1ZK58W750308587176",
+          "carrier": "UPS",
+          "shipDate": "2026-05-15",
+          "estDelivery": null,
+          "status": "In Transit",
+          "contents": "CN warehouse – $7.00"
+        }
+      ]
+    },
+    {
+      "id": "recpb6ywDv7ocdouQ",
+      "orderNumber": "72725604",
+      "vendor": "S&S Activewear",
+      "vendorSO": "Inv 98551412",
+      "orderDate": "2026-05-14",
+      "status": "Shipped",
+      "expectedDelivery": null,
+      "orderTotal": 270.44,
+      "totalPieces": null,
+      "carrier": "UPS",
+      "source": "Email",
+      "lastUpdated": "2026-06-02T20:55:00.000Z",
+      "orderUrl": null,
+      "flag": "🔵 In progress",
+      "shipments": [
+        {
+          "tracking": "1ZK58W750308541625",
+          "carrier": "UPS",
+          "shipDate": "2026-05-14",
+          "estDelivery": null,
+          "status": "In Transit",
+          "contents": null
+        }
+      ]
+    }
+  ]
+}
