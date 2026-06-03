@@ -85,14 +85,43 @@
   /* Order card */
   .order{
     background:var(--card); border:1px solid var(--hair); border-radius:14px;
-    padding:16px 18px; margin-bottom:14px; box-shadow:var(--shadow);
+    padding:0; margin-bottom:14px; box-shadow:var(--shadow);
+    transition:border-color .2s, box-shadow .2s;
   }
-  .order-head{display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap}
+  .order.open{border-color:var(--hair-strong)}
+  .order-head{
+    display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap;
+    padding:16px 18px 0; cursor:pointer; user-select:none;
+  }
+  .order-id{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap}
   .order-num{font-family:var(--font-mono); font-weight:600; font-size:16px}
   .vendor{font-family:var(--font-display); font-weight:600; font-size:15px}
-  .meta{display:flex; gap:14px 22px; flex-wrap:wrap; color:var(--ink-2); font-size:13px; margin-top:10px}
+  .head-right{display:flex; align-items:center; gap:10px}
+  .chev{
+    width:18px; height:18px; flex:none; color:var(--muted);
+    transition:transform .28s cubic-bezier(.4,0,.2,1);
+  }
+  .order.open .chev{transform:rotate(90deg); color:var(--ink)}
+
+  .meta{display:flex; gap:14px 22px; flex-wrap:wrap; color:var(--ink-2); font-size:13px; padding:10px 18px 0}
   .meta span{color:var(--muted)}
   .meta b{font-weight:600; color:var(--ink)}
+
+  /* Always-visible summary bar */
+  .summary{
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+    padding:12px 18px 16px; color:var(--muted); font-size:12.5px;
+  }
+  .summary .pkg{display:inline-flex; align-items:center; gap:6px; font-weight:600; color:var(--ink-2)}
+  .summary .pkg svg{width:14px; height:14px}
+  .summary .hint{color:var(--muted)}
+  .order.open .summary .hint{opacity:.55}
+  .summary .no-ship{font-style:italic}
+  .summary .deliv-today{
+    display:inline-flex; align-items:center; font-size:11px; font-weight:600;
+    font-family:var(--font-display); color:var(--good); background:var(--good-bg);
+    padding:2px 9px; border-radius:999px; margin-right:2px;
+  }
 
   .badge{
     display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600;
@@ -105,20 +134,70 @@
   .b-backordered{color:var(--bad); background:var(--bad-bg)}
   .b-default{color:var(--chip-ink); background:var(--chip)}
 
-  /* Shipments */
-  .ships{margin-top:14px; border-top:1px dashed var(--hair); padding-top:12px}
-  .ships-title{font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:8px}
-  .ship{
-    display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
-    padding:8px 0; border-bottom:1px solid var(--hair);
+  /* Accordion expand region (animated, content-height-agnostic) */
+  .expand{display:grid; grid-template-rows:0fr; transition:grid-template-rows .3s cubic-bezier(.4,0,.2,1)}
+  .order.open .expand{grid-template-rows:1fr}
+  .expand-inner{overflow:hidden; min-height:0}
+  .expand-pad{
+    padding:0 18px 16px; margin-top:2px;
+    border-top:1px dashed var(--hair);
   }
-  .ship:last-child{border-bottom:0}
+  .expand-pad-top{padding-top:14px}
+  @media (prefers-reduced-motion: reduce){ .expand{transition:none} .chev{transition:none} }
+
+  /* Shipment detail cards inside the expand */
+  .ship-card{
+    background:var(--bg-2); border:1px solid var(--hair); border-radius:12px;
+    padding:12px 14px; margin-top:10px;
+  }
+  .ship-card:first-child{margin-top:0}
+  .ship-top{display:flex; align-items:center; justify-content:space-between; gap:10px 14px; flex-wrap:wrap}
+  .ship-top .left{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
   .track{font-family:var(--font-mono); font-size:13px; font-weight:500; text-decoration:none; border-bottom:1px solid var(--hair-strong)}
   .track:hover{opacity:.7}
-  .ship .right{display:flex; align-items:center; gap:12px; flex-wrap:wrap; color:var(--muted); font-size:12px}
-  .carrier{font-weight:600; color:var(--ink-2)}
-  .contents{color:var(--muted); font-size:12px; flex-basis:100%}
-  .no-ship{color:var(--muted); font-size:13px; font-style:italic; margin-top:10px}
+  .carrier{font-weight:600; color:var(--ink-2); font-size:12.5px}
+  .ship-top .when{color:var(--muted); font-size:12px}
+
+  .items{margin-top:10px; display:flex; flex-direction:column; gap:6px}
+  .item{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:7px 11px; background:var(--card); border:1px solid var(--hair); border-radius:9px;
+  }
+  .item .iname{font-size:13px; color:var(--ink); font-weight:500}
+  .item .iqty{
+    font-family:var(--font-mono); font-size:12px; font-weight:600;
+    color:var(--chip-ink); background:var(--chip);
+    padding:2px 9px; border-radius:999px; white-space:nowrap; flex:none;
+  }
+  .item-note{font-size:12.5px; color:var(--muted); padding:2px 2px}
+  .ship-empty{font-size:12.5px; color:var(--muted); font-style:italic; margin-top:8px}
+
+  /* Order-level detail grid in expand */
+  .detail-grid{display:flex; gap:14px 26px; flex-wrap:wrap; padding-top:4px}
+  .detail-grid .d{font-size:13px; color:var(--ink-2)}
+  .detail-grid .d span{color:var(--muted)}
+  .detail-grid .d b{font-weight:600; color:var(--ink)}
+
+  /* Delivered / completed section */
+  .delivered-wrap{margin-top:34px}
+  .delivered-head{
+    display:flex; align-items:center; gap:10px; cursor:pointer; user-select:none;
+    padding:14px 16px; border:1px solid var(--hair); border-radius:14px;
+    background:var(--bg-2); color:var(--ink-2);
+  }
+  .delivered-head .chev{color:var(--muted)}
+  .delivered-wrap.open .delivered-head .chev{transform:rotate(90deg)}
+  .delivered-head .dtitle{font-family:var(--font-display); font-weight:600; font-size:15px; color:var(--ink)}
+  .delivered-head .dcount{
+    font-size:12px; font-weight:600; color:var(--good); background:var(--good-bg);
+    padding:2px 10px; border-radius:999px; font-family:var(--font-display);
+  }
+  .delivered-body{display:grid; grid-template-rows:0fr; transition:grid-template-rows .3s cubic-bezier(.4,0,.2,1)}
+  .delivered-wrap.open .delivered-body{grid-template-rows:1fr}
+  .delivered-body-inner{overflow:hidden; min-height:0}
+  .delivered-list{padding-top:14px; opacity:.82}
+  .delivered-list .order{background:var(--bg-2)}
+  .delivered-list .order-num,.delivered-list .vendor{color:var(--ink-2)}
 
   .empty,.err{text-align:center; color:var(--muted); padding:60px 20px; font-size:15px}
   .err{color:var(--bad)}
@@ -150,6 +229,17 @@
 
   <main id="list"><div class="empty">Loading orders…</div></main>
 
+  <section class="delivered-wrap" id="deliveredWrap" hidden>
+    <div class="delivered-head" id="deliveredHead" role="button" tabindex="0" aria-expanded="false">
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      <span class="dtitle">Delivered</span>
+      <span class="dcount" id="deliveredCount">0</span>
+    </div>
+    <div class="delivered-body"><div class="delivered-body-inner">
+      <div class="delivered-list" id="deliveredList"></div>
+    </div></div>
+  </section>
+
   <footer id="foot"></footer>
 </div>
 
@@ -172,8 +262,15 @@
   });
 
   // ---------- Data ----------
-  var ALL = [], elList = document.getElementById('list');
+  var ALL = [];
+  var elList = document.getElementById('list');
+  var elDeliveredWrap = document.getElementById('deliveredWrap');
+  var elDeliveredList = document.getElementById('deliveredList');
+  var elDeliveredCount = document.getElementById('deliveredCount');
+  var elDeliveredHead = document.getElementById('deliveredHead');
   var elQ = document.getElementById('q'), elVendor = document.getElementById('vendor'), elStatus = document.getElementById('status');
+  var OPEN = {};            // expanded order ids (persist across re-renders)
+  var CHEV = '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>';
 
   function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
   function badgeClass(s){
@@ -195,41 +292,222 @@
   }
   function fmtMoney(n){ return n==null ? '' : '$' + Number(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); }
 
-  function render(rows){
-    if(!rows.length){ elList.innerHTML = '<div class="empty">No orders match your filters.</div>'; return; }
-    elList.innerHTML = rows.map(function(o){
-      var ships = (o.shipments||[]).map(function(s){
-        var url = trackUrl(s.carrier, s.tracking);
-        var tn = url ? '<a class="track" href="'+url+'" target="_blank" rel="noopener">'+esc(s.tracking)+'</a>'
-                     : '<span class="track">'+esc(s.tracking)+'</span>';
-        return '<div class="ship"><div>'+tn+'</div>'+
-          '<div class="right">'+
-            (s.carrier?'<span class="carrier">'+esc(s.carrier)+'</span>':'')+
-            (s.shipDate?'<span>Shipped '+esc(s.shipDate)+'</span>':'')+
-            '<span class="badge '+badgeClass(s.status)+'">'+esc(s.status||'—')+'</span>'+
-          '</div>'+
-          (s.contents?'<div class="contents">'+esc(s.contents)+'</div>':'')+
-        '</div>';
-      }).join('');
-      var shipBlock = (o.shipments&&o.shipments.length)
-        ? '<div class="ships"><div class="ships-title">'+o.shipments.length+' shipment'+(o.shipments.length>1?'s':'')+'</div>'+ships+'</div>'
-        : '<div class="no-ship">No shipments yet</div>';
-      return '<article class="order">'+
-        '<div class="order-head">'+
-          '<div><span class="order-num">'+esc(o.orderNumber)+'</span> &nbsp;·&nbsp; <span class="vendor">'+esc(o.vendor||'—')+'</span></div>'+
-          '<span class="badge '+badgeClass(o.status)+'">'+esc(o.status||'—')+'</span>'+
-        '</div>'+
-        '<div class="meta">'+
-          (o.orderDate?'<div><span>Ordered </span><b>'+esc(o.orderDate)+'</b></div>':'')+
-          (o.vendorSO?'<div><span>Ref </span><b>'+esc(o.vendorSO)+'</b></div>':'')+
-          (o.orderTotal!=null?'<div><span>Total </span><b>'+esc(fmtMoney(o.orderTotal))+'</b></div>':'')+
-          (o.totalPieces!=null?'<div><span>Pieces </span><b>'+esc(o.totalPieces)+'</b></div>':'')+
-          (o.carrier?'<div><span>Carrier </span><b>'+esc(o.carrier)+'</b></div>':'')+
-        '</div>'+
-        shipBlock+
-      '</article>';
-    }).join('');
+  // ---- order classification + sort ----
+  function pad2(n){ return (n<10?'0':'')+n; }
+  function todayStr(){ var d=new Date(); return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); }
+
+  function isDelivered(o){
+    if(/deliver/i.test(o.status||'')) return true;
+    var sh = o.shipments||[];
+    return sh.length>0 && sh.every(function(s){ return /deliver/i.test(s.status||''); });
   }
+  // Best-known delivery date as YYYY-MM-DD (or '' if unknown).
+  function deliveredOn(o){
+    if(!isDelivered(o)) return '';
+    var best = '';
+    (o.shipments||[]).forEach(function(s){
+      if(/deliver/i.test(s.status||'')){
+        var dt = String(s.deliveredDate || s.estDelivery || '').slice(0,10);
+        if(dt && dt>best) best = dt;
+      }
+    });
+    if(!best && o.lastUpdated) best = String(o.lastUpdated).slice(0,10);
+    return best;
+  }
+  // Delivered before today → archive to the Delivered section.
+  // Delivered today (or unknown date) → keep in the main list with a Delivered badge.
+  function deliveredEarlier(o){
+    if(!isDelivered(o)) return false;
+    var d = deliveredOn(o);
+    return !!d && d < todayStr();
+  }
+  function deliveredToday(o){ return isDelivered(o) && !deliveredEarlier(o); }
+
+  function hasTracking(o){ return (o.shipments||[]).some(function(s){ return s.tracking; }); }
+  function latestShipDate(o){
+    var d = '';
+    (o.shipments||[]).forEach(function(s){ if(s.shipDate && s.shipDate>d) d=s.shipDate; });
+    return d;
+  }
+  // Lower bucket = higher in the "arriving first" list.
+  function bucket(o){
+    if(deliveredToday(o)) return 5;              // arrived today — done, sits at the bottom until tomorrow
+    var st = (o.status||'').toLowerCase();
+    if(/backorder/.test(st)) return 4;           // not arriving — sink toward bottom
+    if(hasTracking(o)) return 0;                 // shipped + tracking → closest to delivery
+    if(/transit|ship/.test(st)) return 1;        // marked shipped but no tracking yet
+    if(/progress/.test(st)) return 2;            // not yet shipped
+    return 3;                                     // anything else
+  }
+  function sortKeyDate(o){ return latestShipDate(o) || o.orderDate || ''; }
+  function sortActive(a,b){
+    var ba=bucket(a), bb=bucket(b);
+    if(ba!==bb) return ba-bb;
+    var da=sortKeyDate(a), db=sortKeyDate(b);
+    if(da!==db) return da<db ? 1 : -1;           // most recent first
+    return String(a.orderNumber).localeCompare(String(b.orderNumber));
+  }
+
+  // ---- parse a free-text "contents" string into item rows ----
+  // e.g. "31-069 Nvy/Wht x40; 39-165 Navy x150"  →  [{name:"31-069 Nvy/Wht", qty:"40"}, ...]
+  function parseContents(str){
+    if(!str) return [];
+    return str.split(/;|•|\n/).map(function(part){
+      part = part.trim();
+      if(!part) return null;
+      var m = part.match(/x\s*([\d,]+)\s*$/i);
+      if(m){
+        var name = part.slice(0, m.index).replace(/[–—\-:\s]+$/,'').trim();
+        return {name:name||part, qty:m[1]};
+      }
+      return {name:part, qty:null};
+    }).filter(Boolean);
+  }
+
+  function shipCardHtml(s){
+    var url = trackUrl(s.carrier, s.tracking);
+    var tn = s.tracking
+      ? (url ? '<a class="track" href="'+url+'" target="_blank" rel="noopener">'+esc(s.tracking)+'</a>'
+             : '<span class="track">'+esc(s.tracking)+'</span>')
+      : '<span class="carrier">Tracking pending</span>';
+    var when = s.shipDate ? 'Shipped '+esc(s.shipDate) : '';
+    if(s.estDelivery) when += (when?' · ':'') + 'ETA '+esc(s.estDelivery);
+
+    var items = parseContents(s.contents);
+    var itemsHtml;
+    if(items.length){
+      itemsHtml = '<div class="items">'+items.map(function(it){
+        return '<div class="item"><span class="iname">'+esc(it.name)+'</span>'+
+               (it.qty ? '<span class="iqty">×'+esc(it.qty)+'</span>' : '')+'</div>';
+      }).join('')+'</div>';
+    } else if(s.contents){
+      itemsHtml = '<div class="ship-empty">'+esc(s.contents)+'</div>';
+    } else {
+      itemsHtml = '<div class="ship-empty">No item details on this package.</div>';
+    }
+
+    return '<div class="ship-card">'+
+      '<div class="ship-top"><div class="left">'+tn+
+        (s.carrier?'<span class="carrier">'+esc(s.carrier)+'</span>':'')+
+        '<span class="badge '+badgeClass(s.status)+'">'+esc(s.status||'—')+'</span>'+
+      '</div>'+(when?'<span class="when">'+when+'</span>':'')+'</div>'+
+      itemsHtml+
+    '</div>';
+  }
+
+  function orderHtml(o){
+    var open = !!OPEN[o.id];
+    var ships = o.shipments||[];
+    var count = ships.length;
+    var done = isDelivered(o);
+    var dispStatus = done ? 'Delivered' : (o.status||'—');
+    var dispClass  = done ? 'b-delivered' : badgeClass(o.status);
+
+    var pkgLine = count
+      ? '<span class="pkg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96 12 12.01l8.73-5.05M12 22.08V12"/></svg>'+
+          count+' shipment'+(count>1?'s':'')+'</span>'+
+          '<span class="hint">· tap to view contents</span>'
+      : '<span class="no-ship">No shipments yet</span>';
+    var summary = (deliveredToday(o) ? '<span class="deliv-today">Delivered today</span>' : '') + pkgLine;
+
+    // order-level detail line (inside expand)
+    var detail = '<div class="detail-grid">'+
+      (o.vendorSO?'<div class="d"><span>Ref </span><b>'+esc(o.vendorSO)+'</b></div>':'')+
+      (o.orderTotal!=null?'<div class="d"><span>Total </span><b>'+esc(fmtMoney(o.orderTotal))+'</b></div>':'')+
+      (o.totalPieces!=null?'<div class="d"><span>Pieces </span><b>'+esc(o.totalPieces)+'</b></div>':'')+
+      (o.carrier?'<div class="d"><span>Carrier </span><b>'+esc(o.carrier)+'</b></div>':'')+
+      (o.source?'<div class="d"><span>Source </span><b>'+esc(o.source)+'</b></div>':'')+
+      (o.expectedDelivery?'<div class="d"><span>Expected </span><b>'+esc(o.expectedDelivery)+'</b></div>':'')+
+    '</div>';
+
+    var shipsHtml = count
+      ? ships.map(shipCardHtml).join('')
+      : '<div class="ship-empty">This order hasn’t shipped yet — no packages to show.</div>';
+
+    return '<article class="order'+(open?' open':'')+'" data-id="'+esc(o.id)+'">'+
+      '<div class="order-head" role="button" tabindex="0" aria-expanded="'+(open?'true':'false')+'">'+
+        '<div class="order-id"><span class="order-num">'+esc(o.orderNumber)+'</span>'+
+          '<span class="vendor">'+esc(o.vendor||'—')+'</span></div>'+
+        '<div class="head-right">'+
+          '<span class="badge '+dispClass+'">'+esc(dispStatus)+'</span>'+
+          CHEV+
+        '</div>'+
+      '</div>'+
+      '<div class="meta">'+
+        (o.orderDate?'<div><span>Ordered </span><b>'+esc(o.orderDate)+'</b></div>':'')+
+        (o.totalPieces!=null?'<div><span>Pieces </span><b>'+esc(o.totalPieces)+'</b></div>':'')+
+        (o.orderTotal!=null?'<div><span>Total </span><b>'+esc(fmtMoney(o.orderTotal))+'</b></div>':'')+
+      '</div>'+
+      '<div class="summary">'+summary+'</div>'+
+      '<div class="expand"><div class="expand-inner"><div class="expand-pad expand-pad-top">'+
+        detail+ shipsHtml+
+      '</div></div></div>'+
+    '</article>';
+  }
+
+  function render(rows){
+    // Delivered-earlier (before today) → Delivered section.
+    // Everything else, including delivered-today, stays in the active list.
+    var active = [], delivered = [];
+    rows.forEach(function(o){ (deliveredEarlier(o)?delivered:active).push(o); });
+
+    active.sort(sortActive);
+    delivered.sort(function(a,b){
+      var da=deliveredOn(a)||sortKeyDate(a), db=deliveredOn(b)||sortKeyDate(b);
+      return da<db ? 1 : (da>db ? -1 : 0);   // most recently delivered first
+    });
+
+    elList.innerHTML = active.length
+      ? active.map(orderHtml).join('')
+      : '<div class="empty">No active orders match your filters.</div>';
+
+    if(delivered.length){
+      elDeliveredWrap.hidden = false;
+      elDeliveredCount.textContent = delivered.length;
+      elDeliveredList.innerHTML = delivered.map(orderHtml).join('');
+    } else {
+      elDeliveredWrap.hidden = true;
+      elDeliveredList.innerHTML = '';
+    }
+  }
+
+  // ---- accordion: toggle a card open/closed ----
+  function toggleCard(art){
+    var id = art.getAttribute('data-id');
+    var nowOpen = !art.classList.contains('open');
+    if(nowOpen) OPEN[id]=1; else delete OPEN[id];
+    art.classList.toggle('open', nowOpen);
+    var head = art.querySelector('.order-head');
+    if(head) head.setAttribute('aria-expanded', nowOpen?'true':'false');
+  }
+  function cardClickHandler(e){
+    if(e.target.closest('a')) return;            // let tracking links work
+    var head = e.target.closest('.order-head');
+    if(!head) return;
+    toggleCard(head.closest('.order'));
+  }
+  elList.addEventListener('click', cardClickHandler);
+  elDeliveredList.addEventListener('click', cardClickHandler);
+  // keyboard support for card headers
+  function cardKeyHandler(e){
+    if(e.key!=='Enter' && e.key!==' ') return;
+    var head = e.target.closest('.order-head');
+    if(!head) return;
+    e.preventDefault();
+    toggleCard(head.closest('.order'));
+  }
+  elList.addEventListener('keydown', cardKeyHandler);
+  elDeliveredList.addEventListener('keydown', cardKeyHandler);
+
+  // Delivered section collapse (collapsed by default)
+  function toggleDelivered(){
+    var open = elDeliveredWrap.classList.toggle('open');
+    elDeliveredHead.setAttribute('aria-expanded', open?'true':'false');
+  }
+  elDeliveredHead.addEventListener('click', toggleDelivered);
+  elDeliveredHead.addEventListener('keydown', function(e){
+    if(e.key==='Enter' || e.key===' '){ e.preventDefault(); toggleDelivered(); }
+  });
 
   function applyFilters(){
     var q = elQ.value.trim().toLowerCase(), v = elVendor.value, st = elStatus.value;
@@ -238,7 +516,10 @@
       if(st && o.status!==st) return false;
       if(q){
         var hay = [o.orderNumber,o.vendor,o.vendorSO,o.status].join(' ').toLowerCase();
-        var inShip = (o.shipments||[]).some(function(s){ return String(s.tracking||'').toLowerCase().indexOf(q)>-1; });
+        var inShip = (o.shipments||[]).some(function(s){
+          return String(s.tracking||'').toLowerCase().indexOf(q)>-1 ||
+                 String(s.contents||'').toLowerCase().indexOf(q)>-1;
+        });
         if(hay.indexOf(q)===-1 && !inShip) return false;
       }
       return true;
@@ -275,7 +556,7 @@
     var when = d.updated ? new Date(d.updated) : null;
     document.getElementById('sub').innerHTML = '<b>'+(d.source||'Vendor orders')+'</b>'+
       (when ? ' · updated ' + when.toLocaleString() : '');
-    document.getElementById('foot').textContent = 'Live snapshot from Airtable, synced to GitHub. Tracking numbers link to the carrier.';
+    document.getElementById('foot').textContent = 'Live snapshot from Airtable, synced to GitHub. Tap any order to see what’s in the box. Tracking numbers link to the carrier.';
     render(ALL);
   }).catch(function(e){
     elList.innerHTML = '<div class="err">Couldn’t load orders.json — '+esc(e.message)+'</div>';
