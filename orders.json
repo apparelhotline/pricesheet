@@ -17,7 +17,7 @@
       "source": "Email",
       "lastUpdated": "2026-06-03T12:00:00.000Z",
       "orderUrl": null,
-      "flag": "🔵 In progress",
+      "flag": "🔴 Overdue",
       "shipments": [
         {
           "tracking": "1ZE9W0610303404059",
