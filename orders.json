@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-04T02:07:32.000Z",
+  "updated": "2026-06-04T14:06:37.000Z",
   "source": "Airtable · Vendor Order Tracking",
   "orderCount": 24,
   "orders": [
@@ -108,6 +108,91 @@
       ]
     },
     {
+      "id": "recOWain2toNII04g",
+      "orderNumber": "OT1073651",
+      "vendor": "Otto Cap",
+      "vendorSO": "PO: TRUCKERS",
+      "orderDate": "2026-05-28",
+      "status": "Shipped",
+      "expectedDelivery": null,
+      "orderTotal": null,
+      "totalPieces": 290,
+      "carrier": "FedEx",
+      "source": "Email",
+      "lastUpdated": "2026-06-02T20:40:00.000Z",
+      "orderUrl": null,
+      "flag": "🔵 In progress",
+      "shipments": [
+        {
+          "tracking": "381687117877",
+          "carrier": "FedEx",
+          "shipDate": "2026-06-01",
+          "estDelivery": null,
+          "status": "In Transit",
+          "contents": "39-165 Col. Blue x100"
+        },
+        {
+          "tracking": "381689924667",
+          "carrier": "FedEx",
+          "shipDate": "2026-06-01",
+          "estDelivery": null,
+          "status": "In Transit",
+          "contents": "31-069 Nvy/Wht x40; 39-165 Navy x150"
+        }
+      ]
+    },
+    {
+      "id": "rec8ckaD5D0QoWC1m",
+      "orderNumber": "OT1072888",
+      "vendor": "Otto Cap",
+      "vendorSO": "PO: estra",
+      "orderDate": "2026-05-27",
+      "status": "Shipped",
+      "expectedDelivery": null,
+      "orderTotal": null,
+      "totalPieces": null,
+      "carrier": null,
+      "source": "Email",
+      "lastUpdated": "2026-06-02T20:40:00.000Z",
+      "orderUrl": null,
+      "flag": "🔵 In progress",
+      "shipments": []
+    },
+    {
+      "id": "recdL0Vawvw73L9IH",
+      "orderNumber": "OT1070723",
+      "vendor": "Otto Cap",
+      "vendorSO": "PO: green",
+      "orderDate": "2026-05-22",
+      "status": "Shipped",
+      "expectedDelivery": null,
+      "orderTotal": null,
+      "totalPieces": null,
+      "carrier": null,
+      "source": "Email",
+      "lastUpdated": "2026-06-02T20:40:00.000Z",
+      "orderUrl": null,
+      "flag": "🔵 In progress",
+      "shipments": []
+    },
+    {
+      "id": "recxKh87Oj8wEqSmt",
+      "orderNumber": "OT1066228",
+      "vendor": "Otto Cap",
+      "vendorSO": "PO: green",
+      "orderDate": "2026-05-15",
+      "status": "Shipped",
+      "expectedDelivery": null,
+      "orderTotal": null,
+      "totalPieces": null,
+      "carrier": null,
+      "source": "Email",
+      "lastUpdated": "2026-06-02T20:40:00.000Z",
+      "orderUrl": null,
+      "flag": "🔵 In progress",
+      "shipments": []
+    },
+    {
       "id": "reclPR5M7IKPVwdqg",
       "orderNumber": "OT1076165",
       "vendor": "Otto Cap",
@@ -159,80 +244,12 @@
       "shipments": []
     },
     {
-      "id": "recOWain2toNII04g",
-      "orderNumber": "OT1073651",
-      "vendor": "Otto Cap",
-      "vendorSO": "PO: TRUCKERS",
-      "orderDate": "2026-05-28",
-      "status": "Shipped",
-      "expectedDelivery": null,
-      "orderTotal": null,
-      "totalPieces": 290,
-      "carrier": "FedEx",
-      "source": "Email",
-      "lastUpdated": "2026-06-02T20:40:00.000Z",
-      "orderUrl": null,
-      "flag": "🔵 In progress",
-      "shipments": [
-        {
-          "tracking": "381689924667",
-          "carrier": "FedEx",
-          "shipDate": "2026-06-01",
-          "estDelivery": null,
-          "status": "In Transit",
-          "contents": "31-069 Nvy/Wht x40; 39-165 Navy x150"
-        },
-        {
-          "tracking": "381687117877",
-          "carrier": "FedEx",
-          "shipDate": "2026-06-01",
-          "estDelivery": null,
-          "status": "In Transit",
-          "contents": "39-165 Col. Blue x100"
-        }
-      ]
-    },
-    {
-      "id": "rec8ckaD5D0QoWC1m",
-      "orderNumber": "OT1072888",
-      "vendor": "Otto Cap",
-      "vendorSO": "PO: estra",
-      "orderDate": "2026-05-27",
-      "status": "Shipped",
-      "expectedDelivery": null,
-      "orderTotal": null,
-      "totalPieces": null,
-      "carrier": null,
-      "source": "Email",
-      "lastUpdated": "2026-06-02T20:40:00.000Z",
-      "orderUrl": null,
-      "flag": "🔵 In progress",
-      "shipments": []
-    },
-    {
       "id": "recPBpOj3sOKakHA5",
       "orderNumber": "OT1070165",
       "vendor": "Otto Cap",
       "vendorSO": "PO: faire",
       "orderDate": "2026-05-22",
       "status": "In Progress",
-      "expectedDelivery": null,
-      "orderTotal": null,
-      "totalPieces": null,
-      "carrier": null,
-      "source": "Email",
-      "lastUpdated": "2026-06-02T20:40:00.000Z",
-      "orderUrl": null,
-      "flag": "🔵 In progress",
-      "shipments": []
-    },
-    {
-      "id": "recdL0Vawvw73L9IH",
-      "orderNumber": "OT1070723",
-      "vendor": "Otto Cap",
-      "vendorSO": "PO: green",
-      "orderDate": "2026-05-22",
-      "status": "Shipped",
       "expectedDelivery": null,
       "orderTotal": null,
       "totalPieces": null,
@@ -278,23 +295,6 @@
       "shipments": []
     },
     {
-      "id": "recxKh87Oj8wEqSmt",
-      "orderNumber": "OT1066228",
-      "vendor": "Otto Cap",
-      "vendorSO": "PO: green",
-      "orderDate": "2026-05-15",
-      "status": "Shipped",
-      "expectedDelivery": null,
-      "orderTotal": null,
-      "totalPieces": null,
-      "carrier": null,
-      "source": "Email",
-      "lastUpdated": "2026-06-02T20:40:00.000Z",
-      "orderUrl": null,
-      "flag": "🔵 In progress",
-      "shipments": []
-    },
-    {
       "id": "recan0STQk4wAXprB",
       "orderNumber": "SO5047406",
       "vendor": "Otto Cap",
@@ -325,7 +325,7 @@
       "source": "Email",
       "lastUpdated": "2026-06-03T12:00:00.000Z",
       "orderUrl": null,
-      "flag": "✅ Delivered",
+      "flag": "🟢 Delivered",
       "shipments": [
         {
           "tracking": "1ZK58W750309107567",
@@ -351,7 +351,7 @@
       "source": "Email",
       "lastUpdated": "2026-06-03T12:00:00.000Z",
       "orderUrl": null,
-      "flag": "✅ Delivered",
+      "flag": "🟢 Delivered",
       "shipments": [
         {
           "tracking": "1ZK58W750308976746",
@@ -385,16 +385,8 @@
       "source": "Email",
       "lastUpdated": "2026-06-03T12:00:00.000Z",
       "orderUrl": null,
-      "flag": "✅ Delivered",
+      "flag": "🟢 Delivered",
       "shipments": [
-        {
-          "tracking": "1ZK58W750308940220",
-          "carrier": "UPS",
-          "shipDate": "2026-05-27",
-          "estDelivery": "2026-05-28",
-          "status": "Delivered",
-          "contents": "CN warehouse – $200.70"
-        },
         {
           "tracking": "1Z031F880312194369",
           "carrier": "UPS",
@@ -402,6 +394,14 @@
           "estDelivery": "2026-05-28",
           "status": "Delivered",
           "contents": "DS warehouse – $25.52"
+        },
+        {
+          "tracking": "1ZK58W750308940220",
+          "carrier": "UPS",
+          "shipDate": "2026-05-27",
+          "estDelivery": "2026-05-28",
+          "status": "Delivered",
+          "contents": "CN warehouse – $200.70"
         }
       ]
     },
@@ -419,7 +419,7 @@
       "source": "Email",
       "lastUpdated": "2026-06-03T12:00:00.000Z",
       "orderUrl": null,
-      "flag": "✅ Delivered",
+      "flag": "🟢 Delivered",
       "shipments": [
         {
           "tracking": "1ZE9W0610303067192",
@@ -453,7 +453,7 @@
       "source": "Email",
       "lastUpdated": "2026-06-03T12:00:00.000Z",
       "orderUrl": null,
-      "flag": "✅ Delivered",
+      "flag": "🟢 Delivered",
       "shipments": [
         {
           "tracking": "1ZK58W750308770388",
@@ -479,7 +479,7 @@
       "source": "Email",
       "lastUpdated": "2026-06-03T12:00:00.000Z",
       "orderUrl": null,
-      "flag": "✅ Delivered",
+      "flag": "🟢 Delivered",
       "shipments": [
         {
           "tracking": "1ZK58W750308706546",
@@ -505,7 +505,7 @@
       "source": "Email",
       "lastUpdated": "2026-06-03T12:00:00.000Z",
       "orderUrl": null,
-      "flag": "✅ Delivered",
+      "flag": "🟢 Delivered",
       "shipments": [
         {
           "tracking": "1Z90A10R0313809205",
@@ -539,7 +539,7 @@
       "source": "Email",
       "lastUpdated": "2026-06-03T12:00:00.000Z",
       "orderUrl": null,
-      "flag": "✅ Delivered",
+      "flag": "🟢 Delivered",
       "shipments": [
         {
           "tracking": "1ZK58W750308541625",
@@ -565,7 +565,7 @@
       "source": "Email",
       "lastUpdated": "2026-06-03T12:00:00.000Z",
       "orderUrl": null,
-      "flag": "✅ Delivered",
+      "flag": "🟢 Delivered",
       "shipments": [
         {
           "tracking": "1ZH929H60300169988",
@@ -573,7 +573,7 @@
           "shipDate": "2026-05-12",
           "estDelivery": "2026-05-13",
           "status": "Delivered",
-          "contents": null
+          "contents": "NV warehouse · PO hats"
         }
       ]
     }
