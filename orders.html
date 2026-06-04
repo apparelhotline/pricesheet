@@ -18,6 +18,7 @@
     --chip:#f0f0f0; --chip-ink:#222222;
     --good:#0a7d2c; --good-bg:#e7f6ec;
     --transit:#1452c9; --transit-bg:#e6efff;
+    --ship:#6d3bd6; --ship-bg:#efe7fb;
     --warn:#b25b00; --warn-bg:#fdeddd;
     --bad:#b81c1c; --bad-bg:#fdebeb;
     --shadow:0 1px 2px rgba(0,0,0,.05),0 8px 24px rgba(0,0,0,.04);
@@ -34,6 +35,7 @@
     --chip:#22262c; --chip-ink:#d4d8de;
     --good:#54d486; --good-bg:#10371f;
     --transit:#74a4ff; --transit-bg:#13233f;
+    --ship:#bca2ff; --ship-bg:#241a3d;
     --warn:#f0a85a; --warn-bg:#3a2811;
     --bad:#f08a8a; --bad-bg:#3a1717;
     --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35);
@@ -96,6 +98,12 @@
   .order-id{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap}
   .order-num{font-family:var(--font-mono); font-weight:600; font-size:16px}
   .vendor{font-family:var(--font-display); font-weight:600; font-size:15px}
+  .po-chip{
+    display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600;
+    font-family:var(--font-display); color:var(--chip-ink); background:var(--chip);
+    padding:2px 9px; border-radius:999px; letter-spacing:.01em;
+  }
+  .po-chip span{color:var(--muted); font-weight:700; font-size:10px; text-transform:uppercase; letter-spacing:.06em}
   .head-right{display:flex; align-items:center; gap:10px}
   .chev{
     width:18px; height:18px; flex:none; color:var(--muted);
@@ -128,7 +136,8 @@
     padding:3px 10px; border-radius:999px; font-family:var(--font-display); white-space:nowrap;
   }
   .badge::before{content:""; width:7px; height:7px; border-radius:50%; background:currentColor; opacity:.9}
-  .b-shipped,.b-intransit{color:var(--transit); background:var(--transit-bg)}
+  .b-shipped{color:var(--ship); background:var(--ship-bg)}
+  .b-intransit{color:var(--transit); background:var(--transit-bg)}
   .b-delivered{color:var(--good); background:var(--good-bg)}
   .b-inprogress{color:var(--warn); background:var(--warn-bg)}
   .b-backordered{color:var(--bad); background:var(--bad-bg)}
@@ -215,7 +224,7 @@
   </header>
 
   <section class="stats" id="stats" hidden>
-    <div class="stat"><div class="n" id="s-orders">–</div><div class="l">Orders</div></div>
+    <div class="stat"><div class="n" id="s-orders">–</div><div class="l">Active orders</div></div>
     <div class="stat"><div class="n" id="s-transit">–</div><div class="l">In transit</div></div>
     <div class="stat"><div class="n" id="s-vendors">–</div><div class="l">Vendors</div></div>
     <div class="stat"><div class="n" id="s-back">–</div><div class="l">Backordered</div></div>
@@ -233,7 +242,6 @@
     <div class="delivered-head" id="deliveredHead" role="button" tabindex="0" aria-expanded="false">
       <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
       <span class="dtitle">Delivered</span>
-      <span class="dcount" id="deliveredCount">0</span>
     </div>
     <div class="delivered-body"><div class="delivered-body-inner">
       <div class="delivered-list" id="deliveredList"></div>
@@ -266,7 +274,6 @@
   var elList = document.getElementById('list');
   var elDeliveredWrap = document.getElementById('deliveredWrap');
   var elDeliveredList = document.getElementById('deliveredList');
-  var elDeliveredCount = document.getElementById('deliveredCount');
   var elDeliveredHead = document.getElementById('deliveredHead');
   var elQ = document.getElementById('q'), elVendor = document.getElementById('vendor'), elStatus = document.getElementById('status');
   var OPEN = {};            // expanded order ids (persist across re-renders)
@@ -403,6 +410,11 @@
     var dispStatus = done ? 'Delivered' : (o.status||'—');
     var dispClass  = done ? 'b-delivered' : badgeClass(o.status);
 
+    // PO for the chip: explicit `po`, else derived from a "PO: …" reference.
+    var po = o.po || ((o.vendorSO && /^PO\s*:/i.test(o.vendorSO)) ? o.vendorSO.replace(/^PO\s*:\s*/i,'').trim() : '');
+    // Ref line: show vendorSO unless it's just the PO we already chip.
+    var refLine = (o.vendorSO && o.vendorSO.replace(/^PO\s*:\s*/i,'').trim() !== po) ? o.vendorSO : '';
+
     var pkgLine = count
       ? '<span class="pkg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96 12 12.01l8.73-5.05M12 22.08V12"/></svg>'+
           count+' shipment'+(count>1?'s':'')+'</span>'+
@@ -412,7 +424,7 @@
 
     // order-level detail line (inside expand)
     var detail = '<div class="detail-grid">'+
-      (o.vendorSO?'<div class="d"><span>Ref </span><b>'+esc(o.vendorSO)+'</b></div>':'')+
+      (po?'<div class="d"><span>PO </span><b>'+esc(po)+'</b></div>':'')+
       (o.orderTotal!=null?'<div class="d"><span>Total </span><b>'+esc(fmtMoney(o.orderTotal))+'</b></div>':'')+
       (o.totalPieces!=null?'<div class="d"><span>Pieces </span><b>'+esc(o.totalPieces)+'</b></div>':'')+
       (o.carrier?'<div class="d"><span>Carrier </span><b>'+esc(o.carrier)+'</b></div>':'')+
@@ -427,13 +439,16 @@
     return '<article class="order'+(open?' open':'')+'" data-id="'+esc(o.id)+'">'+
       '<div class="order-head" role="button" tabindex="0" aria-expanded="'+(open?'true':'false')+'">'+
         '<div class="order-id"><span class="order-num">'+esc(o.orderNumber)+'</span>'+
-          '<span class="vendor">'+esc(o.vendor||'—')+'</span></div>'+
+          '<span class="vendor">'+esc(o.vendor||'—')+'</span>'+
+          (po?'<span class="po-chip"><span>PO</span> '+esc(po)+'</span>':'')+
+        '</div>'+
         '<div class="head-right">'+
           '<span class="badge '+dispClass+'">'+esc(dispStatus)+'</span>'+
           CHEV+
         '</div>'+
       '</div>'+
       '<div class="meta">'+
+        (refLine?'<div><span>Ref </span><b>'+esc(refLine)+'</b></div>':'')+
         (o.orderDate?'<div><span>Ordered </span><b>'+esc(o.orderDate)+'</b></div>':'')+
         (o.totalPieces!=null?'<div><span>Pieces </span><b>'+esc(o.totalPieces)+'</b></div>':'')+
         (o.orderTotal!=null?'<div><span>Total </span><b>'+esc(fmtMoney(o.orderTotal))+'</b></div>':'')+
@@ -463,7 +478,6 @@
 
     if(delivered.length){
       elDeliveredWrap.hidden = false;
-      elDeliveredCount.textContent = delivered.length;
       elDeliveredList.innerHTML = delivered.map(orderHtml).join('');
     } else {
       elDeliveredWrap.hidden = true;
@@ -533,13 +547,14 @@
     if(!r.ok) throw new Error('HTTP '+r.status); return r.json();
   }).then(function(d){
     ALL = d.orders || [];
-    var transit = 0, back = 0, vendors = {};
+    var transit = 0, back = 0, active = 0, vendors = {};
     ALL.forEach(function(o){
       if(o.vendor) vendors[o.vendor]=1;
       if(/backorder/i.test(o.status||'')) back++;
+      if(!isDelivered(o)) active++;
       (o.shipments||[]).forEach(function(s){ if(/transit/i.test(s.status||'')) transit++; });
     });
-    document.getElementById('s-orders').textContent = ALL.length;
+    document.getElementById('s-orders').textContent = active;
     document.getElementById('s-transit').textContent = transit;
     document.getElementById('s-vendors').textContent = Object.keys(vendors).length;
     document.getElementById('s-back').textContent = back;
