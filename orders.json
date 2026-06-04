@@ -1,8 +1,34 @@
 {
-  "updated": "2026-06-03T22:10:10.000Z",
+  "updated": "2026-06-04T02:07:32.000Z",
   "source": "Airtable · Vendor Order Tracking",
   "orderCount": 24,
   "orders": [
+    {
+      "id": "recy2cyprJVawJH4o",
+      "orderNumber": "73148873",
+      "vendor": "S&S Activewear",
+      "vendorSO": "Inv 99068636",
+      "orderDate": "2026-05-29",
+      "status": "Shipped",
+      "expectedDelivery": "2026-06-01",
+      "orderTotal": 350,
+      "totalPieces": null,
+      "carrier": "UPS",
+      "source": "Email",
+      "lastUpdated": "2026-06-03T12:00:00.000Z",
+      "orderUrl": null,
+      "flag": "🔴 Overdue",
+      "shipments": [
+        {
+          "tracking": "1ZE9W0610303404059",
+          "carrier": "UPS",
+          "shipDate": "2026-05-29",
+          "estDelivery": "2026-06-01",
+          "status": "In Transit",
+          "contents": null
+        }
+      ]
+    },
     {
       "id": "recy299rctVpKct2Q",
       "orderNumber": "73269607",
@@ -17,7 +43,7 @@
       "source": "Email",
       "lastUpdated": "2026-06-03T12:00:00.000Z",
       "orderUrl": null,
-      "flag": "🟡 Arriving soon",
+      "flag": "🔴 Overdue",
       "shipments": [
         {
           "tracking": "1ZK58W750309163014",
@@ -43,7 +69,7 @@
       "source": "Email",
       "lastUpdated": "2026-06-03T12:00:00.000Z",
       "orderUrl": null,
-      "flag": "🟡 Arriving soon",
+      "flag": "🔴 Overdue",
       "shipments": [
         {
           "tracking": "1ZK58W750309140039",
@@ -82,32 +108,6 @@
       ]
     },
     {
-      "id": "recy2cyprJVawJH4o",
-      "orderNumber": "73148873",
-      "vendor": "S&S Activewear",
-      "vendorSO": "Inv 99068636",
-      "orderDate": "2026-05-29",
-      "status": "Shipped",
-      "expectedDelivery": "2026-06-01",
-      "orderTotal": 350,
-      "totalPieces": null,
-      "carrier": "UPS",
-      "source": "Email",
-      "lastUpdated": "2026-06-03T12:00:00.000Z",
-      "orderUrl": null,
-      "flag": "🔴 Overdue",
-      "shipments": [
-        {
-          "tracking": "1ZE9W0610303404059",
-          "carrier": "UPS",
-          "shipDate": "2026-05-29",
-          "estDelivery": "2026-06-01",
-          "status": "In Transit",
-          "contents": null
-        }
-      ]
-    },
-    {
       "id": "reclPR5M7IKPVwdqg",
       "orderNumber": "OT1076165",
       "vendor": "Otto Cap",
@@ -125,10 +125,10 @@
       "shipments": []
     },
     {
-      "id": "recmzNbCcILlr5r7f",
-      "orderNumber": "OT1075793",
+      "id": "recvfB4aWfqkRU3tK",
+      "orderNumber": "OT1075802",
       "vendor": "Otto Cap",
-      "vendorSO": "PO: RHP P",
+      "vendorSO": "PO: THE A",
       "orderDate": "2026-06-02",
       "status": "In Progress",
       "expectedDelivery": null,
@@ -142,10 +142,10 @@
       "shipments": []
     },
     {
-      "id": "recvfB4aWfqkRU3tK",
-      "orderNumber": "OT1075802",
+      "id": "recmzNbCcILlr5r7f",
+      "orderNumber": "OT1075793",
       "vendor": "Otto Cap",
-      "vendorSO": "PO: THE A",
+      "vendorSO": "PO: RHP P",
       "orderDate": "2026-06-02",
       "status": "In Progress",
       "expectedDelivery": null,
