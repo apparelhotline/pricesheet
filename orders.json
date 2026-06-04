@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-04T14:06:37.000Z",
+  "updated": "2026-06-04T19:08:28.000Z",
   "source": "Airtable · Vendor Order Tracking",
   "orderCount": 24,
   "orders": [
@@ -34,6 +34,7 @@
       "orderNumber": "73269607",
       "vendor": "S&S Activewear",
       "vendorSO": "Inv 99227592",
+      "po": "GOLF DARTS",
       "orderDate": "2026-06-02",
       "status": "Shipped",
       "expectedDelivery": "2026-06-03",
@@ -43,7 +44,7 @@
       "source": "Email",
       "lastUpdated": "2026-06-03T12:00:00.000Z",
       "orderUrl": null,
-      "flag": "🔴 Overdue",
+      "flag": "🔵 In progress",
       "shipments": [
         {
           "tracking": "1ZK58W750309163014",
@@ -51,7 +52,7 @@
           "shipDate": "2026-06-02",
           "estDelivery": "2026-06-03",
           "status": "In Transit",
-          "contents": null
+          "contents": "CN warehouse · PO GOLF DARTS"
         }
       ]
     },
@@ -60,6 +61,7 @@
       "orderNumber": "73243557",
       "vendor": "S&S Activewear",
       "vendorSO": "Inv 99193930",
+      "po": "QC GROWTH TSH",
       "orderDate": "2026-06-01",
       "status": "Shipped",
       "expectedDelivery": "2026-06-03",
@@ -69,7 +71,7 @@
       "source": "Email",
       "lastUpdated": "2026-06-03T12:00:00.000Z",
       "orderUrl": null,
-      "flag": "🔴 Overdue",
+      "flag": "🔵 In progress",
       "shipments": [
         {
           "tracking": "1ZK58W750309140039",
@@ -77,7 +79,7 @@
           "shipDate": "2026-06-02",
           "estDelivery": "2026-06-03",
           "status": "In Transit",
-          "contents": null
+          "contents": "CN warehouse · PO QC GROWTH TSH"
         }
       ]
     },
@@ -95,7 +97,7 @@
       "source": "Email",
       "lastUpdated": "2026-06-03T12:00:00.000Z",
       "orderUrl": null,
-      "flag": "🟡 Arriving soon",
+      "flag": "🔵 In progress",
       "shipments": [
         {
           "tracking": "1ZK58W770306487079",
@@ -103,7 +105,7 @@
           "shipDate": "2026-06-02",
           "estDelivery": "2026-06-08",
           "status": "In Transit",
-          "contents": null
+          "contents": "MA warehouse"
         }
       ]
     },
@@ -556,6 +558,7 @@
       "orderNumber": "72662710",
       "vendor": "S&S Activewear",
       "vendorSO": "Inv 98475483",
+      "po": "hats",
       "orderDate": "2026-05-12",
       "status": "Delivered",
       "expectedDelivery": "2026-05-13",
