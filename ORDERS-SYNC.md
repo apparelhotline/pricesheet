@@ -17,6 +17,7 @@ on a schedule by a Make.com scenario and committed to this repo. The static site
       "orderNumber": "73101190",            // Orders.Order Number (primary)
       "vendor": "S&S Activewear",           // Orders.Vendor (linked record name)
       "vendorSO": "Inv 99010215 / 99010216",// Orders.Vendor SO #
+      "po": "GOLF DARTS",                   // Orders.PO  (customer PO #/name; omit/null if blank)
       "orderDate": "2026-05-27",            // Orders.Order Date (YYYY-MM-DD)
       "status": "Shipped",                  // Orders.Status (single select name)
       "expectedDelivery": null,             // Orders.Expected Delivery
@@ -55,7 +56,7 @@ use an HTTP + PAT module — see note below).
 | # | Module | Config |
 |---|--------|--------|
 | 1 | **Schedule** (trigger) | Every 30 minutes |
-| 2 | **Airtable › Search Records** | Base `Vendor Order Tracking` (`appaSS8smskprOGW2`), table **Orders** (`tblakbnZYhhKEyYLW`). No filter = all orders. Sort `Order Date` desc. |
+| 2 | **Airtable › Search Records** | Base `Vendor Order Tracking` (`appaSS8smskprOGW2`), table **Orders** (`tblakbnZYhhKEyYLW`). No filter = all orders. Sort `Order Date` desc. **Map the `PO` field (`flduqjX5fyUDf3NVJ`) → JSON `po`** so the dashboard can show it. |
 | 3 | **Airtable › Search Records** | Same base, table **Shipments** (`tblyPWtzy7rsig5Ml`). Filter formula: `{Order} = "{{2.Order Number}}"` so each order pulls its own boxes. |
 | 4 | **Array aggregator** (over module 3) | Target structure = a shipment object: `tracking / carrier / shipDate / estDelivery / status / contents`. Produces the `shipments[]` array per order. |
 | 5 | **Array aggregator** (over module 2) | Target structure = an order object (the fields above), mapping `shipments` ← the array from module 4. |
@@ -69,6 +70,16 @@ The repo has no GitHub connection in Make yet. Two options:
 2. **HTTP module** with a fine-grained PAT (Contents: read/write on this repo):
    - `GET https://api.github.com/repos/apparelhotline/pricesheet/contents/orders.json?ref=main` → read `.sha`
    - `PUT` same URL with body `{ "message": "...", "content": base64(payload), "sha": "<sha>", "branch": "main" }`
+
+## ⚠️ The live sync currently runs outside Make
+As of 2026-06-04 the actual `orders.json` updates are **not** produced by the Make
+scenario above. The commits are authored as `apparelhotline <Matt@apparelhotline.com>`
+("tracking update <ISO>") roughly every few hours and pull from this same Airtable base —
+but that automation lives outside this Make org and outside this repo (likely a Google
+Apps Script bound to the order sheet, or a server-side script). Wherever it lives, it uses
+an **explicit field map** (Airtable `Vendor SO #` → `vendorSO`, etc.), so the new **`PO`**
+field will not appear in `orders.json` until that map adds `PO → po`. The dashboard already
+renders `po` when present (and derives it from any `PO: …` reference for vendors like Otto Cap).
 
 ## Why a single committed file
 GitHub Pages serves `orders.json` straight from the repo, so the price sheet can read a
