@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-04T19:08:28.000Z",
+  "updated": "2026-06-05T05:28:15.000Z",
   "source": "Airtable · Vendor Order Tracking",
   "orderCount": 24,
   "orders": [
@@ -30,33 +30,6 @@
       ]
     },
     {
-      "id": "recy299rctVpKct2Q",
-      "orderNumber": "73269607",
-      "vendor": "S&S Activewear",
-      "vendorSO": "Inv 99227592",
-      "po": "GOLF DARTS",
-      "orderDate": "2026-06-02",
-      "status": "Shipped",
-      "expectedDelivery": "2026-06-03",
-      "orderTotal": 1291.2,
-      "totalPieces": null,
-      "carrier": "UPS",
-      "source": "Email",
-      "lastUpdated": "2026-06-03T12:00:00.000Z",
-      "orderUrl": null,
-      "flag": "🔵 In progress",
-      "shipments": [
-        {
-          "tracking": "1ZK58W750309163014",
-          "carrier": "UPS",
-          "shipDate": "2026-06-02",
-          "estDelivery": "2026-06-03",
-          "status": "In Transit",
-          "contents": "CN warehouse · PO GOLF DARTS"
-        }
-      ]
-    },
-    {
       "id": "rec5MpCzNGOLRK9yZ",
       "orderNumber": "73243557",
       "vendor": "S&S Activewear",
@@ -71,7 +44,7 @@
       "source": "Email",
       "lastUpdated": "2026-06-03T12:00:00.000Z",
       "orderUrl": null,
-      "flag": "🔵 In progress",
+      "flag": "🔴 Overdue",
       "shipments": [
         {
           "tracking": "1ZK58W750309140039",
@@ -80,6 +53,33 @@
           "estDelivery": "2026-06-03",
           "status": "In Transit",
           "contents": "CN warehouse · PO QC GROWTH TSH"
+        }
+      ]
+    },
+    {
+      "id": "recy299rctVpKct2Q",
+      "orderNumber": "73269607",
+      "vendor": "S&S Activewear",
+      "vendorSO": "Inv 99227592",
+      "po": "GOLF DARTS",
+      "orderDate": "2026-06-02",
+      "status": "Shipped",
+      "expectedDelivery": "2026-06-03",
+      "orderTotal": 1291.2,
+      "totalPieces": null,
+      "carrier": "UPS",
+      "source": "Email",
+      "lastUpdated": "2026-06-03T12:00:00.000Z",
+      "orderUrl": null,
+      "flag": "🔴 Overdue",
+      "shipments": [
+        {
+          "tracking": "1ZK58W750309163014",
+          "carrier": "UPS",
+          "shipDate": "2026-06-02",
+          "estDelivery": "2026-06-03",
+          "status": "In Transit",
+          "contents": "CN warehouse · PO GOLF DARTS"
         }
       ]
     },
@@ -97,7 +97,7 @@
       "source": "Email",
       "lastUpdated": "2026-06-03T12:00:00.000Z",
       "orderUrl": null,
-      "flag": "🔵 In progress",
+      "flag": "🟡 Arriving soon",
       "shipments": [
         {
           "tracking": "1ZK58W770306487079",
@@ -114,6 +114,7 @@
       "orderNumber": "OT1073651",
       "vendor": "Otto Cap",
       "vendorSO": "PO: TRUCKERS",
+      "po": "TRUCKERS",
       "orderDate": "2026-05-28",
       "status": "Shipped",
       "expectedDelivery": null,
@@ -148,6 +149,7 @@
       "orderNumber": "OT1072888",
       "vendor": "Otto Cap",
       "vendorSO": "PO: estra",
+      "po": "estra",
       "orderDate": "2026-05-27",
       "status": "Shipped",
       "expectedDelivery": null,
@@ -165,6 +167,7 @@
       "orderNumber": "OT1070723",
       "vendor": "Otto Cap",
       "vendorSO": "PO: green",
+      "po": "green",
       "orderDate": "2026-05-22",
       "status": "Shipped",
       "expectedDelivery": null,
@@ -182,6 +185,7 @@
       "orderNumber": "OT1066228",
       "vendor": "Otto Cap",
       "vendorSO": "PO: green",
+      "po": "green",
       "orderDate": "2026-05-15",
       "status": "Shipped",
       "expectedDelivery": null,
@@ -199,6 +203,7 @@
       "orderNumber": "OT1076165",
       "vendor": "Otto Cap",
       "vendorSO": "PO: extra",
+      "po": "extra",
       "orderDate": "2026-06-02",
       "status": "In Progress",
       "expectedDelivery": null,
@@ -216,6 +221,7 @@
       "orderNumber": "OT1075802",
       "vendor": "Otto Cap",
       "vendorSO": "PO: THE A",
+      "po": "THE A",
       "orderDate": "2026-06-02",
       "status": "In Progress",
       "expectedDelivery": null,
@@ -233,6 +239,7 @@
       "orderNumber": "OT1075793",
       "vendor": "Otto Cap",
       "vendorSO": "PO: RHP P",
+      "po": "RHP P",
       "orderDate": "2026-06-02",
       "status": "In Progress",
       "expectedDelivery": null,
@@ -250,6 +257,7 @@
       "orderNumber": "OT1070165",
       "vendor": "Otto Cap",
       "vendorSO": "PO: faire",
+      "po": "faire",
       "orderDate": "2026-05-22",
       "status": "In Progress",
       "expectedDelivery": null,
@@ -284,6 +292,7 @@
       "orderNumber": "OT1067634",
       "vendor": "Otto Cap",
       "vendorSO": "PO: blue",
+      "po": "blue",
       "orderDate": "2026-05-18",
       "status": "In Progress",
       "expectedDelivery": null,
@@ -301,6 +310,7 @@
       "orderNumber": "SO5047406",
       "vendor": "Otto Cap",
       "vendorSO": "PO: 051526 (backorder)",
+      "po": "051526",
       "orderDate": "2026-05-15",
       "status": "Backordered",
       "expectedDelivery": null,
