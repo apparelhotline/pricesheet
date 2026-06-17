@@ -209,10 +209,19 @@
         watching its PR, it wakes up and responds. It's the real bridge to the official web sessions.
       </div>
       <div class="field">
+        <label>Connect</label>
+        <button class="btn" id="connectBtn" type="button">⌘ Connect with GitHub</button>
+        <div class="hint">One tap opens GitHub's token page with the <span class="mono">repo</span> scope and a name pre-filled.
+          Tap <b>Generate token</b> → <b>Copy</b>, return here, and tap <b>Paste</b> below. Nothing leaves your device.</div>
+      </div>
+      <div class="field">
         <label>GitHub token</label>
-        <input id="f-token" type="password" placeholder="github_pat_… or ghp_…" autocomplete="off" autocapitalize="off" spellcheck="false">
-        <div class="hint">Stored only on this device (localStorage). Use a fine-grained PAT scoped to your repo with
-          <b>Contents: read</b>, <b>Pull requests: read &amp; write</b>, <b>Actions: read</b> — or a classic token with <span class="mono">repo</span> scope.</div>
+        <div style="display:flex; gap:8px; align-items:stretch">
+          <input id="f-token" type="password" placeholder="github_pat_… or ghp_…" autocomplete="off" autocapitalize="off" spellcheck="false" style="flex:1">
+          <button class="btn ghost" id="pasteBtn" type="button" style="width:auto; padding:0 16px; white-space:nowrap">Paste</button>
+        </div>
+        <div class="hint">Stored only on this device (localStorage). Classic token needs the <span class="mono">repo</span> scope; or a
+          fine-grained PAT on your repo with <b>Contents: read</b>, <b>Pull requests: read &amp; write</b>, <b>Actions: read</b>.</div>
       </div>
       <div class="field">
         <label>Owner</label>
@@ -519,6 +528,29 @@ function signOut(){
   cfg.token=''; me=null; sessions=[]; saveCfg();
   $('#f-token').value=''; const st=$('#settingsStatus'); st.className='status'; st.textContent='Token cleared.';
 }
+// Guided one-tap PAT: open GitHub's token page with scope + name pre-filled.
+function connectGitHub(){
+  const owner = $('#f-owner').value.trim() || cfg.owner || 'apparelhotline';
+  const repo  = $('#f-repo').value.trim()  || cfg.repo  || 'pricesheet';
+  const desc = encodeURIComponent(`Cowork PWA (${owner}/${repo})`);
+  const url = `https://github.com/settings/tokens/new?scopes=repo&description=${desc}`;
+  const st = $('#settingsStatus'); st.className='status'; st.textContent='Opened GitHub — generate the token, copy it, then tap Paste.';
+  window.open(url, '_blank', 'noopener');
+}
+// Pull the token straight from the clipboard (HTTPS only) and connect.
+async function pasteToken(){
+  const st = $('#settingsStatus');
+  try {
+    const t = (await navigator.clipboard.readText()).trim();
+    if(!t){ st.className='status err'; st.textContent='Clipboard is empty.'; return; }
+    $('#f-token').value = t;
+    await saveSettings();
+  } catch(e){
+    st.className='status err';
+    st.textContent='Couldn’t read clipboard — paste into the field manually, then Save & connect.';
+    $('#f-token').focus();
+  }
+}
 
 /* ---------------- Composer autogrow ---------------- */
 function autoGrow(ta){ ta.style.height='auto'; ta.style.height=Math.min(ta.scrollHeight,140)+'px'; }
@@ -529,6 +561,8 @@ $('#backBtn').addEventListener('click', goBack);
 $('#refreshBtn').addEventListener('click', refresh);
 $('#saveBtn').addEventListener('click', saveSettings);
 $('#signoutBtn').addEventListener('click', signOut);
+$('#connectBtn').addEventListener('click', connectGitHub);
+$('#pasteBtn').addEventListener('click', pasteToken);
 $('#sendBtn').addEventListener('click', sendMessage);
 $('#msgInput').addEventListener('input', e => autoGrow(e.target));
 $('#msgInput').addEventListener('keydown', e => {

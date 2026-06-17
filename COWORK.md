@@ -30,17 +30,28 @@ That gives you genuine two‑way chat with your sessions from your phone, today,
 
 ## First‑run setup
 
-Open the **Settings** tab and enter:
+Open the **Settings** tab:
 
-- **GitHub token** — stored only on your device (localStorage). Either:
-  - a **fine‑grained PAT** scoped to `apparelhotline/pricesheet` with
-    **Contents: Read**, **Pull requests: Read & write**, **Actions: Read**; or
-  - a **classic PAT** with the `repo` scope.
-- **Owner** — `apparelhotline`
-- **Repository** — `pricesheet`
-- **Session branch prefix** — `claude/` (default)
+1. Tap **⌘ Connect with GitHub** — this opens GitHub's token page with the `repo` scope and a
+   name (`Cowork PWA (owner/repo)`) already filled in.
+2. Tap **Generate token**, then **Copy** it.
+3. Back in the app, tap **Paste** next to the token field — it reads the token from your clipboard
+   and connects automatically. (If the browser blocks clipboard access, paste into the field and tap
+   **Save & connect**.)
 
-Tap **Save & connect**. The Sessions tab will list every active cowork session.
+Owner / Repository / branch‑prefix default to `apparelhotline` / `pricesheet` / `claude/` and can be
+changed in the same screen.
+
+### Why guided PAT and not OAuth "device flow"
+
+A no‑paste OAuth device flow **cannot run from a static PWA**: GitHub's `login/device/code` and
+`login/oauth/access_token` endpoints don't send CORS headers, so the browser blocks them — it would
+require a backend/proxy to relay the token exchange. The guided PAT keeps the app fully static and
+keeps your token on‑device, while making setup nearly one‑tap.
+
+The token is stored only in this device's `localStorage`. Either a **classic PAT** with the `repo`
+scope, or a **fine‑grained PAT** on your repo with **Contents: Read**, **Pull requests: Read & write**,
+**Actions: Read**, works. Tap **Clear token** to remove it.
 
 ## Using it
 
