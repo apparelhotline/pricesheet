@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>Cowork — Claude Sessions</title>
+
+<!-- PWA / iOS install -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0d0e10">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cowork">
+<link rel="apple-touch-icon" href="assets/cowork-icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/cowork-icon-192.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d0e10; --bg-2:#16181c; --card:#16181c; --card-2:#1d2026;
+    --ink:#f3f4f6; --ink-2:#c8ccd2; --muted:#8b919b;
+    --hair:#262a30; --hair-strong:#3a3f47;
+    --accent:#f3f4f6; --accent-ink:#0d0e10;
+    --me:#1f6feb; --me-ink:#ffffff;
+    --chip:#22262c; --chip-ink:#d4d8de;
+    --good:#54d486; --good-bg:#10371f;
+    --transit:#74a4ff; --transit-bg:#13233f;
+    --warn:#f0a85a; --warn-bg:#3a2811;
+    --bad:#f08a8a; --bad-bg:#3a1717;
+    --font-display:"Space Grotesk","Inter",system-ui,sans-serif;
+    --font-sans:"Inter",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+    --font-mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:var(--font-sans); line-height:1.45;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    overscroll-behavior-y:none;
+  }
+  a{color:var(--transit)}
+  button{font-family:inherit}
+  .app{
+    display:flex; flex-direction:column; height:100dvh;
+    max-width:760px; margin:0 auto;
+  }
+
+  /* Header */
+  header.top{
+    position:sticky; top:0; z-index:20; background:rgba(13,14,16,.86);
+    backdrop-filter:saturate(140%) blur(12px);
+    border-bottom:1px solid var(--hair);
+    padding:calc(env(safe-area-inset-top) + 10px) 16px 10px;
+    display:flex; align-items:center; gap:10px;
+  }
+  header.top .back{display:none}
+  header.top.detail .back{display:inline-flex}
+  header.top.detail .brand{display:none}
+  .brand{display:flex; align-items:center; gap:9px; min-width:0}
+  .brand img{width:26px;height:26px;border-radius:7px}
+  .brand h1{font-family:var(--font-display); font-weight:700; letter-spacing:-.01em; font-size:18px; margin:0}
+  .htitle{min-width:0; flex:1}
+  .htitle .t{font-weight:700; font-size:16px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .htitle .s{color:var(--muted); font-size:12px; font-family:var(--font-mono); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .iconbtn{
+    appearance:none; border:1px solid var(--hair); background:var(--card);
+    color:var(--ink); width:38px; height:38px; border-radius:10px; font-size:17px;
+    display:inline-flex; align-items:center; justify-content:center; cursor:pointer; flex:none;
+  }
+  .iconbtn:active{transform:scale(.95)}
+  .spin{animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* Scroll body */
+  main{flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:14px 14px 24px}
+  .view{display:none}
+  .view.active{display:block}
+
+  /* Session cards */
+  .card{
+    background:var(--card); border:1px solid var(--hair); border-radius:14px;
+    padding:14px; margin-bottom:12px; cursor:pointer; transition:border-color .15s;
+  }
+  .card:active{border-color:var(--hair-strong)}
+  .card .row1{display:flex; align-items:center; gap:8px; margin-bottom:6px}
+  .card .name{font-family:var(--font-mono); font-weight:600; font-size:14px; word-break:break-all; flex:1}
+  .card .msg{color:var(--ink-2); font-size:14px; margin:2px 0 10px;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+  .card .meta{display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:12px; color:var(--muted)}
+  .badge{
+    display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:999px;
+    font-size:11px; font-weight:700; letter-spacing:.02em; text-transform:uppercase;
+    background:var(--chip); color:var(--chip-ink);
+  }
+  .badge.good{background:var(--good-bg); color:var(--good)}
+  .badge.run{background:var(--transit-bg); color:var(--transit)}
+  .badge.warn{background:var(--warn-bg); color:var(--warn)}
+  .badge.bad{background:var(--bad-bg); color:var(--bad)}
+  .badge.pr{background:#241a3d; color:#bca2ff}
+  .badge.draft{background:#2a2e35; color:#9aa2ad}
+  .dot{width:7px;height:7px;border-radius:50%;background:currentColor;display:inline-block}
+
+  /* Chat */
+  .chat{display:flex; flex-direction:column; gap:12px; padding-bottom:8px}
+  .bubble{max-width:86%; padding:10px 13px; border-radius:16px; font-size:14.5px; white-space:pre-wrap; word-wrap:break-word}
+  .bubble .who{font-size:11px; font-weight:700; color:var(--muted); margin-bottom:4px; text-transform:uppercase; letter-spacing:.03em}
+  .bubble .when{font-size:10.5px; color:var(--muted); margin-top:6px; opacity:.8; font-family:var(--font-mono)}
+  .bubble.them{align-self:flex-start; background:var(--card-2); border:1px solid var(--hair); border-bottom-left-radius:5px}
+  .bubble.me{align-self:flex-end; background:var(--me); color:var(--me-ink); border-bottom-right-radius:5px}
+  .bubble.me .who,.bubble.me .when{color:rgba(255,255,255,.8)}
+  .bubble.event{align-self:center; max-width:92%; background:transparent; border:1px dashed var(--hair);
+    color:var(--muted); font-size:12px; font-family:var(--font-mono); text-align:center; padding:7px 12px; border-radius:10px}
+  .bubble code{font-family:var(--font-mono); font-size:.92em; background:rgba(255,255,255,.08); padding:1px 5px; border-radius:5px}
+  .bubble.me code{background:rgba(0,0,0,.18)}
+  .bubble pre{font-family:var(--font-mono); font-size:12.5px; background:rgba(0,0,0,.32); padding:10px; border-radius:9px; overflow-x:auto; margin:6px 0}
+
+  /* Composer */
+  .composer{
+    border-top:1px solid var(--hair); background:var(--bg);
+    padding:10px 12px calc(env(safe-area-inset-bottom) + 10px);
+    display:flex; gap:9px; align-items:flex-end;
+  }
+  .composer textarea{
+    flex:1; resize:none; max-height:140px; min-height:44px; padding:11px 13px;
+    background:var(--card); color:var(--ink); border:1px solid var(--hair-strong);
+    border-radius:14px; font-family:inherit; font-size:15px; line-height:1.35; outline:none;
+  }
+  .composer textarea:focus{border-color:var(--me)}
+  .send{
+    flex:none; width:44px; height:44px; border-radius:50%; border:none; cursor:pointer;
+    background:var(--accent); color:var(--accent-ink); font-size:18px; font-weight:800;
+    display:inline-flex; align-items:center; justify-content:center;
+  }
+  .send:disabled{opacity:.4}
+
+  /* Bottom nav */
+  nav.tabs{
+    display:flex; border-top:1px solid var(--hair); background:var(--bg);
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  nav.tabs button{
+    flex:1; appearance:none; background:none; border:none; color:var(--muted);
+    padding:9px 0 8px; font-size:11px; font-weight:600; cursor:pointer;
+    display:flex; flex-direction:column; align-items:center; gap:3px;
+  }
+  nav.tabs button .ic{font-size:20px; line-height:1}
+  nav.tabs button.active{color:var(--ink)}
+
+  /* Settings + empty/info */
+  .field{margin-bottom:14px}
+  .field label{display:block; font-size:12px; font-weight:700; color:var(--ink-2); margin-bottom:6px; text-transform:uppercase; letter-spacing:.03em}
+  .field input{
+    width:100%; padding:12px 13px; background:var(--card); color:var(--ink);
+    border:1px solid var(--hair-strong); border-radius:11px; font-size:15px; font-family:var(--font-mono); outline:none;
+  }
+  .field input:focus{border-color:var(--me)}
+  .field .hint{font-size:12px; color:var(--muted); margin-top:6px; line-height:1.5}
+  .btn{
+    width:100%; padding:13px; border-radius:12px; border:none; cursor:pointer;
+    background:var(--accent); color:var(--accent-ink); font-size:15px; font-weight:700;
+  }
+  .btn.ghost{background:transparent; border:1px solid var(--hair-strong); color:var(--ink)}
+  .btn:active{transform:scale(.99)}
+  .note{background:var(--card); border:1px solid var(--hair); border-radius:12px; padding:13px 14px; font-size:13px; color:var(--ink-2); line-height:1.55; margin-bottom:14px}
+  .note b{color:var(--ink)}
+  .status{font-size:12.5px; margin-top:8px; min-height:18px; font-family:var(--font-mono)}
+  .status.ok{color:var(--good)} .status.err{color:var(--bad)}
+  .empty{text-align:center; color:var(--muted); padding:48px 24px}
+  .empty .big{font-size:40px; margin-bottom:12px}
+  .empty h2{color:var(--ink); font-family:var(--font-display); font-size:19px; margin:0 0 8px}
+  .skel{height:96px; border-radius:14px; margin-bottom:12px; background:linear-gradient(90deg,var(--card),var(--card-2),var(--card)); background-size:200% 100%; animation:sh 1.3s infinite}
+  @keyframes sh{to{background-position:-200% 0}}
+  .muted{color:var(--muted)} .mono{font-family:var(--font-mono)}
+  h2.sec{font-family:var(--font-display); font-size:15px; margin:4px 2px 12px; color:var(--ink-2); text-transform:uppercase; letter-spacing:.05em; font-weight:600}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top" id="topbar">
+    <button class="iconbtn back" id="backBtn" aria-label="Back">‹</button>
+    <div class="brand"><img src="assets/cowork-icon-192.png" alt=""><h1>Cowork</h1></div>
+    <div class="htitle" id="htitle" style="display:none"></div>
+    <button class="iconbtn" id="refreshBtn" aria-label="Refresh">⟳</button>
+  </header>
+
+  <main id="main">
+    <!-- SESSIONS -->
+    <section class="view active" id="view-sessions">
+      <div id="sessionsList">
+        <div class="skel"></div><div class="skel"></div><div class="skel"></div>
+      </div>
+    </section>
+
+    <!-- CHAT -->
+    <section class="view" id="view-chat">
+      <div class="chat" id="chatLog"></div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="view" id="view-settings">
+      <div class="note">
+        <b>How this works.</b> Your Claude Code cowork sessions run on GitHub as
+        <span class="mono">claude/*</span> branches with draft PRs. This app mirrors them and lets you
+        reply: posting a message here adds a <b>comment on the session's PR</b> — if that session is
+        watching its PR, it wakes up and responds. It's the real bridge to the official web sessions.
+      </div>
+      <div class="field">
+        <label>Connect</label>
+        <button class="btn" id="connectBtn" type="button">⌘ Connect with GitHub</button>
+        <div class="hint">One tap opens GitHub's token page with the <span class="mono">repo</span> scope and a name pre-filled.
+          Tap <b>Generate token</b> → <b>Copy</b>, return here, and tap <b>Paste</b> below. Nothing leaves your device.</div>
+      </div>
+      <div class="field">
+        <label>GitHub token</label>
+        <div style="display:flex; gap:8px; align-items:stretch">
+          <input id="f-token" type="password" placeholder="github_pat_… or ghp_…" autocomplete="off" autocapitalize="off" spellcheck="false" style="flex:1">
+          <button class="btn ghost" id="pasteBtn" type="button" style="width:auto; padding:0 16px; white-space:nowrap">Paste</button>
+        </div>
+        <div class="hint">Stored only on this device (localStorage). Classic token needs the <span class="mono">repo</span> scope; or a
+          fine-grained PAT on your repo with <b>Contents: read</b>, <b>Pull requests: read &amp; write</b>, <b>Actions: read</b>.</div>
+      </div>
+      <div class="field">
+        <label>Owner</label>
+        <input id="f-owner" type="text" placeholder="apparelhotline" autocapitalize="off" spellcheck="false">
+      </div>
+      <div class="field">
+        <label>Repository</label>
+        <input id="f-repo" type="text" placeholder="pricesheet" autocapitalize="off" spellcheck="false">
+      </div>
+      <div class="field">
+        <label>Session branch prefix</label>
+        <input id="f-prefix" type="text" placeholder="claude/" autocapitalize="off" spellcheck="false">
+        <div class="hint">Branches starting with this are treated as cowork sessions. Default <span class="mono">claude/</span>.</div>
+      </div>
+      <button class="btn" id="saveBtn">Save &amp; connect</button>
+      <div class="status" id="settingsStatus"></div>
+      <div style="height:14px"></div>
+      <button class="btn ghost" id="signoutBtn">Clear token</button>
+      <div class="empty" style="padding:28px 8px 8px"><div class="muted mono" style="font-size:11px">Cowork · PWA companion for Claude Code · Add to Home Screen to install</div></div>
+    </section>
+  </main>
+
+  <!-- Composer (chat only) -->
+  <div class="composer" id="composer" style="display:none">
+    <textarea id="msgInput" rows="1" placeholder="Message this session…"></textarea>
+    <button class="send" id="sendBtn" aria-label="Send">↑</button>
+  </div>
+
+  <nav class="tabs" id="tabs">
+    <button data-tab="sessions" class="active"><span class="ic">◧</span>Sessions</button>
+    <button data-tab="settings"><span class="ic">⚙</span>Settings</button>
+  </nav>
+</div>
+
+<script>
+const API = 'https://api.github.com';
+const LS = 'cowork.cfg.v1';
+const $ = (s) => document.querySelector(s);
+
+let cfg = loadCfg();
+let me = null;                 // authenticated GitHub login
+let sessions = [];             // [{branch, sha, pr, commit, ci}]
+let current = null;            // active session in chat
+let pollTimer = null;
+
+function loadCfg(){
+  try { return Object.assign({owner:'apparelhotline',repo:'pricesheet',prefix:'claude/',token:''}, JSON.parse(localStorage.getItem(LS)||'{}')); }
+  catch { return {owner:'apparelhotline',repo:'pricesheet',prefix:'claude/',token:''}; }
+}
+function saveCfg(){ localStorage.setItem(LS, JSON.stringify(cfg)); }
+
+function esc(s){ return (s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function fmtTime(iso){
+  if(!iso) return '';
+  const d = new Date(iso), now = Date.now(), diff = (now - d.getTime())/1000;
+  if(diff < 60) return 'just now';
+  if(diff < 3600) return Math.floor(diff/60)+'m ago';
+  if(diff < 86400) return Math.floor(diff/3600)+'h ago';
+  if(diff < 604800) return Math.floor(diff/86400)+'d ago';
+  return d.toLocaleDateString(undefined,{month:'short',day:'numeric'});
+}
+// light markdown: fenced code, inline code, escape rest
+function md(s){
+  s = esc(s||'');
+  s = s.replace(/```([\s\S]*?)```/g, (m,c)=>' PRE'+btoa(unescape(encodeURIComponent(c)))+' ');
+  s = s.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+  s = s.replace(/ PRE([A-Za-z0-9+/=]+) /g, (m,b)=>'<pre>'+decodeURIComponent(escape(atob(b)))+'</pre>');
+  return s;
+}
+
+async function gh(path, opts={}){
+  if(!cfg.token) throw new Error('No token set — open Settings.');
+  const res = await fetch(API + path, Object.assign({}, opts, {
+    headers: Object.assign({
+      'Authorization': 'Bearer ' + cfg.token,
+      'Accept': 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28'
+    }, opts.headers||{})
+  }));
+  if(!res.ok){
+    let detail = res.status + ' ' + res.statusText;
+    try { const j = await res.json(); if(j.message) detail = j.message; } catch {}
+    if(res.status === 401) detail = 'Bad credentials — check your token in Settings.';
+    if(res.status === 404) detail = 'Not found — check owner/repo or token scope.';
+    throw new Error(detail);
+  }
+  return res.status === 204 ? null : res.json();
+}
+
+/* ---------------- Sessions ---------------- */
+async function loadSessions(){
+  const r = `/repos/${cfg.owner}/${cfg.repo}`;
+  const [branches, pulls] = await Promise.all([
+    gh(`${r}/branches?per_page=100`),
+    gh(`${r}/pulls?state=open&per_page=100`)
+  ]);
+  const prByRef = {};
+  pulls.forEach(p => { prByRef[p.head.ref] = p; });
+
+  // a session = a branch matching the prefix (PR optional), plus any PR whose head matches prefix
+  const refs = new Set();
+  branches.forEach(b => { if(b.name.startsWith(cfg.prefix)) refs.add(b.name); });
+  pulls.forEach(p => { if(p.head.ref.startsWith(cfg.prefix)) refs.add(p.head.ref); });
+
+  const list = [...refs].map(ref => {
+    const b = branches.find(x => x.name === ref);
+    const pr = prByRef[ref] || null;
+    return { branch: ref, sha: b ? b.commit.sha : (pr ? pr.head.sha : null), pr, commit: null, ci: null };
+  });
+
+  // enrich: latest commit + CI, in parallel (bounded — session counts are small)
+  await Promise.all(list.map(async s => {
+    if(!s.sha) return;
+    try { s.commit = await gh(`${r}/commits/${s.sha}`); } catch {}
+    try {
+      const cr = await gh(`${r}/commits/${s.sha}/check-runs?per_page=100`);
+      s.ci = summarizeCI(cr.check_runs||[]);
+    } catch {}
+  }));
+
+  // sort by most recent activity (PR update or commit date)
+  list.sort((a,b) => activityTime(b) - activityTime(a));
+  sessions = list;
+  renderSessions();
+}
+function activityTime(s){
+  const a = s.pr ? new Date(s.pr.updated_at).getTime() : 0;
+  const c = s.commit ? new Date(s.commit.commit.author.date).getTime() : 0;
+  return Math.max(a, c);
+}
+function summarizeCI(runs){
+  if(!runs.length) return null;
+  let pending=0, failed=0, passed=0;
+  runs.forEach(r => {
+    if(r.status !== 'completed') pending++;
+    else if(['success','neutral','skipped'].includes(r.conclusion)) passed++;
+    else failed++;
+  });
+  if(failed) return {cls:'bad', label:`CI ✕ ${failed}`};
+  if(pending) return {cls:'run', label:`CI · running`};
+  return {cls:'good', label:`CI ✓`};
+}
+
+function renderSessions(){
+  const el = $('#sessionsList');
+  if(!cfg.token){
+    el.innerHTML = emptyState('🔑','Connect to GitHub','Add a token in Settings to mirror your cowork sessions.','settings');
+    return;
+  }
+  if(!sessions.length){
+    el.innerHTML = emptyState('🌙','No active sessions',`No <span class="mono">${esc(cfg.prefix)}</span> branches in <span class="mono">${esc(cfg.owner)}/${esc(cfg.repo)}</span> right now.`);
+    return;
+  }
+  el.innerHTML = sessions.map((s,i) => {
+    const short = s.branch.startsWith(cfg.prefix) ? s.branch.slice(cfg.prefix.length) : s.branch;
+    const msg = s.commit ? s.commit.commit.message.split('\n')[0] : 'No commits yet';
+    const when = s.commit ? fmtTime(s.commit.commit.author.date) : '';
+    const prBadge = s.pr
+      ? `<span class="badge ${s.pr.draft?'draft':'pr'}">${s.pr.draft?'Draft':'PR'} #${s.pr.number}</span>`
+      : `<span class="badge">branch only</span>`;
+    const ci = s.ci ? `<span class="badge ${s.ci.cls}">${esc(s.ci.label)}</span>` : '';
+    const unread = s.pr ? `<span class="meta">💬 ${s.pr.comments||0}</span>` : '';
+    return `<div class="card" data-i="${i}">
+      <div class="row1"><span class="name">${esc(short)}</span>${prBadge}</div>
+      <div class="msg">${esc(msg)}</div>
+      <div class="meta">${ci}${ci?'':''}
+        <span>${when?('⟳ '+when):''}</span>
+        ${s.pr?`<span>💬 ${s.pr.comments||0}</span>`:''}
+      </div>
+    </div>`;
+  }).join('');
+  el.querySelectorAll('.card').forEach(c =>
+    c.addEventListener('click', () => openChat(sessions[+c.dataset.i])));
+}
+function emptyState(big,h,sub,goTab){
+  const btn = goTab ? `<div style="margin-top:18px"><button class="btn" style="max-width:260px;margin:0 auto" onclick="switchTab('${goTab}')">Open ${goTab}</button></div>` : '';
+  return `<div class="empty"><div class="big">${big}</div><h2>${h}</h2><div>${sub}</div>${btn}</div>`;
+}
+
+/* ---------------- Chat ---------------- */
+async function openChat(s){
+  current = s;
+  switchView('chat');
+  $('#composer').style.display = s.pr ? 'flex' : 'none';
+  $('#topbar').classList.add('detail');
+  $('#htitle').style.display='block';
+  const short = s.branch.startsWith(cfg.prefix) ? s.branch.slice(cfg.prefix.length) : s.branch;
+  $('#htitle').innerHTML = `<div class="t">${esc(short)}</div><div class="s">${s.pr?('PR #'+s.pr.number+(s.pr.draft?' · draft':'')):'branch only'}</div>`;
+  $('#chatLog').innerHTML = `<div class="skel"></div><div class="skel"></div>`;
+  await loadChat();
+}
+
+async function loadChat(){
+  const s = current; if(!s) return;
+  const r = `/repos/${cfg.owner}/${cfg.repo}`;
+  const log = $('#chatLog');
+  if(!s.pr){
+    log.innerHTML = `<div class="empty"><div class="big">🌱</div><h2>No PR yet</h2>
+      <div>This session has a branch but no pull request, so there's no conversation thread to mirror.
+      Once a draft PR exists you can chat here.</div>
+      ${s.commit?`<div class="note" style="text-align:left;margin-top:18px"><b>Latest commit</b><br>${md(s.commit.commit.message)}</div>`:''}</div>`;
+    return;
+  }
+  let comments = [];
+  try { comments = await gh(`${r}/issues/${s.pr.number}/comments?per_page=100`); } catch(e){ log.innerHTML = errBubble(e.message); return; }
+
+  const items = [];
+  items.push({ who:s.pr.user.login, body:s.pr.body||'_(no description)_', at:s.pr.created_at, kind:'pr' });
+  comments.forEach(c => items.push({ who:c.user.login, body:c.body, at:c.created_at, kind:'comment' }));
+  items.sort((a,b)=> new Date(a.at) - new Date(b.at));
+
+  log.innerHTML = items.map(it => {
+    const mine = me && it.who.toLowerCase() === me.toLowerCase();
+    const cls = mine ? 'me' : 'them';
+    const tag = it.kind==='pr' ? ' · opened PR' : '';
+    return `<div class="bubble ${cls}">
+      <div class="who">${esc(it.who)}${tag}</div>
+      <div>${md(it.body)}</div>
+      <div class="when">${fmtTime(it.at)}</div>
+    </div>`;
+  }).join('');
+  scrollChatBottom();
+}
+function errBubble(m){ return `<div class="bubble event">⚠ ${esc(m)}</div>`; }
+function scrollChatBottom(){ const m=$('#main'); requestAnimationFrame(()=> m.scrollTop = m.scrollHeight); }
+
+async function sendMessage(){
+  const s = current; if(!s || !s.pr) return;
+  const ta = $('#msgInput'); const body = ta.value.trim();
+  if(!body) return;
+  const btn = $('#sendBtn'); btn.disabled = true;
+  // optimistic bubble
+  const log = $('#chatLog');
+  const tmp = document.createElement('div');
+  tmp.className = 'bubble me';
+  tmp.innerHTML = `<div class="who">${esc(me||'me')}</div><div>${md(body)}</div><div class="when">sending…</div>`;
+  log.appendChild(tmp); scrollChatBottom();
+  ta.value=''; autoGrow(ta);
+  try {
+    await gh(`/repos/${cfg.owner}/${cfg.repo}/issues/${s.pr.number}/comments`, {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ body })
+    });
+    if(s.pr) s.pr.comments = (s.pr.comments||0) + 1;
+    await loadChat();
+  } catch(e){
+    tmp.querySelector('.when').textContent = 'failed: ' + e.message;
+    tmp.style.borderColor = 'var(--bad)';
+  } finally { btn.disabled = false; }
+}
+
+/* ---------------- Navigation ---------------- */
+function switchView(v){
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+  $('#view-'+v).classList.add('active');
+  $('#main').scrollTop = 0;
+}
+function switchTab(tab){
+  current = null;
+  $('#topbar').classList.remove('detail');
+  $('#htitle').style.display='none';
+  $('#composer').style.display='none';
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+  switchView(tab);
+  if(tab==='sessions') refresh();
+  if(tab==='settings') fillSettings();
+}
+function goBack(){ switchTab('sessions'); }
+
+async function refresh(){
+  if(current){ await loadChat(); return; }
+  if($('#view-sessions').classList.contains('active')){
+    if(!cfg.token){ renderSessions(); return; }
+    spin(true);
+    try { if(!me) await testConn(true); await loadSessions(); }
+    catch(e){ $('#sessionsList').innerHTML = emptyState('⚠','Couldn’t load', esc(e.message), 'settings'); }
+    finally { spin(false); }
+  }
+}
+function spin(on){ $('#refreshBtn').classList.toggle('spin', on); }
+
+/* ---------------- Settings ---------------- */
+function fillSettings(){
+  $('#f-token').value = cfg.token||'';
+  $('#f-owner').value = cfg.owner||'';
+  $('#f-repo').value = cfg.repo||'';
+  $('#f-prefix').value = cfg.prefix||'claude/';
+}
+async function testConn(silent){
+  const u = await gh('/user'); me = u.login;
+  if(!silent){ const st=$('#settingsStatus'); st.className='status ok'; st.textContent='✓ Connected as @'+u.login; }
+  return u;
+}
+async function saveSettings(){
+  cfg.token = $('#f-token').value.trim();
+  cfg.owner = $('#f-owner').value.trim() || 'apparelhotline';
+  cfg.repo  = $('#f-repo').value.trim() || 'pricesheet';
+  cfg.prefix= $('#f-prefix').value.trim() || 'claude/';
+  saveCfg();
+  const st = $('#settingsStatus'); st.className='status'; st.textContent='Connecting…';
+  try { await testConn(false); sessions=[]; }
+  catch(e){ st.className='status err'; st.textContent='✕ '+e.message; }
+}
+function signOut(){
+  cfg.token=''; me=null; sessions=[]; saveCfg();
+  $('#f-token').value=''; const st=$('#settingsStatus'); st.className='status'; st.textContent='Token cleared.';
+}
+// Guided one-tap PAT: open GitHub's token page with scope + name pre-filled.
+function connectGitHub(){
+  const owner = $('#f-owner').value.trim() || cfg.owner || 'apparelhotline';
+  const repo  = $('#f-repo').value.trim()  || cfg.repo  || 'pricesheet';
+  const desc = encodeURIComponent(`Cowork PWA (${owner}/${repo})`);
+  const url = `https://github.com/settings/tokens/new?scopes=repo&description=${desc}`;
+  const st = $('#settingsStatus'); st.className='status'; st.textContent='Opened GitHub — generate the token, copy it, then tap Paste.';
+  window.open(url, '_blank', 'noopener');
+}
+// Pull the token straight from the clipboard (HTTPS only) and connect.
+async function pasteToken(){
+  const st = $('#settingsStatus');
+  try {
+    const t = (await navigator.clipboard.readText()).trim();
+    if(!t){ st.className='status err'; st.textContent='Clipboard is empty.'; return; }
+    $('#f-token').value = t;
+    await saveSettings();
+  } catch(e){
+    st.className='status err';
+    st.textContent='Couldn’t read clipboard — paste into the field manually, then Save & connect.';
+    $('#f-token').focus();
+  }
+}
+
+/* ---------------- Composer autogrow ---------------- */
+function autoGrow(ta){ ta.style.height='auto'; ta.style.height=Math.min(ta.scrollHeight,140)+'px'; }
+
+/* ---------------- Wire up ---------------- */
+$('#tabs').addEventListener('click', e => { const b=e.target.closest('button'); if(b) switchTab(b.dataset.tab); });
+$('#backBtn').addEventListener('click', goBack);
+$('#refreshBtn').addEventListener('click', refresh);
+$('#saveBtn').addEventListener('click', saveSettings);
+$('#signoutBtn').addEventListener('click', signOut);
+$('#connectBtn').addEventListener('click', connectGitHub);
+$('#pasteBtn').addEventListener('click', pasteToken);
+$('#sendBtn').addEventListener('click', sendMessage);
+$('#msgInput').addEventListener('input', e => autoGrow(e.target));
+$('#msgInput').addEventListener('keydown', e => {
+  if(e.key==='Enter' && (e.metaKey||e.ctrlKey)){ e.preventDefault(); sendMessage(); }
+});
+
+// auto-refresh (mirror) every 30s when visible
+function startPoll(){ stopPoll(); pollTimer = setInterval(()=>{ if(!document.hidden) refresh(); }, 30000); }
+function stopPoll(){ if(pollTimer) clearInterval(pollTimer); }
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) refresh(); });
+
+// boot
+(async function init(){
+  fillSettings();
+  if(cfg.token){ try { await testConn(true); } catch{} }
+  await refresh();
+  startPoll();
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('cowork-sw.js').catch(()=>{});
+  }
+})();
+window.switchTab = switchTab;
+</script>
+</body>
+</html>

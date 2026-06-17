@@ -56,6 +56,13 @@
   h1{font-family:var(--font-display); font-weight:700; letter-spacing:-.02em; font-size:clamp(22px,4vw,32px); margin:0}
   .sub{color:var(--muted); font-size:13px; margin-top:4px}
   .sub b{color:var(--ink-2); font-weight:600}
+  .navlink{
+    display:inline-flex; align-items:center; gap:5px; text-decoration:none;
+    border:1px solid var(--hair-strong); color:var(--ink); background:var(--card);
+    padding:7px 11px; border-radius:10px; font-size:12px; font-weight:600;
+    letter-spacing:.02em; white-space:nowrap;
+  }
+  .navlink:hover{background:var(--chip)}
   .toggle{
     display:inline-flex; align-items:center; gap:8px; cursor:pointer; user-select:none;
     border:1px solid var(--hair-strong); background:var(--card); color:var(--ink);
@@ -220,7 +227,11 @@
       <h1>Order &amp; Shipment Tracker</h1>
       <div class="sub" id="sub">Loading…</div>
     </div>
-    <button class="toggle" id="themeBtn" type="button" aria-label="Toggle light/dark theme"></button>
+    <div style="display:flex; gap:8px; align-items:center">
+      <a href="index.html" class="navlink" title="Price sheet">Price Sheet</a>
+      <a href="cowork.html" class="navlink" title="Cowork — Claude session companion">⌘ Cowork</a>
+      <button class="toggle" id="themeBtn" type="button" aria-label="Toggle light/dark theme"></button>
+    </div>
   </header>
 
   <section class="stats" id="stats" hidden>

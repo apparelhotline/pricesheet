@@ -203,6 +203,13 @@
   }
   .toolbar button:hover{background:#fff;color:#000}
   .toolbar button.active{background:#fff;color:#000}
+  .toolbar a.toolbar-link{
+    background:transparent; color:#fff; text-decoration:none;
+    border:1px solid #fff; padding:5px 10px; border-radius:0;
+    font-family:inherit; font-size:11px; letter-spacing:.06em; text-transform:uppercase;
+    cursor:pointer; display:inline-flex; align-items:center; gap:5px;
+  }
+  .toolbar a.toolbar-link:hover{background:#fff;color:#000}
   .toolbar button:disabled{opacity:.4;cursor:not-allowed}
   .toolbar button:disabled:hover{background:transparent;color:#fff}
   .toolbar .hint{opacity:.55; font-size:11px}
@@ -1112,6 +1119,8 @@
   <button id="redo-btn" onclick="redoEdit()" title="Redo (Cmd/Ctrl+Shift+Z)" disabled>↷ Redo</button>
   <button id="edit-toggle" onclick="toggleEditMode()">Edit Layout</button>
   <button onclick="window.print()">Print / Save PDF</button>
+  <a class="toolbar-link" href="orders.html" title="Order &amp; shipment tracker">▦ Orders</a>
+  <a class="toolbar-link" href="cowork.html" title="Cowork — Claude session companion">⌘ Cowork</a>
 </div>
 
 <div class="modal-bg" id="add-modal">
