@@ -434,7 +434,7 @@ function runTotals(){const s=S(),sc=s.scores||{};let gross=0,par=0,thru=0;for(le
 function renderHoleScore(){
   const h=curHole(); const s=S(),sc=s.scores||{},pt=s.putts||{};
   const ref=h?h.ref:null;
-  $('hsScore').textContent=ref&&sc[ref]?sc[ref]:'–'; $('hsPutts').textContent=ref&&pt[ref]?pt[ref]:'–';
+  $('hsScore').textContent=ref&&sc[ref]?sc[ref]:'·'; $('hsPutts').textContent=ref&&pt[ref]?pt[ref]:'·';
   const t=runTotals();
   $('hsRun').textContent=t.thru?`Total ${t.gross} (${sgn(t.toPar||0)}) thru ${t.thru}`:'No scores yet';
   const near=curCenterYds!=null&&curCenterYds<=30;
@@ -443,7 +443,7 @@ function renderHoleScore(){
   $('mScoreBtn').classList.toggle('near',near);
   if(!$('scoreModal').classList.contains('hidden')) fillModal();
 }
-function changeStat(k,d){const h=curHole();if(!h)return;const s=S();s[k==='score'?'scores':'putts']=s[k==='score'?'scores':'putts']||{};const key=k==='score'?'scores':'putts';s[key][h.ref]=Math.max(0,(s[key][h.ref]||0)+d);saveS(s);render();buildCard();}
+function changeStat(k,d){const h=curHole();if(!h)return;const key=k==='score'?'scores':'putts';const s=S();s[key]=s[key]||{};let cur=s[key][h.ref]||0;if(cur===0){cur=(k==='score')?(h.par?+h.par:4):2;}else{cur=cur+d;}s[key][h.ref]=Math.max(0,cur);saveS(s);render();buildCard();}
 function buildCard(){
   const s=S(),sc=s.scores||{},pt=s.putts||{};
   const n=Math.max(18,holes.reduce((m,h)=>Math.max(m,h.ref),0)||18);
@@ -465,7 +465,7 @@ function buildCard(){
 function renderHandicap(){const s=S(),hist=s.history||[];if(!hist.length){$('hcIndex').textContent='—';return;}const diffs=hist.filter(r=>r.diff!=null).map(r=>r.diff).sort((a,b)=>a-b);if(!diffs.length){$('hcIndex').textContent='—';$('hcNote').textContent='Add course rating & slope, then finish a round to compute.';return;}const u=Math.max(1,Math.round(diffs.length*0.4));const idx=(diffs.slice(0,u).reduce((a,b)=>a+b,0)/u)*0.96;$('hcIndex').textContent=idx.toFixed(1);$('hcNote').textContent=`Estimate from your best ${u} of ${diffs.length} round${diffs.length>1?'s':''}. Unofficial.`;}
 
 // score modal
-function fillModal(){const h=curHole();if(!h)return;const s=S(),sc=s.scores||{},pt=s.putts||{};$('smHole').textContent='Hole '+h.ref+(h.par?(' · Par '+h.par):'');$('smSub').textContent=teesLabel()+' tees';$('smScore').textContent=sc[h.ref]||'–';$('smPutts').textContent=pt[h.ref]||'–';const t=runTotals();$('smTot').textContent=t.thru?`Round: ${t.gross} (${sgn(t.toPar||0)}) thru ${t.thru}`:'';}
+function fillModal(){const h=curHole();if(!h)return;const s=S(),sc=s.scores||{},pt=s.putts||{};$('smHole').textContent='Hole '+h.ref+(h.par?(' · Par '+h.par):'');$('smSub').textContent=teesLabel()+' tees';$('smScore').textContent=sc[h.ref]||'·';$('smPutts').textContent=pt[h.ref]||'·';const t=runTotals();$('smTot').textContent=t.thru?`Round: ${t.gross} (${sgn(t.toPar||0)}) thru ${t.thru}`:'';}
 function openModal(){$('scoreModal').classList.remove('hidden');fillModal();}
 function closeModal(){$('scoreModal').classList.add('hidden');}
 
