@@ -141,6 +141,19 @@
   .sm-row>span{font-size:15px;font-weight:700;}
   .sm-tot{text-align:center;color:var(--muted);font-weight:700;margin:6px 0 4px;}
 
+  /* match */
+  .mrow{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap;}
+  .mt-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px;}
+  .mt-table th,.mt-table td{border-bottom:1px solid rgba(255,255,255,.08);padding:5px 2px;text-align:center;}
+  .mt-table th{font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:700;}
+  .mt-table .hl{font-weight:700;}
+  .mt-table input{width:42px;padding:6px 2px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:#fff;font-size:15px;text-align:center;font-family:inherit;}
+  .mt-name{flex:1;min-width:0;padding:8px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:#fff;font-family:inherit;font-weight:700;}
+  .stakein{width:96px;padding:8px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:#fff;font-family:inherit;font-weight:700;}
+  .mres{background:rgba(0,0,0,.28);border-radius:14px;padding:12px 14px;margin-top:14px;}
+  .mres .ln{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:14px;}
+  .mres .pos{color:#9bf0c0;font-weight:800;} .mres .neg{color:#ffb4a8;font-weight:800;}
+
   /* tab bar */
   .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:1100;display:flex;background:rgba(6,18,12,.94);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,.08);padding-bottom:env(safe-area-inset-bottom);}
   .tabbar button{flex:1;background:none;border:none;color:#7e9c8c;padding:9px 0 11px;font-size:11px;font-weight:700;cursor:pointer;}
@@ -231,6 +244,15 @@
   <div class="muted">Scores save on this phone only (nothing leaves your device).</div>
 </div>
 
+<!-- MATCH -->
+<div class="wrap hidden" id="view-match">
+  <header><h1>💰 Match</h1><button class="refresh" id="newMatch">↺ Reset scores</button></header>
+  <div id="mSetup"></div>
+  <table class="mt-table" id="matchTable"></table>
+  <div id="matchResults"></div>
+  <div class="muted">Skins: low unique score wins the hole; ties carry over. This app only tracks the bet and tallies who owes whom — <b>no money is held or transferred here.</b> Settle up among yourselves.</div>
+</div>
+
 <!-- GLANCE -->
 <div id="glance" class="hidden">
   <div class="gh" id="gHole">Hole —</div>
@@ -256,6 +278,7 @@
 <div class="tabbar hidden" id="tabbar">
   <button data-tab="play" class="active"><span class="ic">⛳</span>Play</button>
   <button data-tab="map"><span class="ic">🛰️</span>Map</button>
+  <button data-tab="match"><span class="ic">💰</span>Match</button>
   <button data-tab="card"><span class="ic">📋</span>Card</button>
 </div>
 
@@ -469,6 +492,58 @@ function fillModal(){const h=curHole();if(!h)return;const s=S(),sc=s.scores||{},
 function openModal(){$('scoreModal').classList.remove('hidden');fillModal();}
 function closeModal(){$('scoreModal').classList.add('hidden');}
 
+// match (skins) — tracking only, no money handled
+function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function M(){try{const m=JSON.parse(localStorage.getItem('ggmatch')||'null');if(m&&m.players)return m;}catch(e){}return {players:['You','Player 2'],stake:10,scores:{}};}
+function saveM(m){localStorage.setItem('ggmatch',JSON.stringify(m));}
+function matchHoles(){return Math.max(18,holes.reduce((a,h)=>Math.max(a,h.ref),0)||18);}
+function initial(n){return (n||'P').trim().charAt(0).toUpperCase()||'P';}
+function computeSkins(m,n){
+  const won=m.players.map(()=>0);const perHole={};let carry=1;
+  for(let r=1;r<=n;r++){const row=m.scores[r];if(!row)continue;const sc=m.players.map((p,i)=>row[i]);if(sc.some(s=>!s))continue;
+    const min=Math.min(...sc);const winners=sc.map((s,i)=>s===min?i:-1).filter(i=>i>=0);
+    if(winners.length===1){won[winners[0]]+=carry;perHole[r]=initial(m.players[winners[0]])+(carry>1?(' +'+carry):'');carry=1;}
+    else {perHole[r]='½';carry+=1;}}
+  return {won,perHole,total:won.reduce((a,b)=>a+b,0),carry};
+}
+function settle(players,net){
+  const cred=[],deb=[];players.forEach((p,i)=>{const v=Math.round(net[i]);if(v>0)cred.push({name:p,v});else if(v<0)deb.push({name:p,v:-v});});
+  cred.sort((a,b)=>b.v-a.v);deb.sort((a,b)=>b.v-a.v);const tx=[];let ci=0,di=0;
+  while(ci<cred.length&&di<deb.length){const amt=Math.min(cred[ci].v,deb[di].v);if(amt>0)tx.push({from:deb[di].name,to:cred[ci].name,amt});cred[ci].v-=amt;deb[di].v-=amt;if(cred[ci].v===0)ci++;if(deb[di].v===0)di++;}
+  return tx;
+}
+function updateSkinCells(sk){const n=matchHoles();for(let r=1;r<=n;r++){const c=$('sk'+r);if(c)c.textContent=sk.perHole[r]||'';}}
+function renderMatchResults(m,sk){
+  const np=m.players.length,stake=m.stake||0;
+  const net=m.players.map((p,i)=>stake*(np*sk.won[i]-sk.total));
+  const tot=m.players.map((p,i)=>{let g=0;for(const r in m.scores){if(m.scores[r][i])g+=m.scores[r][i];}return g;});
+  let h='<div class="mres"><div class="secthead">Skins · $'+stake+'/hole</div>';
+  m.players.forEach((p,i)=>{const v=Math.round(net[i]);h+=`<div class="ln"><span>${esc(p)||'P'+(i+1)} · ${sk.won[i]} skin${sk.won[i]===1?'':'s'} · gross ${tot[i]||'–'}</span><span class="${v>0?'pos':v<0?'neg':''}">${v>0?'+$'+v:v<0?'-$'+Math.abs(v):'$0'}</span></div>`;});
+  if(sk.carry>1)h+=`<div class="muted" style="text-align:left;margin-top:6px">${sk.carry-1} skin(s) carrying — unresolved ties or holes not finished by all players.</div>`;
+  const tx=settle(m.players,net);
+  h+='<div class="secthead" style="margin-top:12px">Settle up</div>';
+  h+=tx.length?tx.map(t=>`<div class="ln"><span>${esc(t.from)} → ${esc(t.to)}</span><span class="neg">$${t.amt}</span></div>`).join(''):'<div class="muted" style="text-align:left">No money owed yet.</div>';
+  h+='</div>'; $('matchResults').innerHTML=h;
+}
+function buildMatch(){
+  const m=M(),n=matchHoles(),parOf=r=>{const h=holes.find(x=>x.ref===r);return h&&h.par?+h.par:null;};
+  let setup=`<div class="mrow"><span style="font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;font-weight:700;">Skins · $ per hole</span><input class="stakein" id="mStake" type="number" inputmode="decimal" value="${m.stake}"></div>`;
+  setup+='<div class="mrow">'+m.players.map((p,i)=>`<div style="flex:1;min-width:130px;display:flex;gap:6px;align-items:center;"><input class="mt-name" data-pi="${i}" value="${esc(p)}">${m.players.length>2?`<button class="refresh" data-rm="${i}">✕</button>`:''}</div>`).join('')+'</div>';
+  if(m.players.length<4)setup+='<button class="refresh" id="mAdd">＋ Add player</button>';
+  $('mSetup').innerHTML=setup;
+  const sk=computeSkins(m,n);
+  let t='<thead><tr><th class="hl">Hole</th><th>Par</th>'+m.players.map(p=>`<th>${esc(initial(p))}</th>`).join('')+'<th>Skin</th></tr></thead><tbody>';
+  for(let r=1;r<=n;r++){const par=parOf(r);
+    t+=`<tr><td class="hl">${r}</td><td>${par||'–'}</td>`+m.players.map((p,pi)=>{const v=(m.scores[r]&&m.scores[r][pi])||'';return `<td><input type="number" inputmode="numeric" data-h="${r}" data-p="${pi}" value="${v}"></td>`;}).join('')+`<td id="sk${r}">${sk.perHole[r]||''}</td></tr>`;}
+  t+='</tbody>'; $('matchTable').innerHTML=t;
+  renderMatchResults(m,sk);
+  $('mStake').onchange=e=>{const mm=M();mm.stake=parseFloat(e.target.value)||0;saveM(mm);buildMatch();};
+  $('matchTable').querySelectorAll('input').forEach(inp=>inp.oninput=()=>{const mm=M(),hh=+inp.dataset.h,pi=+inp.dataset.p;mm.scores[hh]=mm.scores[hh]||{};const val=parseInt(inp.value);if(val>0)mm.scores[hh][pi]=val;else delete mm.scores[hh][pi];saveM(mm);const s2=computeSkins(mm,n);updateSkinCells(s2);renderMatchResults(mm,s2);});
+  $('mSetup').querySelectorAll('.mt-name').forEach(inp=>inp.onchange=()=>{const mm=M();mm.players[+inp.dataset.pi]=inp.value||('Player '+(+inp.dataset.pi+1));saveM(mm);buildMatch();});
+  $('mSetup').querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{const mm=M();mm.players.splice(+b.dataset.rm,1);saveM(mm);buildMatch();});
+  if($('mAdd'))$('mAdd').onclick=()=>{const mm=M();mm.players.push('Player '+(mm.players.length+1));saveM(mm);buildMatch();};
+}
+
 // glance
 async function reqWake(){try{if('wakeLock'in navigator)wakeLock=await navigator.wakeLock.request('screen');}catch(e){}}
 function enterGlance(){glanceOn=true;$('glance').classList.remove('hidden');reqWake();render();}
@@ -476,7 +551,7 @@ function exitGlance(){glanceOn=false;$('glance').classList.add('hidden');if(wake
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&glanceOn)reqWake();});
 
 // tabs
-function showTab(t){curTab=t;$('view-map').classList.toggle('hidden',t!=='map');$('view-play').classList.toggle('hidden',t!=='play');$('view-card').classList.toggle('hidden',t!=='card');$('tabbar').querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));if(t==='map'){if(!mapInited)initMap();setTimeout(()=>{if(map){map.invalidateSize();focusHole();updateDyn();applyHeading();}},120);}if(t==='card')buildCard();}
+function showTab(t){curTab=t;$('view-map').classList.toggle('hidden',t!=='map');$('view-play').classList.toggle('hidden',t!=='play');$('view-card').classList.toggle('hidden',t!=='card');$('view-match').classList.toggle('hidden',t!=='match');$('tabbar').querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));if(t==='map'){if(!mapInited)initMap();setTimeout(()=>{if(map){map.invalidateSize();focusHole();updateDyn();applyHeading();}},120);}if(t==='card')buildCard();if(t==='match')buildMatch();}
 
 // geolocation
 function start(){
@@ -507,6 +582,7 @@ $('newRound').onclick=()=>{if(!confirm('Clear current scores for a new round?'))
 $('rating').onchange=()=>{const s=S();s.rating=$('rating').value;saveS(s);};
 $('slope').onchange=()=>{const s=S();s.slope=$('slope').value;saveS(s);};
 $('finishRound').onclick=()=>{const s=S(),sc=s.scores||{};let gross=0,par=0;for(let r=1;r<=18;r++){if(sc[r]){gross+=sc[r];const h=holes.find(x=>x.ref===r);if(h&&h.par)par+=+h.par;}}if(!gross){alert('Enter some scores first.');return;}const rating=parseFloat(s.rating)||null,slope=parseInt(s.slope)||null;const diff=(rating&&slope)?Math.round(((gross-rating)*113/slope)*10)/10:null;s.history=s.history||[];s.history.unshift({date:new Date().toISOString().slice(0,10),course:courseName,tees:teesLabel(),gross,par,diff});s.history=s.history.slice(0,20);s.scores={};s.putts={};saveS(s);buildCard();render();alert('Round saved'+(diff!=null?` · differential ${diff}`:' (add rating & slope for handicap)'));};
+$('newMatch').onclick=()=>{if(!confirm('Clear all match scores? (keeps players & stake)'))return;const mm=M();mm.scores={};saveM(mm);buildMatch();};
 $('tabbar').querySelectorAll('button').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
 applyTheme(S().theme);
 </script>
