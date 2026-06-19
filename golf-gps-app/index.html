@@ -247,8 +247,8 @@
 </div>
 
 <div class="tabbar hidden" id="tabbar">
-  <button data-tab="map" class="active"><span class="ic">🛰️</span>Map</button>
-  <button data-tab="play"><span class="ic">⛳</span>Play</button>
+  <button data-tab="play" class="active"><span class="ic">⛳</span>Play</button>
+  <button data-tab="map"><span class="ic">🛰️</span>Map</button>
   <button data-tab="card"><span class="ic">📋</span>Card</button>
 </div>
 
@@ -261,7 +261,7 @@ let pos=null,holes=[],selectedRef=null,autoHole=true,wakeLock=null,glanceOn=fals
 let wind=null,playerElev=null,lastHeading=null,headingUp=true,curCenterYds=null;
 let raw={greens:[],tees:[],holes:[],pins:[],fairways:[],bunkers:[],water:[]};
 let courseName='⛳ Golf GPS';
-let map=null,courseLayer=null,dynLayer=null,target=null,mapInited=false,curTab='map';
+let map=null,courseLayer=null,dynLayer=null,target=null,mapInited=false,curTab='play';
 const $=id=>document.getElementById(id);
 
 // geo
@@ -271,6 +271,7 @@ function toXY(lat,lon,lat0){return [toRad(lon)*Math.cos(toRad(lat0))*R_EARTH,toR
 function distSegM(p,a,b){const lat0=a.lat;const[px,py]=toXY(p.lat,p.lon,lat0),[ax,ay]=toXY(a.lat,a.lon,lat0),[bx,by]=toXY(b.lat,b.lon,lat0);const dx=bx-ax,dy=by-ay,L2=dx*dx+dy*dy;let t=L2?((px-ax)*dx+(py-ay)*dy)/L2:0;t=Math.max(0,Math.min(1,t));return Math.hypot(px-(ax+t*dx),py-(ay+t*dy));}
 function distToLine(p,line){let m=Infinity;for(let i=0;i<line.length-1;i++)m=Math.min(m,distSegM(p,line[i],line[i+1]));if(line.length===1)m=distM(p.lat,p.lon,line[0].lat,line[0].lon);return m;}
 function centroid(pts){let la=0,lo=0;pts.forEach(p=>{la+=p.lat;lo+=p.lon;});return {lat:la/pts.length,lon:lo/pts.length};}
+function pip(p,poly){let inside=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const xi=poly[i].lon,yi=poly[i].lat,xj=poly[j].lon,yj=poly[j].lat;const inter=((yi>p.lat)!=(yj>p.lat))&&(p.lon<(xj-xi)*(p.lat-yi)/(yj-yi)+xi);if(inter)inside=!inside;}return inside;}
 function bearing(a,b){const y=Math.sin(toRad(b.lon-a.lon))*Math.cos(toRad(b.lat));const x=Math.cos(toRad(a.lat))*Math.sin(toRad(b.lat))-Math.sin(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.cos(toRad(b.lon-a.lon));return (Math.atan2(y,x)*180/Math.PI+360)%360;}
 function sgn(n){return (n>=0?'+':'')+n;}
 function fcbFor(h){if(!h||!h.green||!pos)return null;const tgt=h.pin||h.green.c;const center=distM(pos.lat,pos.lon,tgt.lat,tgt.lon);let front=Infinity,back=0;for(const v of h.green.verts){const d=distM(pos.lat,pos.lon,v.lat,v.lon);front=Math.min(front,d);back=Math.max(back,d);}return {front,center,back,tgt};}
@@ -314,17 +315,27 @@ async function loadElevations(){
     if(Array.isArray(e)){playerElev=e[0];let i=1;holes.forEach(h=>{if(h.green)h.greenElev=e[i++];});render();if(mapInited)updateDyn();}}catch(_){}
 }
 function buildCourse(els){
-  raw={greens:[],tees:[],holes:[],pins:[],fairways:[],bunkers:[],water:[]};const hw=[];
+  const tmp={greens:[],tees:[],holes:[],pins:[],fairways:[],bunkers:[],water:[]};const hw=[];const courses=[];
   for(const el of els){const tg=el.tags||{},t=tg.golf,geom=el.geometry?el.geometry.map(g=>({lat:g.lat,lon:g.lon})):null;
-    if(tg.leisure==='golf_course'&&tg.name)courseName=tg.name;
-    if(t==='hole'&&geom){hw.push({ref:parseRef(tg.ref),par:tg.par,line:geom});raw.holes.push(geom);}
-    else if(t==='green'&&geom)raw.greens.push({verts:geom,c:centroid(geom)});
-    else if(t==='tee'&&geom)raw.tees.push({verts:geom,c:centroid(geom)});
-    else if(t==='fairway'&&geom)raw.fairways.push(geom);
-    else if(t==='bunker'&&geom)raw.bunkers.push(geom);
-    else if((t==='water_hazard'||t==='lateral_water_hazard'||tg.natural==='water')&&geom)raw.water.push(geom);
-    else if(t==='pin'&&el.lat!=null)raw.pins.push({lat:el.lat,lon:el.lon});}
-  holes=hw.filter(h=>h.ref!=null).map(h=>{const a=h.line[0],b=h.line[h.line.length-1];const ga=nearest(raw.greens,a),gb=nearest(raw.greens,b);let te=a,green=gb;if(ga.d<gb.d){te=b;green=ga;}const tee=nearest(raw.tees,te).obj;let pin=null;if(green.obj){const np=nearPin(green.obj.c);if(np&&np.d<35)pin=np.obj;}return {ref:h.ref,par:h.par,line:h.line,green:green.obj,tee,pin};}).sort((x,y)=>x.ref-y.ref);
+    if(tg.leisure==='golf_course'&&geom){courses.push({name:tg.name||null,geom,c:centroid(geom)});}
+    else if(t==='hole'&&geom){hw.push({ref:parseRef(tg.ref),par:tg.par,line:geom,c:centroid(geom)});}
+    else if(t==='green'&&geom)tmp.greens.push({verts:geom,c:centroid(geom)});
+    else if(t==='tee'&&geom)tmp.tees.push({verts:geom,c:centroid(geom)});
+    else if(t==='fairway'&&geom)tmp.fairways.push({geom,c:centroid(geom)});
+    else if(t==='bunker'&&geom)tmp.bunkers.push({geom,c:centroid(geom)});
+    else if((t==='water_hazard'||t==='lateral_water_hazard'||tg.natural==='water')&&geom)tmp.water.push({geom,c:centroid(geom)});
+    else if(t==='pin'&&el.lat!=null)tmp.pins.push({lat:el.lat,lon:el.lon});}
+  // pick the course the player is actually on (containing polygon, else nearest), and ignore neighbouring courses
+  let chosen=null;
+  if(courses.length){ if(pos)chosen=courses.find(c=>pip(pos,c.geom)); if(!chosen){ if(pos){let bd=Infinity;for(const c of courses){const d=distM(pos.lat,pos.lon,c.c.lat,c.c.lon);if(d<bd){bd=d;chosen=c;}}}else chosen=courses[0]; } }
+  if(chosen&&chosen.name)courseName=chosen.name;
+  const inC=pt=>(chosen&&chosen.geom)?pip(pt,chosen.geom):true;
+  raw={greens:tmp.greens.filter(g=>inC(g.c)),tees:tmp.tees.filter(g=>inC(g.c)),pins:tmp.pins.filter(p=>inC(p)),
+    holes:hw.filter(h=>inC(h.c)).map(h=>h.line),
+    fairways:tmp.fairways.filter(g=>inC(g.c)).map(g=>g.geom),
+    bunkers:tmp.bunkers.filter(g=>inC(g.c)).map(g=>g.geom),
+    water:tmp.water.filter(g=>inC(g.c)).map(g=>g.geom)};
+  holes=hw.filter(h=>h.ref!=null&&inC(h.c)).map(h=>{const a=h.line[0],b=h.line[h.line.length-1];const ga=nearest(raw.greens,a),gb=nearest(raw.greens,b);let te=a,green=gb;if(ga.d<gb.d){te=b;green=ga;}const tee=nearest(raw.tees,te).obj;let pin=null;if(green.obj){const np=nearPin(green.obj.c);if(np&&np.d<35)pin=np.obj;}return {ref:h.ref,par:h.par,line:h.line,green:green.obj,tee,pin};}).sort((x,y)=>x.ref-y.ref);
   if(!holes.length&&raw.greens.length)holes=raw.greens.map((g,i)=>({ref:i+1,par:null,line:[g.c],green:g,tee:null,pin:null}));
   $('courseName').textContent=courseName;
   if(!holes.length){$('heroName').textContent='No mapped course within ~1.3 mi';$('list').innerHTML='<div class="status">No golf holes found in OpenStreetMap here.<br>Wind & GPS still work; the course may not be mapped yet.</div>';$('pills').innerHTML='';}
@@ -370,6 +381,7 @@ function render(){
     rows.push(['🟩','Front edge','carry',yd(f.front)]); rows.push(['🟫','Back edge','full',yd(f.back)]);
   } else {$('heroYds').textContent='—';$('fcb').classList.add('hidden');$('heroName').textContent='Hole '+h.ref+' — no green mapped';$('mCenter').textContent='—';$('mPlays').textContent='';}
   if(h.tee)rows.push(['⛳','Tee box','behind you',yd(distM(pos.lat,pos.lon,h.tee.c.lat,h.tee.c.lon))]);
+  if(h.tee&&h.green){const tg=h.pin||h.green.c;rows.push(['📏','Hole length',teesLabel()+' tees',yd(distM(h.tee.c.lat,h.tee.c.lon,tg.lat,tg.lon))]);}
   $('detailHead').textContent='Hole '+h.ref+' details';
   $('list').innerHTML=rows.map(r=>`<div class="row"><div class="ic">${r[0]}</div><div class="info"><div class="nm">${r[1]}</div><div class="mt">${r[2]||'&nbsp;'}</div></div><div class="yd">${r[3]}<small>yards</small></div></div>`).join('');
   if(mapInited)updateDyn();
@@ -458,7 +470,7 @@ function showTab(t){curTab=t;$('view-map').classList.toggle('hidden',t!=='map');
 
 // geolocation
 function start(){
-  $('gateWrap').classList.add('hidden'); $('tabbar').classList.remove('hidden'); buildTees(); showTab('map');
+  $('gateWrap').classList.add('hidden'); $('tabbar').classList.remove('hidden'); buildTees(); showTab('play');
   if(!navigator.geolocation){$('list').innerHTML='<div class="status">This browser can’t access location.</div>';return;}
   navigator.geolocation.watchPosition(p=>{
     const first=!pos; pos={lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy};
