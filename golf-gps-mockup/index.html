@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FairwayIQ — Golf GPS Mockup</title>
+<style>
+  :root{
+    --green-deep:#0b3d2e;
+    --green:#1c6b4a;
+    --green-mid:#1c6b4a;
+    --green-bright:#27ae60;
+    --sand:#e8d9a8;
+    --water:#3a7bd5;
+    --ink:#0d1b15;
+    --paper:#f4f6f3;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,sans-serif;
+    background:radial-gradient(1200px 800px at 50% -10%, #163a2c 0%, #0a2018 55%, #05140e 100%);
+    color:#e9efe9;
+    min-height:100vh;
+    padding:48px 20px 80px;
+  }
+  .head{max-width:1100px;margin:0 auto 40px;text-align:center;}
+  .badge{display:inline-block;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#7fd6a8;border:1px solid rgba(127,214,168,.4);padding:6px 14px;border-radius:999px;margin-bottom:18px;}
+  .head h1{font-size:40px;font-weight:800;letter-spacing:-.02em;}
+  .head h1 span{color:#5bd98f;}
+  .head p{margin-top:12px;color:#9fb3a8;font-size:16px;max-width:620px;margin-left:auto;margin-right:auto;line-height:1.5;}
+  .phones{display:flex;flex-wrap:wrap;gap:38px;justify-content:center;align-items:flex-start;max-width:1200px;margin:0 auto;}
+  .col{display:flex;flex-direction:column;align-items:center;gap:14px;}
+  .col .cap{font-size:13px;color:#9fb3a8;text-align:center;max-width:300px;line-height:1.4;}
+  .col .cap b{color:#cfe6d8;}
+
+  /* iPhone frame */
+  .phone{
+    width:300px;height:640px;border-radius:46px;
+    background:#0a0a0a;padding:12px;
+    box-shadow:0 30px 60px rgba(0,0,0,.55), inset 0 0 0 2px #2a2a2a;
+    position:relative;
+  }
+  .screen{
+    width:100%;height:100%;border-radius:36px;overflow:hidden;position:relative;
+    background:#0b1f17;display:flex;flex-direction:column;
+  }
+  .notch{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:120px;height:26px;background:#0a0a0a;border-radius:0 0 16px 16px;z-index:20;}
+  .statusbar{height:44px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 22px 6px;font-size:13px;font-weight:600;color:#fff;z-index:10;}
+
+  /* ---------- Screen 1: course list ---------- */
+  .s-list{background:var(--paper);color:var(--ink);}
+  .s-list .top{background:var(--green-deep);color:#fff;padding:8px 18px 18px;}
+  .s-list .brand{font-weight:800;font-size:20px;letter-spacing:-.01em;}
+  .s-list .brand span{color:#5bd98f;}
+  .s-list .sub{font-size:12px;color:#9fc7b1;margin-top:2px;}
+  .s-list .searchbar{margin-top:14px;background:rgba(255,255,255,.12);border-radius:12px;padding:10px 12px;font-size:13px;color:#cfe6d8;display:flex;align-items:center;gap:8px;}
+  .s-list .secthead{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#7c8d83;padding:16px 18px 8px;font-weight:700;}
+  .course{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid #e4e9e3;}
+  .course .pin{width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,#27ae60,#1c6b4a);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+  .course .info{flex:1;}
+  .course .name{font-weight:700;font-size:15px;}
+  .course .meta{font-size:12px;color:#7c8d83;margin-top:2px;}
+  .course .dist{font-size:13px;font-weight:700;color:var(--green-mid);text-align:right;}
+  .course .dist small{display:block;font-weight:500;color:#9aa89f;font-size:10px;}
+
+  /* ---------- Screen 2: GPS hole view ---------- */
+  .s-gps{background:linear-gradient(180deg,#2e8b57 0%, #1c6b4a 40%, #0f4a32 100%);color:#fff;position:relative;}
+  .gps-top{display:flex;justify-content:space-between;align-items:center;padding:6px 18px 10px;}
+  .gps-hole{font-weight:800;font-size:15px;}
+  .gps-par{font-size:12px;color:#bfe6cf;}
+  .gps-pill{background:rgba(0,0,0,.25);border-radius:999px;padding:6px 12px;font-size:12px;font-weight:600;display:flex;gap:6px;align-items:center;}
+  .holewrap{flex:1;position:relative;overflow:hidden;}
+  .holewrap svg{position:absolute;inset:0;width:100%;height:100%;}
+  .yard-center{position:absolute;top:34%;left:50%;transform:translateX(-50%);text-align:center;}
+  .yard-center .big{font-size:64px;font-weight:800;line-height:1;text-shadow:0 4px 12px rgba(0,0,0,.4);}
+  .yard-center .lbl{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#cdeed9;margin-top:2px;}
+  .fcb{position:absolute;top:18%;right:16px;display:flex;flex-direction:column;gap:8px;}
+  .fcb .row{background:rgba(0,0,0,.32);border-radius:10px;padding:6px 10px;text-align:right;min-width:74px;}
+  .fcb .row .n{font-size:20px;font-weight:800;line-height:1;}
+  .fcb .row .t{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#bfe6cf;}
+  .wind{position:absolute;top:18%;left:16px;background:rgba(0,0,0,.32);border-radius:12px;padding:10px;text-align:center;width:78px;}
+  .wind .arrow{font-size:26px;display:inline-block;transform:rotate(135deg);}
+  .wind .spd{font-size:18px;font-weight:800;margin-top:2px;}
+  .wind .t{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#bfe6cf;}
+  .gps-bottom{background:rgba(0,0,0,.35);backdrop-filter:blur(6px);padding:12px 16px;display:flex;justify-content:space-around;align-items:center;}
+  .gps-bottom .item{text-align:center;font-size:11px;color:#cdeed9;}
+  .gps-bottom .item .ic{font-size:20px;display:block;margin-bottom:3px;}
+
+  /* ---------- Screen 3: hazards / layup ---------- */
+  .s-haz{background:#0d2920;color:#fff;}
+  .haz-top{padding:6px 18px 10px;}
+  .haz-top h3{font-size:16px;font-weight:800;}
+  .haz-top .s{font-size:12px;color:#8fc7a9;}
+  .hcard{margin:10px 16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px;}
+  .hcard .hh{display:flex;justify-content:space-between;align-items:center;}
+  .hcard .lab{font-size:13px;font-weight:700;display:flex;gap:8px;align-items:center;}
+  .hcard .lab .dot{width:10px;height:10px;border-radius:50%;}
+  .hcard .yd{font-weight:800;font-size:18px;}
+  .hcard .bar{height:6px;border-radius:99px;background:rgba(255,255,255,.12);margin-top:10px;overflow:hidden;}
+  .hcard .bar span{display:block;height:100%;border-radius:99px;}
+  .club{margin:14px 16px 0;background:linear-gradient(135deg,#27ae60,#1c6b4a);border-radius:16px;padding:16px;text-align:center;}
+  .club .t{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#d6f5e3;}
+  .club .c{font-size:30px;font-weight:800;margin-top:4px;}
+  .club .d{font-size:12px;color:#e6fff0;margin-top:2px;}
+
+  .foot{max-width:900px;margin:60px auto 0;text-align:center;color:#7e9389;font-size:13px;line-height:1.6;}
+  .foot code{background:rgba(255,255,255,.08);padding:2px 7px;border-radius:6px;color:#cfe6d8;}
+</style>
+</head>
+<body>
+  <div class="head">
+    <div class="badge">Concept Mockup · Your branding goes here</div>
+    <h1>Fairway<span>IQ</span></h1>
+    <p>A simple, personal golf GPS for iPhone — finds nearby courses, shows distances to the green, tee boxes, hazards, and live wind. This is a clickable-looking mockup, not a real build.</p>
+  </div>
+
+  <div class="phones">
+
+    <!-- ===== Screen 1 ===== -->
+    <div class="col">
+      <div class="phone"><div class="notch"></div><div class="screen s-list">
+        <div class="statusbar" style="color:#fff;"><span>9:41</span><span>● ▣ ▮</span></div>
+        <div class="top">
+          <div class="brand">Fairway<span>IQ</span></div>
+          <div class="sub">Good morning, Matt · 68°F · clear</div>
+          <div class="searchbar">🔍 Search courses near you…</div>
+        </div>
+        <div class="secthead">Nearby courses</div>
+        <div class="course"><div class="pin">⛳</div><div class="info"><div class="name">Pine Ridge Golf Club</div><div class="meta">18 holes · Par 72</div></div><div class="dist">2.4 mi<small>OPEN NOW</small></div></div>
+        <div class="course"><div class="pin">⛳</div><div class="info"><div class="name">Lakeside National</div><div class="meta">18 holes · Par 71</div></div><div class="dist">5.1 mi<small>OPEN NOW</small></div></div>
+        <div class="course"><div class="pin">⛳</div><div class="info"><div class="name">Cedar Creek Links</div><div class="meta">9 holes · Par 36</div></div><div class="dist">8.7 mi<small>OPEN NOW</small></div></div>
+        <div class="course"><div class="pin">⛳</div><div class="info"><div class="name">The Highlands</div><div class="meta">18 holes · Par 73</div></div><div class="dist">12.3 mi<small>OPEN NOW</small></div></div>
+        <div class="secthead">Recently played</div>
+        <div class="course"><div class="pin" style="background:linear-gradient(135deg,#c9a14a,#8a6d24)">★</div><div class="info"><div class="name">Pine Ridge Golf Club</div><div class="meta">Played Jun 14 · 86 (+14)</div></div><div class="dist">Tap ▸</div></div>
+      </div></div>
+      <div class="cap"><b>1 · Find a course.</b> Auto-detects nearby courses by GPS. Tap one to start a round.</div>
+    </div>
+
+    <!-- ===== Screen 2 ===== -->
+    <div class="col">
+      <div class="phone"><div class="notch"></div><div class="screen s-gps">
+        <div class="statusbar"><span>9:41</span><span>● ▣ ▮</span></div>
+        <div class="gps-top">
+          <div><div class="gps-hole">Hole 7</div><div class="gps-par">Par 4 · 412 yds</div></div>
+          <div class="gps-pill">🎯 GPS ±3 yd</div>
+        </div>
+        <div class="holewrap">
+          <svg viewBox="0 0 300 420" preserveAspectRatio="xMidYMid slice">
+            <!-- rough -->
+            <rect x="0" y="0" width="300" height="420" fill="#1c6b4a"/>
+            <!-- fairway -->
+            <path d="M110,420 C90,300 120,210 150,150 C165,120 165,95 150,70 L195,70 C205,100 200,135 185,165 C160,235 175,330 195,420 Z" fill="#3fae6e"/>
+            <!-- water hazard -->
+            <path d="M40,300 q30,-40 75,-20 q20,30 -10,55 q-50,25 -65,-35 Z" fill="#3a7bd5"/>
+            <!-- bunker left -->
+            <ellipse cx="135" cy="120" rx="20" ry="13" fill="#e8d9a8"/>
+            <!-- bunker green -->
+            <ellipse cx="148" cy="64" rx="16" ry="10" fill="#e8d9a8"/>
+            <!-- green -->
+            <ellipse cx="172" cy="58" rx="34" ry="24" fill="#7be0a3"/>
+            <!-- flag -->
+            <line x1="172" y1="58" x2="172" y2="34" stroke="#fff" stroke-width="2"/>
+            <path d="M172,34 l12,4 l-12,4 Z" fill="#e8413a"/>
+            <circle cx="172" cy="58" r="3" fill="#0d4a30"/>
+            <!-- tee marker -->
+            <circle cx="152" cy="405" r="6" fill="#fff"/>
+            <circle cx="152" cy="405" r="3" fill="#1c6b4a"/>
+            <!-- aim line -->
+            <line x1="152" y1="405" x2="172" y2="58" stroke="rgba(255,255,255,.55)" stroke-width="1.5" stroke-dasharray="4 5"/>
+          </svg>
+
+          <div class="wind">
+            <div class="arrow">↑</div>
+            <div class="spd">11<small style="font-size:10px;"> mph</small></div>
+            <div class="t">Wind SW</div>
+          </div>
+
+          <div class="fcb">
+            <div class="row"><div class="n">156</div><div class="t">Back</div></div>
+            <div class="row" style="background:rgba(0,0,0,.5)"><div class="n">148</div><div class="t">Center</div></div>
+            <div class="row"><div class="n">141</div><div class="t">Front</div></div>
+          </div>
+
+          <div class="yard-center">
+            <div class="big">148</div>
+            <div class="lbl">Yds to center</div>
+          </div>
+        </div>
+        <div class="gps-bottom">
+          <div class="item"><span class="ic">◀</span>Hole 6</div>
+          <div class="item"><span class="ic">📍</span>Hazards</div>
+          <div class="item"><span class="ic">✏️</span>Score</div>
+          <div class="item"><span class="ic">▶</span>Hole 8</div>
+        </div>
+      </div></div>
+      <div class="cap"><b>2 · The main screen.</b> Distance to front / center / back of green, live wind, and an overhead hole map. This is the core of the app.</div>
+    </div>
+
+    <!-- ===== Screen 3 ===== -->
+    <div class="col">
+      <div class="phone"><div class="notch"></div><div class="screen s-haz">
+        <div class="statusbar"><span>9:41</span><span>● ▣ ▮</span></div>
+        <div class="haz-top">
+          <h3>Hole 7 · Hazards & layup</h3>
+          <div class="s">Carry and lay-up distances from your spot</div>
+        </div>
+        <div class="hcard">
+          <div class="hh"><div class="lab"><span class="dot" style="background:#3a7bd5"></span>Water — front edge</div><div class="yd">96</div></div>
+          <div class="bar"><span style="width:62%;background:#3a7bd5"></span></div>
+        </div>
+        <div class="hcard">
+          <div class="hh"><div class="lab"><span class="dot" style="background:#3a7bd5"></span>Water — carry over</div><div class="yd">128</div></div>
+          <div class="bar"><span style="width:80%;background:#3a7bd5"></span></div>
+        </div>
+        <div class="hcard">
+          <div class="hh"><div class="lab"><span class="dot" style="background:#e8d9a8"></span>Fairway bunker</div><div class="yd">112</div></div>
+          <div class="bar"><span style="width:72%;background:#e8d9a8"></span></div>
+        </div>
+        <div class="hcard">
+          <div class="hh"><div class="lab"><span class="dot" style="background:#7be0a3"></span>Green — front</div><div class="yd">141</div></div>
+          <div class="bar"><span style="width:90%;background:#7be0a3"></span></div>
+        </div>
+        <div class="club">
+          <div class="t">Plays like (wind-adjusted)</div>
+          <div class="c">155 yds</div>
+          <div class="d">+7 into the wind · suggested club: 7-iron</div>
+        </div>
+      </div></div>
+      <div class="cap"><b>3 · Hazards & smart layup.</b> Carry distances over water/bunkers, plus a wind-adjusted "plays-like" number and club tip.</div>
+    </div>
+
+  </div>
+
+  <div class="foot">
+    Mockup only — colors, name, and layout are placeholders for <b>your</b> brand.<br>
+    Built to show the concept: distances use the phone's GPS + <code>Haversine</code> math · wind from a free weather API · hole maps from course coordinate data.
+  </div>
+</body>
+</html>
