@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Golf GPS</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,sans-serif;
+    background:linear-gradient(180deg,#2e8b57 0%, #1c6b4a 45%, #0f4a32 100%);
+    color:#fff;min-height:100%;
+    padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:480px;margin:0 auto;padding:18px 18px 40px;}
+  header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+  header h1{font-size:17px;font-weight:800;letter-spacing:-.01em;}
+  .acc{font-size:11px;background:rgba(0,0,0,.28);padding:5px 10px;border-radius:999px;color:#cdeed9;}
+  .acc b{color:#fff;}
+
+  .topcards{display:flex;gap:12px;margin-bottom:16px;}
+  .card{background:rgba(0,0,0,.28);border-radius:16px;padding:14px;flex:1;text-align:center;}
+  .card .lbl{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#bfe6cf;}
+  .card .big{font-size:30px;font-weight:800;line-height:1.05;margin-top:4px;}
+  .card .sub{font-size:11px;color:#cdeed9;margin-top:2px;}
+  .windarrow{font-size:26px;display:inline-block;transition:transform .4s ease;}
+
+  .hero{background:rgba(0,0,0,.3);border-radius:20px;padding:20px;text-align:center;margin-bottom:16px;}
+  .hero .lbl{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#bfe6cf;}
+  .hero .yds{font-size:72px;font-weight:800;line-height:1;margin:6px 0;text-shadow:0 4px 14px rgba(0,0,0,.35);}
+  .hero .name{font-size:14px;color:#e6fff0;font-weight:600;}
+  .fcb{display:flex;justify-content:center;gap:10px;margin-top:14px;}
+  .fcb .c{background:rgba(0,0,0,.3);border-radius:12px;padding:8px 14px;min-width:72px;}
+  .fcb .c .n{font-size:22px;font-weight:800;line-height:1;}
+  .fcb .c .t{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#bfe6cf;margin-top:2px;}
+
+  .secthead{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#bfe6cf;margin:6px 2px 8px;font-weight:700;display:flex;justify-content:space-between;align-items:center;}
+  .list{display:flex;flex-direction:column;gap:8px;}
+  .row{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);border-radius:13px;padding:12px 14px;display:flex;align-items:center;gap:12px;}
+  .row .ic{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+  .row.green .ic{background:rgba(123,224,163,.25);}
+  .row.tee .ic{background:rgba(232,217,168,.25);}
+  .row.pin .ic{background:rgba(232,65,58,.25);}
+  .row .info{flex:1;min-width:0;}
+  .row .nm{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .row .mt{font-size:11px;color:#bfe6cf;}
+  .row .yd{font-size:19px;font-weight:800;text-align:right;}
+  .row .yd small{font-size:10px;font-weight:600;color:#bfe6cf;display:block;}
+
+  button{font-family:inherit;}
+  .btn{width:100%;background:#0d2920;color:#fff;border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:14px;font-size:15px;font-weight:700;margin-top:14px;cursor:pointer;}
+  .btn:active{transform:scale(.99);}
+  .btn.go{background:linear-gradient(135deg,#27ae60,#1c6b4a);border:none;}
+  .refresh{background:rgba(0,0,0,.28);border:none;color:#cdeed9;font-size:11px;padding:5px 10px;border-radius:999px;cursor:pointer;}
+
+  .status{background:rgba(0,0,0,.3);border-radius:14px;padding:16px;text-align:center;font-size:13px;color:#e6fff0;line-height:1.5;}
+  .status .spin{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp 1s linear infinite;margin-bottom:8px;}
+  @keyframes sp{to{transform:rotate(360deg);}}
+  .muted{color:#9fcdb4;font-size:11px;text-align:center;margin-top:18px;line-height:1.5;}
+  .hidden{display:none;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>⛳ Golf GPS</h1>
+    <div class="acc" id="acc">GPS: <b>—</b></div>
+  </header>
+
+  <!-- Start gate (iOS needs a tap before requesting location) -->
+  <div id="gate">
+    <div class="status">
+      <div style="font-size:40px;margin-bottom:8px;">📍</div>
+      Tap below to use your location. Distances and wind are live from your phone — free, no account.
+    </div>
+    <button class="btn go" id="startBtn">Start round</button>
+    <div class="muted">Works best outdoors with a clear view of the sky.<br>Course data from OpenStreetMap · wind from Open-Meteo.</div>
+  </div>
+
+  <!-- Main app -->
+  <div id="app" class="hidden">
+    <div class="topcards">
+      <div class="card">
+        <div class="lbl">Wind</div>
+        <div class="big" id="windSpd">—</div>
+        <div class="sub"><span class="windarrow" id="windArr">↑</span> <span id="windDir">from —</span></div>
+      </div>
+      <div class="card">
+        <div class="lbl">Temp</div>
+        <div class="big" id="temp">—</div>
+        <div class="sub" id="cond">&nbsp;</div>
+      </div>
+    </div>
+
+    <div class="hero">
+      <div class="lbl">Yards to nearest green</div>
+      <div class="yds" id="heroYds">—</div>
+      <div class="name" id="heroName">Searching for a course…</div>
+      <div class="fcb hidden" id="fcb">
+        <div class="c"><div class="n" id="fFront">—</div><div class="t">Front</div></div>
+        <div class="c"><div class="n" id="fCenter">—</div><div class="t">Center</div></div>
+        <div class="c"><div class="n" id="fBack">—</div><div class="t">Back</div></div>
+      </div>
+    </div>
+
+    <div class="secthead">
+      <span>Nearby points</span>
+      <button class="refresh" id="refreshBtn">↻ Refresh course</button>
+    </div>
+    <div class="list" id="list">
+      <div class="status"><div class="spin"></div><br>Looking for nearby greens & tees…</div>
+    </div>
+
+    <div class="muted" id="footnote">Distances update as you move.</div>
+  </div>
+</div>
+
+<script>
+const M2YD = 1.09361;
+let pos = null;        // {lat, lon, acc}
+let features = [];     // [{type, name, lat, lon, hole}]
+let lastQueryAt = 0;
+
+// ---------- helpers ----------
+function haversineYards(lat1, lon1, lat2, lon2){
+  const R = 6371000, toRad = d => d*Math.PI/180;
+  const dLat = toRad(lat2-lat1), dLon = toRad(lon2-lon1);
+  const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+  return (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))) * M2YD;
+}
+function cardinal(deg){
+  const dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+  return dirs[Math.round(deg/22.5) % 16];
+}
+const $ = id => document.getElementById(id);
+
+// ---------- weather (Open-Meteo, free, no key) ----------
+async function loadWind(lat, lon){
+  try{
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}`
+      + `&current=temperature_2m,wind_speed_10m,wind_direction_10m,weather_code`
+      + `&wind_speed_unit=mph&temperature_unit=fahrenheit`;
+    const r = await fetch(url);
+    const d = await r.json();
+    const c = d.current || {};
+    $('windSpd').textContent = Math.round(c.wind_speed_10m) + ' mph';
+    $('windDir').textContent = 'from ' + cardinal(c.wind_direction_10m);
+    // arrow points the way the wind is blowing TO (meteo dir is where it comes FROM)
+    $('windArr').style.transform = 'rotate(' + ((c.wind_direction_10m + 180) % 360) + 'deg)';
+    $('temp').textContent = Math.round(c.temperature_2m) + '°';
+    $('cond').textContent = weatherText(c.weather_code);
+  }catch(e){ $('windDir').textContent = 'wind unavailable'; }
+}
+function weatherText(code){
+  if(code===0) return 'Clear';
+  if([1,2,3].includes(code)) return 'Cloudy';
+  if([45,48].includes(code)) return 'Fog';
+  if(code>=51&&code<=67) return 'Rain';
+  if(code>=71&&code<=77) return 'Snow';
+  if(code>=80&&code<=82) return 'Showers';
+  if(code>=95) return 'Storm';
+  return ' ';
+}
+
+// ---------- course data (OpenStreetMap via Overpass) ----------
+async function loadCourse(lat, lon){
+  lastQueryAt = Date.now();
+  const radius = 1600; // meters (~1 mile)
+  const q = `[out:json][timeout:25];(`
+    + `way["golf"="green"](around:${radius},${lat},${lon});`
+    + `relation["golf"="green"](around:${radius},${lat},${lon});`
+    + `way["golf"="tee"](around:${radius},${lat},${lon});`
+    + `node["golf"="pin"](around:${radius},${lat},${lon});`
+    + `node["golf"="hole"](around:${radius},${lat},${lon});`
+    + `);out center tags;`;
+  const endpoints = [
+    'https://overpass-api.de/api/interpreter',
+    'https://overpass.kumi.systems/api/interpreter'
+  ];
+  for(const ep of endpoints){
+    try{
+      const r = await fetch(ep, {method:'POST', body:'data='+encodeURIComponent(q)});
+      if(!r.ok) continue;
+      const d = await r.json();
+      features = (d.elements||[]).map(el=>{
+        const p = el.center || {lat:el.lat, lon:el.lon};
+        if(!p || p.lat==null) return null;
+        const t = (el.tags && el.tags.golf) || 'point';
+        const ref = el.tags && (el.tags.ref || el.tags.name);
+        return { type:t, lat:p.lat, lon:p.lon, hole: ref || null };
+      }).filter(Boolean);
+      render();
+      return;
+    }catch(e){ /* try next endpoint */ }
+  }
+  $('list').innerHTML = '<div class="status">Couldn’t reach the course database. Check your connection and tap <b>Refresh</b>.</div>';
+}
+
+// ---------- render ----------
+function render(){
+  if(!pos) return;
+  $('acc').innerHTML = 'GPS: <b>±' + Math.round((pos.acc||0)*M2YD) + ' yd</b>';
+
+  if(!features.length){
+    $('heroYds').textContent = '—';
+    $('heroName').textContent = 'No mapped course within ~1 mi';
+    $('fcb').classList.add('hidden');
+    $('list').innerHTML = '<div class="status">No golf features found near you in OpenStreetMap.<br>'
+      + 'Head to a course and tap <b>Refresh</b> — or the course may not be mapped yet.</div>';
+    return;
+  }
+
+  const scored = features.map(f=>({...f, yd: haversineYards(pos.lat, pos.lon, f.lat, f.lon)}))
+                         .sort((a,b)=>a.yd-b.yd);
+
+  const greens = scored.filter(f=>f.type==='green' || f.type==='pin' || f.type==='hole');
+  const hero = greens[0] || scored[0];
+
+  $('heroYds').textContent = Math.round(hero.yd);
+  $('heroName').textContent = (hero.hole ? 'Hole '+hero.hole+' · ' : '') + label(hero.type);
+
+  // Approx front/center/back: green centroid +/- a nominal 12 yd depth.
+  if(hero.type==='green'){
+    $('fcb').classList.remove('hidden');
+    $('fCenter').textContent = Math.round(hero.yd);
+    $('fFront').textContent  = Math.round(hero.yd-12);
+    $('fBack').textContent   = Math.round(hero.yd+12);
+  } else {
+    $('fcb').classList.add('hidden');
+  }
+
+  $('list').innerHTML = scored.slice(0,12).map(f=>{
+    const cls = f.type==='green' ? 'green' : (f.type==='tee' ? 'tee' : 'pin');
+    const ic  = f.type==='green' ? '🟢' : (f.type==='tee' ? '⛳' : '🚩');
+    return `<div class="row ${cls}">
+        <div class="ic">${ic}</div>
+        <div class="info">
+          <div class="nm">${(f.hole?('Hole '+f.hole+' · '):'')}${label(f.type)}</div>
+          <div class="mt">${cls==='green'?'Green center':cls==='tee'?'Tee box':'Pin / hole'}</div>
+        </div>
+        <div class="yd">${Math.round(f.yd)}<small>yards</small></div>
+      </div>`;
+  }).join('');
+}
+function label(t){ return t==='green'?'Green':t==='tee'?'Tee':t==='pin'?'Pin':t==='hole'?'Hole':'Point'; }
+
+// ---------- geolocation ----------
+function start(){
+  $('gate').classList.add('hidden');
+  $('app').classList.remove('hidden');
+  if(!navigator.geolocation){
+    $('list').innerHTML = '<div class="status">This browser can’t access location.</div>';
+    return;
+  }
+  navigator.geolocation.watchPosition(
+    p=>{
+      const first = !pos;
+      pos = {lat:p.coords.latitude, lon:p.coords.longitude, acc:p.coords.accuracy};
+      render();
+      if(first){
+        loadWind(pos.lat, pos.lon);
+        loadCourse(pos.lat, pos.lon);
+      }
+    },
+    err=>{
+      $('list').innerHTML = '<div class="status">Location blocked. Enable location for Safari in '
+        + 'Settings › Privacy › Location, then reload.<br><small>('+err.message+')</small></div>';
+    },
+    { enableHighAccuracy:true, maximumAge:2000, timeout:15000 }
+  );
+}
+$('startBtn').addEventListener('click', start);
+$('refreshBtn').addEventListener('click', ()=>{
+  if(!pos) return;
+  $('list').innerHTML = '<div class="status"><div class="spin"></div><br>Refreshing course…</div>';
+  loadWind(pos.lat, pos.lon);
+  loadCourse(pos.lat, pos.lon);
+});
+</script>
+</body>
+</html>
