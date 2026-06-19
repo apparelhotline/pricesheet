@@ -93,6 +93,8 @@
   .mapmeasure b{color:#5bd98f;font-size:17px;}
   .mapmeasure .hint{color:#8fc7a9;font-size:11px;margin-top:4px;}
   .leaflet-container{font-family:inherit;}
+  .greenlbl{background:rgba(7,23,15,.9);border:none;color:#fff;font-weight:800;font-size:12px;padding:3px 7px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.4);}
+  .greenlbl::before{display:none!important;}
 
   /* scorecard */
   .sc{width:100%;border-collapse:collapse;font-size:13px;}
@@ -154,6 +156,7 @@
       <div class="c"><div class="n" id="fCenter">—</div><div class="t">Center</div></div>
       <div class="c"><div class="n" id="fBack">—</div><div class="t">Back</div></div>
     </div>
+    <div id="playsLike" class="hidden" style="margin-top:12px;font-size:13px;color:#cfe6d8;font-weight:600;"></div>
   </div>
   <button class="btn" id="glanceBtn">👁 Glance mode — big number, screen stays on</button>
   <div class="secthead"><span id="detailHead">This hole</span><button class="refresh" id="refreshBtn">↻ Refresh</button></div>
@@ -206,6 +209,7 @@
 <script>
 const M2YD=1.09361, R_EARTH=6371000, toRad=d=>d*Math.PI/180;
 let pos=null, holes=[], selectedRef=null, autoHole=true, wakeLock=null, glanceOn=false;
+let wind=null, playerElev=null;
 let raw={greens:[],tees:[],holes:[],pins:[],fairways:[],bunkers:[],water:[]};
 let courseName='⛳ Golf GPS';
 let map=null, courseLayer=null, dynLayer=null, target=null, mapInited=false, curTab='play';
@@ -218,6 +222,16 @@ function toXY(lat,lon,lat0){return [toRad(lon)*Math.cos(toRad(lat0))*R_EARTH, to
 function distSegM(p,a,b){const lat0=a.lat;const[px,py]=toXY(p.lat,p.lon,lat0),[ax,ay]=toXY(a.lat,a.lon,lat0),[bx,by]=toXY(b.lat,b.lon,lat0);const dx=bx-ax,dy=by-ay,L2=dx*dx+dy*dy;let t=L2?((px-ax)*dx+(py-ay)*dy)/L2:0;t=Math.max(0,Math.min(1,t));return Math.hypot(px-(ax+t*dx),py-(ay+t*dy));}
 function distToLine(p,line){let m=Infinity;for(let i=0;i<line.length-1;i++)m=Math.min(m,distSegM(p,line[i],line[i+1]));if(line.length===1)m=distM(p.lat,p.lon,line[0].lat,line[0].lon);return m;}
 function centroid(pts){let la=0,lo=0;pts.forEach(p=>{la+=p.lat;lo+=p.lon;});return {lat:la/pts.length,lon:lo/pts.length};}
+function bearing(a,b){const y=Math.sin(toRad(b.lon-a.lon))*Math.cos(toRad(b.lat));const x=Math.cos(toRad(a.lat))*Math.sin(toRad(b.lat))-Math.sin(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.cos(toRad(b.lon-a.lon));return (Math.atan2(y,x)*180/Math.PI+360)%360;}
+function sgn(n){return (n>=0?'+':'')+n;}
+function fcbFor(h){if(!h||!h.green||!pos)return null;const tgt=h.pin||h.green.c;const center=distM(pos.lat,pos.lon,tgt.lat,tgt.lon);let front=Infinity,back=0;for(const v of h.green.verts){const d=distM(pos.lat,pos.lon,v.lat,v.lon);front=Math.min(front,d);back=Math.max(back,d);}return {front,center,back,tgt};}
+function adjustments(h,centerYds){
+  if(!h||!h.green||!pos)return null; let windEff=0,elevEff=0,has=false; const tgt=h.pin||h.green.c;
+  if(wind){const brg=bearing(pos,tgt);const head=wind.spd*Math.cos(toRad(wind.dir-brg));windEff=centerYds*(head>=0?0.01:0.005)*head;has=true;}
+  if(playerElev!=null&&h.greenElev!=null){elevEff=(h.greenElev-playerElev)*M2YD;has=true;}
+  if(!has)return null; windEff=Math.round(windEff); elevEff=Math.round(elevEff);
+  return {windEff,elevEff,plays:Math.round(centerYds+windEff+elevEff)};
+}
 
 // ---------- weather ----------
 async function loadWind(lat,lon){
@@ -228,6 +242,7 @@ async function loadWind(lat,lon){
     $('windDir').textContent='from '+cardinal(c.wind_direction_10m);
     $('windArr').style.transform='rotate('+((c.wind_direction_10m+180)%360)+'deg)';
     $('temp').textContent=Math.round(c.temperature_2m)+'°'; $('cond').textContent=wtext(c.weather_code);
+    wind={spd:c.wind_speed_10m||0, dir:c.wind_direction_10m||0}; render(); if(mapInited)updateDyn();
   }catch(e){ $('windDir').textContent='wind unavailable'; }
 }
 function cardinal(d){const a=['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];return a[Math.round(d/22.5)%16];}
@@ -253,6 +268,16 @@ async function loadCourse(lat,lon){
     try{const r=await fetch(ep,{method:'POST',body:'data='+encodeURIComponent(q)});if(!r.ok)continue;buildCourse((await r.json()).elements||[]);return;}catch(e){}
   }
   $('list').innerHTML='<div class="status">Couldn’t reach the course database. Tap <b>Refresh</b>.</div>';
+}
+async function loadElevations(){
+  if(!pos||!holes.length)return;
+  const lats=[pos.lat], lons=[pos.lon];
+  holes.forEach(h=>{ if(h.green){ lats.push(h.green.c.lat); lons.push(h.green.c.lon); } });
+  try{
+    const u=`https://api.open-meteo.com/v1/elevation?latitude=${lats.join(',')}&longitude=${lons.join(',')}`;
+    const e=(await (await fetch(u)).json()).elevation;
+    if(Array.isArray(e)){ playerElev=e[0]; let i=1; holes.forEach(h=>{ if(h.green){ h.greenElev=e[i++]; } }); render(); if(mapInited)updateDyn(); }
+  }catch(_){}
 }
 function buildCourse(els){
   raw={greens:[],tees:[],holes:[],pins:[],fairways:[],bunkers:[],water:[]};
@@ -286,6 +311,7 @@ function buildCourse(els){
   } else { buildPills(); }
   buildCard();
   if(mapInited) drawCourse();
+  loadElevations();
   render();
 }
 function parseRef(r){if(r==null)return null;const m=String(r).match(/\d+/);return m?parseInt(m[0]):null;}
@@ -319,6 +345,9 @@ function render(){
     $('heroName').textContent='Hole '+h.ref+(h.par?(' · Par '+h.par):'')+(autoHole?' · auto-detected':'');
     $('fcb').classList.remove('hidden');
     $('fFront').textContent=yd(front); $('fCenter').textContent=yd(center); $('fBack').textContent=yd(back);
+    const adj=adjustments(h,yd(center));
+    if(adj){ $('playsLike').classList.remove('hidden'); $('playsLike').innerHTML=`Plays like <b style="color:#fff;font-size:16px;">${adj.plays}</b> yds &nbsp;·&nbsp; 🌬 ${sgn(adj.windEff)} &nbsp;·&nbsp; ⛰ ${sgn(adj.elevEff)}`; }
+    else $('playsLike').classList.add('hidden');
     if(glanceOn){$('gHole').textContent='Hole '+h.ref+(h.par?(' · Par '+h.par):'');$('gYds').textContent=yd(center);$('gFront').textContent=yd(front);$('gBack').textContent=yd(back);$('gWind').textContent=$('windSpd').textContent+' · '+$('windDir').textContent;}
     rows.push(['🟢','Green '+(h.pin?'(pin)':'center'),'',yd(center)]);
     rows.push(['🟩','Front edge','carry',yd(front)]);
@@ -358,7 +387,8 @@ function focusHole(){
 function updateDyn(){
   if(!dynLayer)return; dynLayer.clearLayers(); const h=curHole();
   if(h&&h.green){const gc=h.pin||h.green.c;
-    L.circleMarker([gc.lat,gc.lon],{radius:6,color:'#fff',weight:2,fillColor:'#e8413a',fillOpacity:1}).addTo(dynLayer);
+    const gm=L.circleMarker([gc.lat,gc.lon],{radius:6,color:'#fff',weight:2,fillColor:'#e8413a',fillOpacity:1}).addTo(dynLayer);
+    const f=fcbFor(h); if(f) gm.bindTooltip(`${yd(f.front)} / ${yd(f.center)} / ${yd(f.back)}`,{permanent:true,direction:'top',offset:[0,-2],className:'greenlbl'});
   }
   if(pos){
     L.circle([pos.lat,pos.lon],{radius:pos.acc||8,color:'#4aa3ff',weight:1,fillColor:'#4aa3ff',fillOpacity:.15}).addTo(dynLayer);
@@ -374,7 +404,8 @@ function updateDyn(){
     const tToG=gc?yd(distM(target.lat,target.lon,gc.lat,gc.lon)):null;
     $('measTxt').innerHTML=`You → point <b>${toT}y</b>`+(tToG!=null?` · point → green <b>${tToG}y</b>`:'');
   } else if(pos&&h&&h.green){
-    const gc=h.pin||h.green.c; $('measTxt').innerHTML=`You → green <b>${yd(distM(pos.lat,pos.lon,gc.lat,gc.lon))}y</b> · tap to aim anywhere`;
+    const gc=h.pin||h.green.c; const c=yd(distM(pos.lat,pos.lon,gc.lat,gc.lon)); const a=adjustments(h,c);
+    $('measTxt').innerHTML=`You → green <b>${c}y</b>`+(a?` · plays ~<b>${a.plays}y</b>`:'')+` · tap to aim`;
   }
 }
 
