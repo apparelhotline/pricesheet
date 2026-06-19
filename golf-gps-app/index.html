@@ -10,11 +10,7 @@
 <style>
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
   html,body{height:100%;}
-  body{
-    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,sans-serif;
-    background:linear-gradient(180deg,#2e8b57 0%, #1c6b4a 45%, #0f4a32 100%);
-    color:#fff;min-height:100%;-webkit-font-smoothing:antialiased;
-  }
+  body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,sans-serif;background:linear-gradient(180deg,#2e8b57 0%,#1c6b4a 45%,#0f4a32 100%);color:#fff;min-height:100%;-webkit-font-smoothing:antialiased;}
   .wrap{max-width:480px;margin:0 auto;padding:16px 16px 96px;min-height:100vh;padding-top:calc(16px + env(safe-area-inset-top));}
   header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
   header h1{font-size:17px;font-weight:800;letter-spacing:-.01em;}
@@ -23,18 +19,21 @@
 
   .holebar{display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.28);border-radius:16px;padding:8px 10px;margin-bottom:10px;}
   .holebar .nav{width:38px;height:38px;border-radius:11px;background:rgba(255,255,255,.1);border:none;color:#fff;font-size:18px;font-weight:800;cursor:pointer;flex-shrink:0;}
-  .holebar .nav:active{transform:scale(.95);}
   .holebar .mid{flex:1;text-align:center;}
   .holebar .mid .h{font-size:18px;font-weight:800;line-height:1;}
   .holebar .mid .p{font-size:11px;color:#bfe6cf;margin-top:2px;}
   .holebar .auto{font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;border:none;border-radius:999px;padding:7px 11px;cursor:pointer;flex-shrink:0;}
-  .auto.on{background:#27ae60;color:#fff;}
-  .auto.off{background:rgba(255,255,255,.12);color:#cdeed9;}
+  .auto.on{background:#27ae60;color:#fff;} .auto.off{background:rgba(255,255,255,.12);color:#cdeed9;}
 
   .pills{display:flex;gap:6px;overflow-x:auto;padding:2px 2px 8px;margin-bottom:8px;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
   .pills::-webkit-scrollbar{display:none;}
   .pill{flex-shrink:0;min-width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.1);border:none;color:#e6fff0;font-weight:800;font-size:14px;cursor:pointer;}
   .pill.active{background:#fff;color:#0f4a32;}
+
+  .tees{display:flex;align-items:center;gap:6px;margin-bottom:12px;flex-wrap:wrap;}
+  .tees .tl{font-size:11px;color:#bfe6cf;letter-spacing:.08em;text-transform:uppercase;font-weight:700;margin-right:2px;}
+  .tees button{border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#e6fff0;border-radius:999px;padding:5px 11px;font-size:12px;font-weight:700;cursor:pointer;}
+  .tees button.sel{background:#fff;color:#0f4a32;border-color:#fff;}
 
   .topcards{display:flex;gap:10px;margin-bottom:14px;}
   .card{background:rgba(0,0,0,.28);border-radius:16px;padding:12px;flex:1;text-align:center;}
@@ -52,60 +51,75 @@
   .fcb .c .n{font-size:23px;font-weight:800;line-height:1;}
   .fcb .c .t{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#bfe6cf;margin-top:2px;}
 
+  /* on-screen score entry */
+  .hscore{background:rgba(0,0,0,.3);border-radius:18px;padding:14px;margin-bottom:14px;border:1px solid rgba(255,255,255,.06);}
+  .hscore.near{border-color:#5bd98f;box-shadow:0 0 0 2px rgba(91,217,143,.4);}
+  .hscore .hh{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+  .hscore .hh .t{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#bfe6cf;font-weight:700;}
+  .hscore .hh .r{font-size:12px;color:#cfe6d8;font-weight:700;}
+  .hsgrid{display:flex;gap:12px;}
+  .hscell{flex:1;background:rgba(255,255,255,.06);border-radius:14px;padding:10px;text-align:center;}
+  .hscell .l{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#bfe6cf;margin-bottom:6px;}
+  .stp{display:inline-flex;align-items:center;gap:14px;}
+  .stp button{width:36px;height:36px;border-radius:10px;border:none;background:rgba(255,255,255,.16);color:#fff;font-size:20px;font-weight:800;cursor:pointer;}
+  .stp .v{min-width:26px;font-weight:800;font-size:24px;display:inline-block;}
+
   .secthead{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#bfe6cf;margin:4px 2px 8px;font-weight:700;display:flex;justify-content:space-between;align-items:center;}
   .list{display:flex;flex-direction:column;gap:8px;}
   .row{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);border-radius:13px;padding:11px 14px;display:flex;align-items:center;gap:12px;}
   .row .ic{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;background:rgba(255,255,255,.1);}
   .row .info{flex:1;min-width:0;}
-  .row .nm{font-size:14px;font-weight:700;}
-  .row .mt{font-size:11px;color:#bfe6cf;}
-  .row .yd{font-size:19px;font-weight:800;text-align:right;}
-  .row .yd small{font-size:10px;font-weight:600;color:#bfe6cf;display:block;}
+  .row .nm{font-size:14px;font-weight:700;} .row .mt{font-size:11px;color:#bfe6cf;}
+  .row .yd{font-size:19px;font-weight:800;text-align:right;} .row .yd small{font-size:10px;font-weight:600;color:#bfe6cf;display:block;}
 
   button{font-family:inherit;}
   .btn{width:100%;background:#0d2920;color:#fff;border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:14px;font-size:15px;font-weight:700;margin-top:14px;cursor:pointer;}
-  .btn:active{transform:scale(.99);}
   .btn.go{background:linear-gradient(135deg,#27ae60,#1c6b4a);border:none;}
   .refresh{background:rgba(0,0,0,.28);border:none;color:#cdeed9;font-size:11px;padding:5px 10px;border-radius:999px;cursor:pointer;}
-
   .status{background:rgba(0,0,0,.3);border-radius:14px;padding:16px;text-align:center;font-size:13px;color:#e6fff0;line-height:1.5;}
   .status .spin{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp 1s linear infinite;margin-bottom:8px;}
   @keyframes sp{to{transform:rotate(360deg);}}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(91,217,143,.6);}50%{box-shadow:0 0 0 8px rgba(91,217,143,0);}}
   .muted{color:#9fcdb4;font-size:11px;text-align:center;margin-top:18px;line-height:1.5;}
   .hidden{display:none!important;}
 
-  /* glance mode */
+  /* glance */
   #glance{position:fixed;inset:0;background:radial-gradient(120% 120% at 50% 20%,#0d2c1e,#05130c);color:#fff;z-index:1200;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;}
   #glance .gh{font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:#5bd98f;font-weight:700;}
   #glance .gy{font-size:42vw;font-weight:800;line-height:.85;margin:10px 0;text-shadow:0 6px 24px rgba(0,0,0,.4);}
   #glance .gf{display:flex;gap:26px;font-size:8vw;font-weight:800;color:#cfe6d8;}
   #glance .gf small{display:block;font-size:3vw;letter-spacing:.12em;color:#6fae8c;font-weight:700;margin-top:2px;}
-  #glance .gw{margin-top:22px;font-size:4.6vw;color:#9fcdb4;}
-  #glance .gx{position:absolute;bottom:34px;font-size:12px;color:#5f8f76;}
+  #glance .gw{margin-top:22px;font-size:4.6vw;color:#9fcdb4;} #glance .gx{position:absolute;bottom:34px;font-size:12px;color:#5f8f76;}
 
-  /* map view */
-  #view-map{position:fixed;inset:0 0 72px 0;display:flex;flex-direction:column;}
+  /* map */
+  #view-map{position:fixed;inset:0 0 64px 0;display:flex;flex-direction:column;}
   #map{flex:1;background:#0b1f17;}
-  .maptop{position:absolute;top:calc(8px + env(safe-area-inset-top));left:8px;right:8px;z-index:500;display:flex;gap:8px;align-items:center;pointer-events:none;}
-  .maptop .chip{background:rgba(7,23,15,.82);color:#fff;border-radius:12px;padding:8px 12px;font-weight:800;font-size:14px;pointer-events:auto;}
-  .maptop .chip small{display:block;font-size:10px;color:#8fc7a9;font-weight:600;letter-spacing:.06em;}
-  .mapmeasure{position:absolute;left:8px;right:8px;bottom:8px;z-index:500;background:rgba(7,23,15,.86);border-radius:14px;padding:12px 14px;font-size:13px;color:#e6fff0;text-align:center;}
-  .mapmeasure b{color:#5bd98f;font-size:17px;}
-  .mapmeasure .hint{color:#8fc7a9;font-size:11px;margin-top:4px;}
-  .leaflet-container{font-family:inherit;}
+  .maptop{position:absolute;top:calc(8px + env(safe-area-inset-top));left:8px;right:8px;z-index:600;display:flex;gap:6px;align-items:center;}
+  .maptop .mnav{width:34px;height:34px;border-radius:10px;border:none;background:rgba(7,23,15,.82);color:#fff;font-size:18px;font-weight:800;cursor:pointer;}
+  .maptop .chip{background:rgba(7,23,15,.82);color:#fff;border-radius:11px;padding:6px 11px;font-weight:800;font-size:14px;}
+  .maptop .chip small{display:block;font-size:10px;color:#8fc7a9;font-weight:600;letter-spacing:.04em;}
+  .maptop .mauto,.maptop .mtoggle{border:none;border-radius:999px;padding:7px 10px;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;}
+  .maptop .mauto.on,.maptop .mtoggle.on{background:#27ae60;color:#fff;} .maptop .mauto.off,.maptop .mtoggle.off{background:rgba(7,23,15,.82);color:#cdeed9;}
+  .mapdist{position:absolute;top:calc(54px + env(safe-area-inset-top));right:8px;z-index:600;background:rgba(7,23,15,.82);border-radius:14px;padding:10px 12px;text-align:center;min-width:96px;}
+  .mapdist .c{font-size:34px;font-weight:800;line-height:1;} .mapdist .l{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#8fc7a9;}
+  .mapdist .pl{font-size:11px;color:#cfe6d8;margin-top:5px;font-weight:700;}
+  .mapmeasure{position:absolute;left:8px;right:108px;bottom:60px;z-index:600;background:rgba(7,23,15,.86);border-radius:14px;padding:10px 12px;font-size:13px;color:#e6fff0;text-align:center;}
+  .mapmeasure b{color:#5bd98f;font-size:16px;} .mapmeasure .hint{color:#8fc7a9;font-size:10px;margin-top:3px;}
+  .mscore{position:absolute;right:8px;bottom:60px;z-index:600;width:92px;border:none;border-radius:14px;background:linear-gradient(135deg,#27ae60,#1c6b4a);color:#fff;font-weight:800;font-size:14px;padding:12px 0;cursor:pointer;}
+  .mscore.near{animation:pulse 1.2s infinite;}
+  .leaflet-container{font-family:inherit;background:#0b1f17;}
   .greenlbl{background:rgba(7,23,15,.9);border:none;color:#fff;font-weight:800;font-size:12px;padding:3px 7px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.4);}
   .greenlbl::before{display:none!important;}
 
-  /* scorecard */
+  /* scorecard table */
   .sc{width:100%;border-collapse:collapse;font-size:13px;}
-  .sc th,.sc td{padding:7px 4px;text-align:center;border-bottom:1px solid rgba(255,255,255,.08);}
-  .sc th{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#bfe6cf;font-weight:700;}
+  .sc th,.sc td{padding:7px 3px;text-align:center;border-bottom:1px solid rgba(255,255,255,.08);}
+  .sc th{font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:#bfe6cf;font-weight:700;}
   .sc .hl{text-align:left;font-weight:700;}
-  .sc .stp{display:inline-flex;align-items:center;gap:8px;}
-  .sc .stp button{width:26px;height:26px;border-radius:8px;border:none;background:rgba(255,255,255,.14);color:#fff;font-size:16px;font-weight:800;cursor:pointer;}
-  .sc .sv{min-width:18px;font-weight:800;font-size:15px;display:inline-block;}
-  .sc tfoot td{font-weight:800;font-size:14px;border-top:2px solid rgba(255,255,255,.18);color:#fff;}
-  .topar{font-weight:800;}
+  .sc .mini{display:inline-flex;align-items:center;gap:6px;}
+  .sc .mini button{width:24px;height:24px;border-radius:7px;border:none;background:rgba(255,255,255,.14);color:#fff;font-size:15px;font-weight:800;cursor:pointer;}
+  .sc .sv{min-width:16px;font-weight:800;font-size:14px;display:inline-block;}
+  .sc tfoot td{font-weight:800;font-size:14px;border-top:2px solid rgba(255,255,255,.18);}
   .topar.over{color:#ffb4a8;} .topar.under{color:#9bf0c0;} .topar.even{color:#fff;}
   .hc{background:rgba(0,0,0,.28);border-radius:16px;padding:14px;margin-bottom:14px;}
   .hc .big{font-size:34px;font-weight:800;}
@@ -113,27 +127,48 @@
   .hc .ip label{flex:1;font-size:11px;color:#bfe6cf;}
   .hc .ip input{width:100%;margin-top:4px;padding:9px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:#fff;font-size:15px;font-family:inherit;}
 
-  /* bottom tab bar */
-  .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:1100;display:flex;background:rgba(6,18,12,.92);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,.08);padding-bottom:env(safe-area-inset-bottom);}
-  .tabbar button{flex:1;background:none;border:none;color:#7e9c8c;padding:10px 0 12px;font-size:11px;font-weight:700;cursor:pointer;}
+  /* score modal */
+  #scoreModal{position:fixed;inset:0;z-index:1300;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;}
+  #scoreModal .sheet{background:#0d2920;width:100%;max-width:480px;margin:0 auto;border-radius:22px 22px 0 0;padding:20px 18px calc(24px + env(safe-area-inset-bottom));}
+  #scoreModal .sh-h{font-size:18px;font-weight:800;text-align:center;margin-bottom:4px;}
+  #scoreModal .sh-s{font-size:12px;color:#8fc7a9;text-align:center;margin-bottom:16px;}
+  .sm-row{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.06);border-radius:14px;padding:12px 16px;margin-bottom:10px;}
+  .sm-row>span{font-size:15px;font-weight:700;}
+  .sm-tot{text-align:center;color:#cfe6d8;font-weight:700;margin:6px 0 4px;}
+
+  /* tab bar */
+  .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:1100;display:flex;background:rgba(6,18,12,.94);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,.08);padding-bottom:env(safe-area-inset-bottom);}
+  .tabbar button{flex:1;background:none;border:none;color:#7e9c8c;padding:9px 0 11px;font-size:11px;font-weight:700;cursor:pointer;}
   .tabbar button .ic{display:block;font-size:20px;margin-bottom:2px;}
   .tabbar button.active{color:#5bd98f;}
 </style>
 </head>
 <body>
 
-<!-- ===== GATE ===== -->
 <div class="wrap" id="gateWrap">
   <header><h1>⛳ Golf GPS</h1><div class="acc">free</div></header>
-  <div class="status">
-    <div style="font-size:40px;margin-bottom:8px;">📍</div>
-    Tap below to use your location. It auto-detects your hole, maps the course, and tracks your score. Free, no account.
-  </div>
+  <div class="status"><div style="font-size:40px;margin-bottom:8px;">📍</div>Tap below to use your location. Auto-detects your hole, maps the course, tracks your score. Free, no account.</div>
   <button class="btn go" id="startBtn">Start round</button>
   <div class="muted">Best outdoors with a clear view of the sky.<br>Imagery © Esri · course data © OpenStreetMap · wind: Open-Meteo.</div>
 </div>
 
-<!-- ===== PLAY ===== -->
+<!-- MAP (default) -->
+<div id="view-map" class="hidden">
+  <div id="map"></div>
+  <div class="maptop">
+    <button class="mnav" id="mPrev">‹</button>
+    <div class="chip" id="mapHole">Hole —<small id="mapPar">&nbsp;</small></div>
+    <button class="mnav" id="mNext">›</button>
+    <button class="mauto on" id="mAuto">Auto</button>
+    <div style="flex:1"></div>
+    <button class="mtoggle on" id="mHeading">⇧ Up</button>
+  </div>
+  <div class="mapdist"><div class="c" id="mCenter">—</div><div class="l">to center</div><div class="pl" id="mPlays">&nbsp;</div></div>
+  <div class="mapmeasure" id="measure"><b id="measTxt">Tap the map to aim</b><div class="hint">you → point · point → green</div></div>
+  <button class="mscore" id="mScoreBtn">＋ Score</button>
+</div>
+
+<!-- PLAY -->
 <div class="wrap hidden" id="view-play">
   <header><h1 id="courseName">⛳ Golf GPS</h1><div class="acc" id="acc">GPS: <b>—</b></div></header>
   <div class="holebar">
@@ -143,8 +178,9 @@
     <button class="auto on" id="autoBtn">Auto</button>
   </div>
   <div class="pills" id="pills"></div>
+  <div class="tees" id="tees"><span class="tl">Tees</span></div>
   <div class="topcards">
-    <div class="card"><div class="lbl">Wind</div><div class="big" id="windSpd">—</div><div class="sub"><span class="windarrow" id="windArr">↑</span> <span id="windDir">from —</span></div></div>
+    <div class="card"><div class="lbl">Wind</div><div class="big" id="windSpd">—</div><div class="sub"><span class="windarrow" id="windArr">↑</span> <span id="windDir">—</span></div></div>
     <div class="card"><div class="lbl">Temp</div><div class="big" id="temp">—</div><div class="sub" id="cond">&nbsp;</div></div>
   </div>
   <div class="hero">
@@ -158,30 +194,29 @@
     </div>
     <div id="playsLike" class="hidden" style="margin-top:12px;font-size:13px;color:#cfe6d8;font-weight:600;"></div>
   </div>
+
+  <div class="hscore" id="holeScore">
+    <div class="hh"><span class="t" id="hsHead">This hole</span><span class="r" id="hsRun">&nbsp;</span></div>
+    <div class="hsgrid">
+      <div class="hscell"><div class="l">Score</div><div class="stp"><button data-k="score" data-d="-1">−</button><span class="v" id="hsScore">–</span><button data-k="score" data-d="1">＋</button></div></div>
+      <div class="hscell"><div class="l">Putts</div><div class="stp"><button data-k="putts" data-d="-1">−</button><span class="v" id="hsPutts">–</span><button data-k="putts" data-d="1">＋</button></div></div>
+    </div>
+  </div>
+
   <button class="btn" id="glanceBtn">👁 Glance mode — big number, screen stays on</button>
   <div class="secthead"><span id="detailHead">This hole</span><button class="refresh" id="refreshBtn">↻ Refresh</button></div>
   <div class="list" id="list"><div class="status"><div class="spin"></div><br>Looking for your course…</div></div>
   <div class="muted">Auto-detect follows your GPS. Tap a number or use ‹ › to override.</div>
 </div>
 
-<!-- ===== MAP ===== -->
-<div id="view-map" class="hidden">
-  <div id="map"></div>
-  <div class="maptop"><div class="chip" id="mapHole">Hole —<small id="mapPar">&nbsp;</small></div></div>
-  <div class="mapmeasure" id="measure"><b id="measTxt">Tap the map to aim</b><div class="hint">Distance you → point, and point → green</div></div>
-</div>
-
-<!-- ===== CARD ===== -->
+<!-- CARD -->
 <div class="wrap hidden" id="view-card">
   <header><h1>Scorecard</h1><button class="refresh" id="newRound">＋ New round</button></header>
   <div class="hc">
     <div class="lbl" style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#bfe6cf;font-weight:700;">Estimated handicap index</div>
     <div class="big" id="hcIndex">—</div>
     <div class="muted" id="hcNote" style="margin-top:4px;text-align:left;">Finish a few rounds (with rating &amp; slope) to estimate. Unofficial.</div>
-    <div class="ip">
-      <label>Course rating<input id="rating" type="number" inputmode="decimal" placeholder="72.0"></label>
-      <label>Slope<input id="slope" type="number" inputmode="numeric" placeholder="113"></label>
-    </div>
+    <div class="ip"><label>Course rating<input id="rating" type="number" inputmode="decimal" placeholder="72.0"></label><label>Slope<input id="slope" type="number" inputmode="numeric" placeholder="113"></label></div>
   </div>
   <div class="secthead"><span id="cardCourse">This round</span><span id="cardTotal">—</span></div>
   <table class="sc" id="scTable"></table>
@@ -189,7 +224,7 @@
   <div class="muted">Scores save on this phone only (nothing leaves your device).</div>
 </div>
 
-<!-- ===== GLANCE ===== -->
+<!-- GLANCE -->
 <div id="glance" class="hidden">
   <div class="gh" id="gHole">Hole —</div>
   <div class="gy" id="gYds">—</div>
@@ -198,314 +233,259 @@
   <div class="gx">Tap anywhere to exit · screen stays on</div>
 </div>
 
-<!-- ===== TAB BAR ===== -->
+<!-- SCORE MODAL -->
+<div id="scoreModal" class="hidden">
+  <div class="sheet">
+    <div class="sh-h" id="smHole">Hole —</div>
+    <div class="sh-s" id="smSub">&nbsp;</div>
+    <div class="sm-row"><span>Score</span><div class="stp"><button data-k="score" data-d="-1">−</button><span class="v" id="smScore">–</span><button data-k="score" data-d="1">＋</button></div></div>
+    <div class="sm-row"><span>Putts</span><div class="stp"><button data-k="putts" data-d="-1">−</button><span class="v" id="smPutts">–</span><button data-k="putts" data-d="1">＋</button></div></div>
+    <div class="sm-tot" id="smTot">&nbsp;</div>
+    <button class="btn go" id="smSaveNext">Save &amp; next hole</button>
+    <button class="btn" id="smClose">Close</button>
+  </div>
+</div>
+
 <div class="tabbar hidden" id="tabbar">
-  <button data-tab="play" class="active"><span class="ic">⛳</span>Play</button>
-  <button data-tab="map"><span class="ic">🛰️</span>Map</button>
+  <button data-tab="map" class="active"><span class="ic">🛰️</span>Map</button>
+  <button data-tab="play"><span class="ic">⛳</span>Play</button>
   <button data-tab="card"><span class="ic">📋</span>Card</button>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate.js"></script>
 <script>
-const M2YD=1.09361, R_EARTH=6371000, toRad=d=>d*Math.PI/180;
-let pos=null, holes=[], selectedRef=null, autoHole=true, wakeLock=null, glanceOn=false;
-let wind=null, playerElev=null;
+const M2YD=1.09361,R_EARTH=6371000,toRad=d=>d*Math.PI/180;
+const TEES=['Black','Blue','White','Gold','Red'];
+let pos=null,holes=[],selectedRef=null,autoHole=true,wakeLock=null,glanceOn=false;
+let wind=null,playerElev=null,lastHeading=null,headingUp=true,curCenterYds=null;
 let raw={greens:[],tees:[],holes:[],pins:[],fairways:[],bunkers:[],water:[]};
 let courseName='⛳ Golf GPS';
-let map=null, courseLayer=null, dynLayer=null, target=null, mapInited=false, curTab='play';
+let map=null,courseLayer=null,dynLayer=null,target=null,mapInited=false,curTab='map';
 const $=id=>document.getElementById(id);
 
-// ---------- geo ----------
+// geo
 function distM(a,b,c,d){const dLat=toRad(c-a),dLon=toRad(d-b);const x=Math.sin(dLat/2)**2+Math.cos(toRad(a))*Math.cos(toRad(c))*Math.sin(dLon/2)**2;return R_EARTH*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));}
 function yd(m){return Math.round(m*M2YD);}
-function toXY(lat,lon,lat0){return [toRad(lon)*Math.cos(toRad(lat0))*R_EARTH, toRad(lat)*R_EARTH];}
+function toXY(lat,lon,lat0){return [toRad(lon)*Math.cos(toRad(lat0))*R_EARTH,toRad(lat)*R_EARTH];}
 function distSegM(p,a,b){const lat0=a.lat;const[px,py]=toXY(p.lat,p.lon,lat0),[ax,ay]=toXY(a.lat,a.lon,lat0),[bx,by]=toXY(b.lat,b.lon,lat0);const dx=bx-ax,dy=by-ay,L2=dx*dx+dy*dy;let t=L2?((px-ax)*dx+(py-ay)*dy)/L2:0;t=Math.max(0,Math.min(1,t));return Math.hypot(px-(ax+t*dx),py-(ay+t*dy));}
 function distToLine(p,line){let m=Infinity;for(let i=0;i<line.length-1;i++)m=Math.min(m,distSegM(p,line[i],line[i+1]));if(line.length===1)m=distM(p.lat,p.lon,line[0].lat,line[0].lon);return m;}
 function centroid(pts){let la=0,lo=0;pts.forEach(p=>{la+=p.lat;lo+=p.lon;});return {lat:la/pts.length,lon:lo/pts.length};}
 function bearing(a,b){const y=Math.sin(toRad(b.lon-a.lon))*Math.cos(toRad(b.lat));const x=Math.cos(toRad(a.lat))*Math.sin(toRad(b.lat))-Math.sin(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.cos(toRad(b.lon-a.lon));return (Math.atan2(y,x)*180/Math.PI+360)%360;}
 function sgn(n){return (n>=0?'+':'')+n;}
 function fcbFor(h){if(!h||!h.green||!pos)return null;const tgt=h.pin||h.green.c;const center=distM(pos.lat,pos.lon,tgt.lat,tgt.lon);let front=Infinity,back=0;for(const v of h.green.verts){const d=distM(pos.lat,pos.lon,v.lat,v.lon);front=Math.min(front,d);back=Math.max(back,d);}return {front,center,back,tgt};}
-function adjustments(h,centerYds){
-  if(!h||!h.green||!pos)return null; let windEff=0,elevEff=0,has=false; const tgt=h.pin||h.green.c;
-  if(wind){const brg=bearing(pos,tgt);const head=wind.spd*Math.cos(toRad(wind.dir-brg));windEff=centerYds*(head>=0?0.01:0.005)*head;has=true;}
-  if(playerElev!=null&&h.greenElev!=null){elevEff=(h.greenElev-playerElev)*M2YD;has=true;}
-  if(!has)return null; windEff=Math.round(windEff); elevEff=Math.round(elevEff);
-  return {windEff,elevEff,plays:Math.round(centerYds+windEff+elevEff)};
-}
+function adjustments(h,centerYds){if(!h||!h.green||!pos)return null;let we=0,ee=0,has=false;const tgt=h.pin||h.green.c;if(wind){const brg=bearing(pos,tgt);const head=wind.spd*Math.cos(toRad(wind.dir-brg));we=centerYds*(head>=0?0.01:0.005)*head;has=true;}if(playerElev!=null&&h.greenElev!=null){ee=(h.greenElev-playerElev)*M2YD;has=true;}if(!has)return null;we=Math.round(we);ee=Math.round(ee);return {windEff:we,elevEff:ee,plays:Math.round(centerYds+we+ee)};}
+function windRel(h){if(!wind||!h||!h.green||!pos)return '';const brg=bearing(pos,h.pin||h.green.c);const into=wind.spd*Math.cos(toRad(wind.dir-brg));if(wind.spd<2)return 'Calm';return into>1.5?'Into wind':into<-1.5?'Downwind':'Crosswind';}
 
-// ---------- weather ----------
+// weather
 async function loadWind(lat,lon){
   try{
     const u=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m,wind_direction_10m,weather_code&wind_speed_unit=mph&temperature_unit=fahrenheit`;
     const c=(await (await fetch(u)).json()).current||{};
+    const dir=c.wind_direction_10m||0, blowTo=(dir+180)%360;
     $('windSpd').textContent=Math.round(c.wind_speed_10m)+' mph';
-    $('windDir').textContent='from '+cardinal(c.wind_direction_10m);
-    $('windArr').style.transform='rotate('+((c.wind_direction_10m+180)%360)+'deg)';
+    $('windDir').textContent='→ '+cardinal(blowTo);          // arrow + text both = where it's blowing TO
+    $('windArr').style.transform='rotate('+blowTo+'deg)';
     $('temp').textContent=Math.round(c.temperature_2m)+'°'; $('cond').textContent=wtext(c.weather_code);
-    wind={spd:c.wind_speed_10m||0, dir:c.wind_direction_10m||0}; render(); if(mapInited)updateDyn();
+    wind={spd:c.wind_speed_10m||0,dir:dir}; render(); if(mapInited)updateDyn();
   }catch(e){ $('windDir').textContent='wind unavailable'; }
 }
 function cardinal(d){const a=['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];return a[Math.round(d/22.5)%16];}
 function wtext(c){if(c===0)return'Clear';if([1,2,3].includes(c))return'Cloudy';if([45,48].includes(c))return'Fog';if(c>=51&&c<=67)return'Rain';if(c>=71&&c<=77)return'Snow';if(c>=80&&c<=82)return'Showers';if(c>=95)return'Storm';return' ';}
 
-// ---------- course data ----------
+// course data
 async function loadCourse(lat,lon){
   const R=2200;
   const q=`[out:json][timeout:25];(`
-    +`way["golf"="hole"](around:${R},${lat},${lon});`
-    +`way["golf"="green"](around:${R},${lat},${lon});`
-    +`way["golf"="tee"](around:${R},${lat},${lon});`
-    +`way["golf"="fairway"](around:${R},${lat},${lon});`
-    +`way["golf"="bunker"](around:${R},${lat},${lon});`
-    +`way["golf"="lateral_water_hazard"](around:${R},${lat},${lon});`
-    +`way["golf"="water_hazard"](around:${R},${lat},${lon});`
-    +`way["natural"="water"](around:${R},${lat},${lon});`
-    +`node["golf"="pin"](around:${R},${lat},${lon});`
-    +`way["leisure"="golf_course"](around:${R},${lat},${lon});`
-    +`);out geom tags;`;
-  const eps=['https://overpass-api.de/api/interpreter','https://overpass.kumi.systems/api/interpreter'];
-  for(const ep of eps){
+    +`way["golf"="hole"](around:${R},${lat},${lon});way["golf"="green"](around:${R},${lat},${lon});`
+    +`way["golf"="tee"](around:${R},${lat},${lon});way["golf"="fairway"](around:${R},${lat},${lon});`
+    +`way["golf"="bunker"](around:${R},${lat},${lon});way["golf"="lateral_water_hazard"](around:${R},${lat},${lon});`
+    +`way["golf"="water_hazard"](around:${R},${lat},${lon});way["natural"="water"](around:${R},${lat},${lon});`
+    +`node["golf"="pin"](around:${R},${lat},${lon});way["leisure"="golf_course"](around:${R},${lat},${lon}););out geom tags;`;
+  for(const ep of ['https://overpass-api.de/api/interpreter','https://overpass.kumi.systems/api/interpreter']){
     try{const r=await fetch(ep,{method:'POST',body:'data='+encodeURIComponent(q)});if(!r.ok)continue;buildCourse((await r.json()).elements||[]);return;}catch(e){}
   }
   $('list').innerHTML='<div class="status">Couldn’t reach the course database. Tap <b>Refresh</b>.</div>';
 }
 async function loadElevations(){
   if(!pos||!holes.length)return;
-  const lats=[pos.lat], lons=[pos.lon];
-  holes.forEach(h=>{ if(h.green){ lats.push(h.green.c.lat); lons.push(h.green.c.lon); } });
-  try{
-    const u=`https://api.open-meteo.com/v1/elevation?latitude=${lats.join(',')}&longitude=${lons.join(',')}`;
-    const e=(await (await fetch(u)).json()).elevation;
-    if(Array.isArray(e)){ playerElev=e[0]; let i=1; holes.forEach(h=>{ if(h.green){ h.greenElev=e[i++]; } }); render(); if(mapInited)updateDyn(); }
-  }catch(_){}
+  const lats=[pos.lat],lons=[pos.lon]; holes.forEach(h=>{if(h.green){lats.push(h.green.c.lat);lons.push(h.green.c.lon);}});
+  try{const e=(await (await fetch(`https://api.open-meteo.com/v1/elevation?latitude=${lats.join(',')}&longitude=${lons.join(',')}`)).json()).elevation;
+    if(Array.isArray(e)){playerElev=e[0];let i=1;holes.forEach(h=>{if(h.green)h.greenElev=e[i++];});render();if(mapInited)updateDyn();}}catch(_){}
 }
 function buildCourse(els){
-  raw={greens:[],tees:[],holes:[],pins:[],fairways:[],bunkers:[],water:[]};
-  const holeWays=[];
-  for(const el of els){
-    const tg=el.tags||{}, t=tg.golf, geom=el.geometry?el.geometry.map(g=>({lat:g.lat,lon:g.lon})):null;
-    if(tg.leisure==='golf_course'&&tg.name) courseName=tg.name;
-    if(t==='hole'&&geom){holeWays.push({ref:parseRef(tg.ref),par:tg.par,line:geom});raw.holes.push(geom);}
-    else if(t==='green'&&geom){raw.greens.push({verts:geom,c:centroid(geom)});}
-    else if(t==='tee'&&geom){raw.tees.push({verts:geom,c:centroid(geom)});}
-    else if(t==='fairway'&&geom){raw.fairways.push(geom);}
-    else if(t==='bunker'&&geom){raw.bunkers.push(geom);}
-    else if((t==='water_hazard'||t==='lateral_water_hazard'||tg.natural==='water')&&geom){raw.water.push(geom);}
-    else if(t==='pin'&&el.lat!=null){raw.pins.push({lat:el.lat,lon:el.lon});}
-  }
-  holes=holeWays.filter(h=>h.ref!=null).map(h=>{
-    const a=h.line[0],b=h.line[h.line.length-1];
-    const ga=nearest(raw.greens,a),gb=nearest(raw.greens,b);
-    let teeEnd=a,green=gb; if(ga.d<gb.d){teeEnd=b;green=ga;}
-    const tee=nearest(raw.tees,teeEnd).obj;
-    let pin=null; if(green.obj){const np=nearPin(green.obj.c); if(np&&np.d<35)pin=np.obj;}
-    return {ref:h.ref,par:h.par,line:h.line,green:green.obj,tee,pin};
-  }).sort((x,y)=>x.ref-y.ref);
-  if(!holes.length&&raw.greens.length) holes=raw.greens.map((g,i)=>({ref:i+1,par:null,line:[g.c],green:g,tee:null,pin:null}));
-
+  raw={greens:[],tees:[],holes:[],pins:[],fairways:[],bunkers:[],water:[]};const hw=[];
+  for(const el of els){const tg=el.tags||{},t=tg.golf,geom=el.geometry?el.geometry.map(g=>({lat:g.lat,lon:g.lon})):null;
+    if(tg.leisure==='golf_course'&&tg.name)courseName=tg.name;
+    if(t==='hole'&&geom){hw.push({ref:parseRef(tg.ref),par:tg.par,line:geom});raw.holes.push(geom);}
+    else if(t==='green'&&geom)raw.greens.push({verts:geom,c:centroid(geom)});
+    else if(t==='tee'&&geom)raw.tees.push({verts:geom,c:centroid(geom)});
+    else if(t==='fairway'&&geom)raw.fairways.push(geom);
+    else if(t==='bunker'&&geom)raw.bunkers.push(geom);
+    else if((t==='water_hazard'||t==='lateral_water_hazard'||tg.natural==='water')&&geom)raw.water.push(geom);
+    else if(t==='pin'&&el.lat!=null)raw.pins.push({lat:el.lat,lon:el.lon});}
+  holes=hw.filter(h=>h.ref!=null).map(h=>{const a=h.line[0],b=h.line[h.line.length-1];const ga=nearest(raw.greens,a),gb=nearest(raw.greens,b);let te=a,green=gb;if(ga.d<gb.d){te=b;green=ga;}const tee=nearest(raw.tees,te).obj;let pin=null;if(green.obj){const np=nearPin(green.obj.c);if(np&&np.d<35)pin=np.obj;}return {ref:h.ref,par:h.par,line:h.line,green:green.obj,tee,pin};}).sort((x,y)=>x.ref-y.ref);
+  if(!holes.length&&raw.greens.length)holes=raw.greens.map((g,i)=>({ref:i+1,par:null,line:[g.c],green:g,tee:null,pin:null}));
   $('courseName').textContent=courseName;
-  if(!holes.length){
-    $('heroName').textContent='No mapped course within ~1.3 mi';
-    $('list').innerHTML='<div class="status">No golf holes found in OpenStreetMap here.<br>Wind & GPS still work; the course may not be mapped yet.</div>';
-    $('pills').innerHTML='';
-  } else { buildPills(); }
-  buildCard();
-  if(mapInited) drawCourse();
-  loadElevations();
-  render();
+  if(!holes.length){$('heroName').textContent='No mapped course within ~1.3 mi';$('list').innerHTML='<div class="status">No golf holes found in OpenStreetMap here.<br>Wind & GPS still work; the course may not be mapped yet.</div>';$('pills').innerHTML='';}
+  else buildPills();
+  buildCard(); if(mapInited){drawCourse();focusHole();} loadElevations(); render();
 }
 function parseRef(r){if(r==null)return null;const m=String(r).match(/\d+/);return m?parseInt(m[0]):null;}
 function nearest(arr,pt){let b={d:Infinity,obj:null};for(const o of arr){const d=distM(pt.lat,pt.lon,o.c.lat,o.c.lon);if(d<b.d)b={d,obj:o};}return b;}
 function nearPin(pt){let b={d:Infinity,obj:null};for(const o of raw.pins){const d=distM(pt.lat,pt.lon,o.lat,o.lon);if(d<b.d)b={d,obj:o};}return b;}
 
-// ---------- hole picker ----------
-function buildPills(){
-  $('pills').innerHTML=holes.map(h=>`<button class="pill" data-ref="${h.ref}">${h.ref}</button>`).join('');
-  $('pills').querySelectorAll('.pill').forEach(b=>b.onclick=()=>{autoHole=false;setAuto();selectedRef=+b.dataset.ref;render();focusHole();});
-}
+// hole picker
+function buildPills(){$('pills').innerHTML=holes.map(h=>`<button class="pill" data-ref="${h.ref}">${h.ref}</button>`).join('');$('pills').querySelectorAll('.pill').forEach(b=>b.onclick=()=>{autoHole=false;setAuto();selectedRef=+b.dataset.ref;render();focusHole();});}
 function detectHole(){if(!pos||!holes.length)return selectedRef;let b={d:Infinity,ref:holes[0].ref};for(const h of holes){const d=distToLine(pos,h.line);if(d<b.d)b={d,ref:h.ref};}return b.ref;}
-function setAuto(){const b=$('autoBtn');b.className='auto '+(autoHole?'on':'off');b.textContent=autoHole?'Auto ✓':'Auto';}
+function setAuto(){$('autoBtn').className='auto '+(autoHole?'on':'off');$('autoBtn').textContent=autoHole?'Auto ✓':'Auto';$('mAuto').className='mauto '+(autoHole?'on':'off');$('mAuto').textContent=autoHole?'Auto ✓':'Auto';}
 function curHole(){return holes.find(x=>x.ref===selectedRef)||holes[0];}
 
-// ---------- play render ----------
+// tees
+function buildTees(){const s=S();const sel=s.tees||'Blue';$('tees').innerHTML='<span class="tl">Tees</span>'+TEES.map(t=>`<button data-t="${t}" class="${t===sel?'sel':''}">${t}</button>`).join('');$('tees').querySelectorAll('button[data-t]').forEach(b=>b.onclick=()=>{const st=S();st.tees=b.dataset.t;saveS(st);buildTees();render();});}
+function teesLabel(){return (S().tees||'Blue');}
+
+// play render
 function render(){
-  if(pos) $('acc').innerHTML='GPS: <b>±'+yd(pos.acc||0)+' yd</b>';
-  if(!holes.length||!pos) return;
-  if(autoHole) selectedRef=detectHole();
-  if(selectedRef==null) selectedRef=holes[0].ref;
+  if(pos)$('acc').innerHTML='GPS: <b>±'+yd(pos.acc||0)+' yd</b>';
+  if(!holes.length||!pos){renderHoleScore();return;}
+  if(autoHole)selectedRef=detectHole();
+  if(selectedRef==null)selectedRef=holes[0].ref;
   const h=curHole();
-  $('holeTitle').textContent='Hole '+h.ref; $('holePar').textContent=h.par?('Par '+h.par):' ';
-  $('mapHole').firstChild.nodeValue='Hole '+h.ref; $('mapPar').textContent=h.par?('Par '+h.par):' ';
+  $('holeTitle').textContent='Hole '+h.ref; $('holePar').textContent=(h.par?('Par '+h.par+' · '):'')+teesLabel();
+  $('mapHole').firstChild.nodeValue='Hole '+h.ref; $('mapPar').textContent=(h.par?('Par '+h.par+' · '):'')+teesLabel();
   $('pills').querySelectorAll('.pill').forEach(b=>b.classList.toggle('active',+b.dataset.ref===h.ref));
-  const rows=[];
+  const rows=[]; curCenterYds=null;
   if(h.green){
-    const tgt=h.pin||h.green.c, center=distM(pos.lat,pos.lon,tgt.lat,tgt.lon);
-    let front=Infinity,back=0; for(const v of h.green.verts){const d=distM(pos.lat,pos.lon,v.lat,v.lon);front=Math.min(front,d);back=Math.max(back,d);}
+    const f=fcbFor(h),center=f.center; curCenterYds=yd(center);
     $('heroYds').textContent=yd(center);
     $('heroName').textContent='Hole '+h.ref+(h.par?(' · Par '+h.par):'')+(autoHole?' · auto-detected':'');
-    $('fcb').classList.remove('hidden');
-    $('fFront').textContent=yd(front); $('fCenter').textContent=yd(center); $('fBack').textContent=yd(back);
-    const adj=adjustments(h,yd(center));
-    if(adj){ $('playsLike').classList.remove('hidden'); $('playsLike').innerHTML=`Plays like <b style="color:#fff;font-size:16px;">${adj.plays}</b> yds &nbsp;·&nbsp; 🌬 ${sgn(adj.windEff)} &nbsp;·&nbsp; ⛰ ${sgn(adj.elevEff)}`; }
-    else $('playsLike').classList.add('hidden');
-    if(glanceOn){$('gHole').textContent='Hole '+h.ref+(h.par?(' · Par '+h.par):'');$('gYds').textContent=yd(center);$('gFront').textContent=yd(front);$('gBack').textContent=yd(back);$('gWind').textContent=$('windSpd').textContent+' · '+$('windDir').textContent;}
+    $('fcb').classList.remove('hidden'); $('fFront').textContent=yd(f.front); $('fCenter').textContent=yd(center); $('fBack').textContent=yd(f.back);
+    $('mCenter').textContent=yd(center);
+    const adj=adjustments(h,yd(center)); const wr=windRel(h);
+    if(adj){$('playsLike').classList.remove('hidden');$('playsLike').innerHTML=`Plays like <b style="color:#fff;font-size:16px;">${adj.plays}</b> yds &nbsp;·&nbsp; 🌬 ${sgn(adj.windEff)} &nbsp;·&nbsp; ⛰ ${sgn(adj.elevEff)}${wr?' &nbsp;·&nbsp; '+wr:''}`;$('mPlays').textContent='Plays '+adj.plays+(wr?' · '+wr:'');}
+    else {$('playsLike').classList.add('hidden');$('mPlays').textContent=wr;}
+    if(glanceOn){$('gHole').textContent='Hole '+h.ref+(h.par?(' · Par '+h.par):'');$('gYds').textContent=yd(center);$('gFront').textContent=yd(f.front);$('gBack').textContent=yd(f.back);$('gWind').textContent=$('windSpd').textContent+' · '+$('windDir').textContent;}
     rows.push(['🟢','Green '+(h.pin?'(pin)':'center'),'',yd(center)]);
-    rows.push(['🟩','Front edge','carry',yd(front)]);
-    rows.push(['🟫','Back edge','full',yd(back)]);
-  } else { $('heroYds').textContent='—'; $('fcb').classList.add('hidden'); $('heroName').textContent='Hole '+h.ref+' — no green mapped'; }
-  if(h.tee) rows.push(['⛳','Tee box','behind you',yd(distM(pos.lat,pos.lon,h.tee.c.lat,h.tee.c.lon))]);
+    rows.push(['🟩','Front edge','carry',yd(f.front)]); rows.push(['🟫','Back edge','full',yd(f.back)]);
+  } else {$('heroYds').textContent='—';$('fcb').classList.add('hidden');$('heroName').textContent='Hole '+h.ref+' — no green mapped';$('mCenter').textContent='—';$('mPlays').textContent='';}
+  if(h.tee)rows.push(['⛳','Tee box','behind you',yd(distM(pos.lat,pos.lon,h.tee.c.lat,h.tee.c.lon))]);
   $('detailHead').textContent='Hole '+h.ref+' details';
   $('list').innerHTML=rows.map(r=>`<div class="row"><div class="ic">${r[0]}</div><div class="info"><div class="nm">${r[1]}</div><div class="mt">${r[2]||'&nbsp;'}</div></div><div class="yd">${r[3]}<small>yards</small></div></div>`).join('');
-  if(mapInited) updateDyn();
+  if(mapInited)updateDyn();
+  renderHoleScore();
 }
 
-// ---------- map ----------
+// map
 function initMap(){
-  if(mapInited||typeof L==='undefined') return;
-  map=L.map('map',{zoomControl:false,attributionControl:true}).setView(pos?[pos.lat,pos.lon]:[33.7,-117.8],17);
-  L.control.zoom({position:'topright'}).addTo(map);
+  if(mapInited||typeof L==='undefined')return;
+  map=L.map('map',{zoomControl:false,attributionControl:true,rotate:true,touchRotate:false,rotateControl:false,bearing:0});
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:21,maxNativeZoom:19,attribution:'Imagery © Esri'}).addTo(map);
   courseLayer=L.layerGroup().addTo(map); dynLayer=L.layerGroup().addTo(map);
+  map.setView(pos?[pos.lat,pos.lon]:[33.7,-117.8],17);
   map.on('click',e=>{target={lat:e.latlng.lat,lon:e.latlng.lng};updateDyn();});
   mapInited=true; drawCourse(); focusHole(); updateDyn();
 }
-function poly(geom,opts){return L.polygon(geom.map(g=>[g.lat,g.lon]),opts);}
+function poly(g,o){return L.polygon(g.map(p=>[p.lat,p.lon]),o);}
 function drawCourse(){
-  if(!courseLayer)return; courseLayer.clearLayers();
-  raw.fairways.forEach(g=>poly(g,{color:'#6abf69',weight:1,fillColor:'#6abf69',fillOpacity:.28}).addTo(courseLayer));
+  if(!courseLayer)return;courseLayer.clearLayers();
+  raw.fairways.forEach(g=>poly(g,{color:'#6abf69',weight:1,fillColor:'#6abf69',fillOpacity:.26}).addTo(courseLayer));
   raw.water.forEach(g=>poly(g,{color:'#2f6fd0',weight:1,fillColor:'#3a7bd5',fillOpacity:.5}).addTo(courseLayer));
   raw.bunkers.forEach(g=>poly(g,{color:'#d8c98a',weight:1,fillColor:'#e8d9a8',fillOpacity:.85,stroke:false}).addTo(courseLayer));
   raw.greens.forEach(g=>poly(g.verts,{color:'#2fae6e',weight:1,fillColor:'#39d98a',fillOpacity:.55}).addTo(courseLayer));
-  raw.holes.forEach(line=>L.polyline(line.map(g=>[g.lat,g.lon]),{color:'#ffffff',weight:1.5,opacity:.5,dashArray:'5 6'}).addTo(courseLayer));
+  raw.holes.forEach(l=>L.polyline(l.map(p=>[p.lat,p.lon]),{color:'#fff',weight:1.5,opacity:.5,dashArray:'5 6'}).addTo(courseLayer));
 }
-function focusHole(){
-  if(!map)return; const h=curHole(); if(!h)return;
-  const pts=[]; if(h.tee)pts.push([h.tee.c.lat,h.tee.c.lon]); if(h.green)pts.push([h.green.c.lat,h.green.c.lon]); if(pos)pts.push([pos.lat,pos.lon]);
-  if(pts.length>=2) map.fitBounds(pts,{padding:[60,60],maxZoom:18});
-  else if(pos) map.setView([pos.lat,pos.lon],17);
-}
+function focusHole(){if(!map)return;const h=curHole();if(!h)return;const pts=[];if(h.tee)pts.push([h.tee.c.lat,h.tee.c.lon]);if(h.green)pts.push([h.green.c.lat,h.green.c.lon]);if(pos)pts.push([pos.lat,pos.lon]);if(pts.length>=2)map.fitBounds(pts,{padding:[70,70],maxZoom:18});else if(pos)map.setView([pos.lat,pos.lon],17);}
 function updateDyn(){
-  if(!dynLayer)return; dynLayer.clearLayers(); const h=curHole();
-  if(h&&h.green){const gc=h.pin||h.green.c;
-    const gm=L.circleMarker([gc.lat,gc.lon],{radius:6,color:'#fff',weight:2,fillColor:'#e8413a',fillOpacity:1}).addTo(dynLayer);
-    const f=fcbFor(h); if(f) gm.bindTooltip(`${yd(f.front)} / ${yd(f.center)} / ${yd(f.back)}`,{permanent:true,direction:'top',offset:[0,-2],className:'greenlbl'});
-  }
-  if(pos){
-    L.circle([pos.lat,pos.lon],{radius:pos.acc||8,color:'#4aa3ff',weight:1,fillColor:'#4aa3ff',fillOpacity:.15}).addTo(dynLayer);
-    L.circleMarker([pos.lat,pos.lon],{radius:7,color:'#fff',weight:3,fillColor:'#1e90ff',fillOpacity:1}).addTo(dynLayer);
-  }
-  // tap-to-aim
-  if(target&&pos){
-    const gc=h&&h.green?(h.pin||h.green.c):null;
-    L.polyline([[pos.lat,pos.lon],[target.lat,target.lon]],{color:'#ffd24a',weight:3}).addTo(dynLayer);
-    if(gc)L.polyline([[target.lat,target.lon],[gc.lat,gc.lon]],{color:'#ffffff',weight:2,dashArray:'4 5',opacity:.8}).addTo(dynLayer);
-    L.circleMarker([target.lat,target.lon],{radius:6,color:'#000',weight:1,fillColor:'#ffd24a',fillOpacity:1}).addTo(dynLayer);
-    const toT=yd(distM(pos.lat,pos.lon,target.lat,target.lon));
-    const tToG=gc?yd(distM(target.lat,target.lon,gc.lat,gc.lon)):null;
-    $('measTxt').innerHTML=`You → point <b>${toT}y</b>`+(tToG!=null?` · point → green <b>${tToG}y</b>`:'');
-  } else if(pos&&h&&h.green){
-    const gc=h.pin||h.green.c; const c=yd(distM(pos.lat,pos.lon,gc.lat,gc.lon)); const a=adjustments(h,c);
-    $('measTxt').innerHTML=`You → green <b>${c}y</b>`+(a?` · plays ~<b>${a.plays}y</b>`:'')+` · tap to aim`;
-  }
+  if(!dynLayer)return;dynLayer.clearLayers();const h=curHole();
+  if(h&&h.green){const gc=h.pin||h.green.c;const gm=L.circleMarker([gc.lat,gc.lon],{radius:6,color:'#fff',weight:2,fillColor:'#e8413a',fillOpacity:1}).addTo(dynLayer);const f=fcbFor(h);if(f)gm.bindTooltip(`${yd(f.front)} / ${yd(f.center)} / ${yd(f.back)}`,{permanent:true,direction:'top',offset:[0,-2],className:'greenlbl'});}
+  if(pos){L.circle([pos.lat,pos.lon],{radius:pos.acc||8,color:'#4aa3ff',weight:1,fillColor:'#4aa3ff',fillOpacity:.15}).addTo(dynLayer);L.circleMarker([pos.lat,pos.lon],{radius:7,color:'#fff',weight:3,fillColor:'#1e90ff',fillOpacity:1}).addTo(dynLayer);}
+  if(target&&pos){const gc=h&&h.green?(h.pin||h.green.c):null;L.polyline([[pos.lat,pos.lon],[target.lat,target.lon]],{color:'#ffd24a',weight:3}).addTo(dynLayer);if(gc)L.polyline([[target.lat,target.lon],[gc.lat,gc.lon]],{color:'#fff',weight:2,dashArray:'4 5',opacity:.8}).addTo(dynLayer);L.circleMarker([target.lat,target.lon],{radius:6,color:'#000',weight:1,fillColor:'#ffd24a',fillOpacity:1}).addTo(dynLayer);const toT=yd(distM(pos.lat,pos.lon,target.lat,target.lon));const tg=gc?yd(distM(target.lat,target.lon,gc.lat,gc.lon)):null;$('measTxt').innerHTML=`you → point <b>${toT}y</b>`+(tg!=null?` · point → green <b>${tg}y</b>`:'');}
+  else if(pos&&h&&h.green){const gc=h.pin||h.green.c;const c=yd(distM(pos.lat,pos.lon,gc.lat,gc.lon));const a=adjustments(h,c);$('measTxt').innerHTML=`you → green <b>${c}y</b>`+(a?` · plays ~<b>${a.plays}y</b>`:'')+` · tap to aim`;}
 }
+function applyHeading(){if(map&&map.setBearing&&headingUp&&lastHeading!=null){try{map.setBearing(-lastHeading);}catch(e){}}}
 
-// ---------- scorecard + handicap (localStorage) ----------
+// scorecard + handicap
 function S(){try{return JSON.parse(localStorage.getItem('golfgps')||'{}');}catch(e){return {};}}
 function saveS(s){localStorage.setItem('golfgps',JSON.stringify(s));}
+function runTotals(){const s=S(),sc=s.scores||{};let gross=0,par=0,thru=0;for(let r=1;r<=18;r++){if(sc[r]){gross+=sc[r];thru++;const h=holes.find(x=>x.ref===r);if(h&&h.par)par+=+h.par;}}return {gross,par,thru,toPar:gross&&par?gross-par:null};}
+function renderHoleScore(){
+  const h=curHole(); const s=S(),sc=s.scores||{},pt=s.putts||{};
+  const ref=h?h.ref:null;
+  $('hsScore').textContent=ref&&sc[ref]?sc[ref]:'–'; $('hsPutts').textContent=ref&&pt[ref]?pt[ref]:'–';
+  const t=runTotals();
+  $('hsRun').textContent=t.thru?`Total ${t.gross} (${sgn(t.toPar||0)}) thru ${t.thru}`:'No scores yet';
+  const near=curCenterYds!=null&&curCenterYds<=30;
+  $('holeScore').classList.toggle('near',near);
+  $('hsHead').textContent=near?'⛳ On/near green — log your score':('Hole '+(ref||'—')+' score');
+  $('mScoreBtn').classList.toggle('near',near);
+  if(!$('scoreModal').classList.contains('hidden')) fillModal();
+}
+function changeStat(k,d){const h=curHole();if(!h)return;const s=S();s[k==='score'?'scores':'putts']=s[k==='score'?'scores':'putts']||{};const key=k==='score'?'scores':'putts';s[key][h.ref]=Math.max(0,(s[key][h.ref]||0)+d);saveS(s);render();buildCard();}
 function buildCard(){
-  const s=S(); const scores=s.scores||{};
-  const n=Math.max(18, holes.reduce((m,h)=>Math.max(m,h.ref),0)||18);
+  const s=S(),sc=s.scores||{},pt=s.putts||{};
+  const n=Math.max(18,holes.reduce((m,h)=>Math.max(m,h.ref),0)||18);
   const parOf=r=>{const h=holes.find(x=>x.ref===r);return h&&h.par?+h.par:null;};
-  $('cardCourse').textContent=courseName!=='⛳ Golf GPS'?courseName:'This round';
-  let rows='<thead><tr><th class="hl">Hole</th><th>Par</th><th>Score</th><th>±</th></tr></thead><tbody>';
-  let totS=0,totP=0;
-  for(let r=1;r<=n;r++){
-    const par=parOf(r), sc=scores[r]||0; if(sc){totS+=sc; if(par)totP+=par;}
-    const diff=(sc&&par)?(sc-par):null;
-    const dcls=diff==null?'even':diff>0?'over':diff<0?'under':'even';
-    const dtxt=diff==null?'·':(diff>0?'+'+diff:diff);
-    rows+=`<tr><td class="hl">${r}</td><td>${par||'–'}</td>`
-      +`<td><span class="stp"><button data-r="${r}" data-d="-1">−</button><span class="sv" id="sv${r}">${sc||'–'}</span><button data-r="${r}" data-d="1">＋</button></span></td>`
-      +`<td class="topar ${dcls}">${dtxt}</td></tr>`;
-  }
-  rows+='</tbody>';
-  const tp=totS&&totP?(totS-totP):null;
-  rows+=`<tfoot><tr><td class="hl">Total</td><td>${totP||'–'}</td><td>${totS||'–'}</td><td class="topar ${tp==null?'even':tp>0?'over':tp<0?'under':'even'}">${tp==null?'·':tp>0?'+'+tp:tp}</td></tr></tfoot>`;
+  $('cardCourse').textContent=(courseName!=='⛳ Golf GPS'?courseName:'This round')+' · '+teesLabel();
+  let rows='<thead><tr><th class="hl">Hole</th><th>Par</th><th>Score</th><th>Putt</th><th>±</th></tr></thead><tbody>';
+  let tS=0,tP=0;
+  for(let r=1;r<=n;r++){const par=parOf(r),v=sc[r]||0,p=pt[r]||0;if(v){tS+=v;if(par)tP+=par;}
+    const diff=(v&&par)?v-par:null,dc=diff==null?'even':diff>0?'over':diff<0?'under':'even',dt=diff==null?'·':sgn(diff);
+    rows+=`<tr><td class="hl">${r}</td><td>${par||'–'}</td><td><span class="mini"><button data-r="${r}" data-k="score" data-d="-1">−</button><span class="sv">${v||'–'}</span><button data-r="${r}" data-k="score" data-d="1">＋</button></span></td><td>${p||'–'}</td><td class="topar ${dc}">${dt}</td></tr>`;}
+  const tp=tS&&tP?tS-tP:null;
+  rows+=`</tbody><tfoot><tr><td class="hl">Total</td><td>${tP||'–'}</td><td>${tS||'–'}</td><td></td><td class="topar ${tp==null?'even':tp>0?'over':tp<0?'under':'even'}">${tp==null?'·':sgn(tp)}</td></tr></tfoot>`;
   $('scTable').innerHTML=rows;
-  $('cardTotal').textContent=totS?`${totS} (${tp>0?'+':''}${tp??0})`:'—';
-  $('scTable').querySelectorAll('button').forEach(b=>b.onclick=()=>{
-    const r=+b.dataset.r,d=+b.dataset.d,st=S();st.scores=st.scores||{};
-    st.scores[r]=Math.max(0,(st.scores[r]||0)+d); saveS(st); buildCard();
-  });
-  if(s.rating)$('rating').value=s.rating; if(s.slope)$('slope').value=s.slope;
+  $('cardTotal').textContent=tS?`${tS} (${sgn(tp||0)})`:'—';
+  $('scTable').querySelectorAll('button').forEach(b=>b.onclick=()=>{const r=+b.dataset.r,d=+b.dataset.d,key=b.dataset.k==='score'?'scores':'putts',st=S();st[key]=st[key]||{};st[key][r]=Math.max(0,(st[key][r]||0)+d);saveS(st);buildCard();renderHoleScore();});
+  if(s.rating)$('rating').value=s.rating;if(s.slope)$('slope').value=s.slope;
   renderHandicap();
 }
-function renderHandicap(){
-  const s=S(); const hist=s.history||[];
-  if(!hist.length){$('hcIndex').textContent='—'; return;}
-  const diffs=hist.filter(r=>r.diff!=null).map(r=>r.diff).sort((a,b)=>a-b);
-  if(!diffs.length){$('hcIndex').textContent='—';$('hcNote').textContent='Add course rating & slope, then finish a round to compute.';return;}
-  const n=diffs.length; const use=Math.max(1,Math.round(n*0.4));
-  const idx=(diffs.slice(0,use).reduce((a,b)=>a+b,0)/use)*0.96;
-  $('hcIndex').textContent=idx.toFixed(1);
-  $('hcNote').textContent=`Estimate from your best ${use} of ${n} round${n>1?'s':''}. Unofficial.`;
-}
-function bindCard(){
-  $('rating').onchange=()=>{const s=S();s.rating=$('rating').value;saveS(s);};
-  $('slope').onchange=()=>{const s=S();s.slope=$('slope').value;saveS(s);};
-  $('newRound').onclick=()=>{ if(!confirm('Clear current scores for a new round?'))return; const s=S();s.scores={};saveS(s);buildCard(); };
-  $('finishRound').onclick=()=>{
-    const s=S(),sc=s.scores||{}; let gross=0,par=0;
-    for(let r=1;r<=18;r++){if(sc[r]){gross+=sc[r];const h=holes.find(x=>x.ref===r);if(h&&h.par)par+=+h.par;}}
-    if(!gross){alert('Enter some scores first.');return;}
-    const rating=parseFloat(s.rating)||null, slope=parseInt(s.slope)||null;
-    const diff=(rating&&slope)?Math.round(((gross-rating)*113/slope)*10)/10:null;
-    s.history=s.history||[]; s.history.unshift({date:new Date().toISOString().slice(0,10),course:courseName,gross,par,diff}); s.history=s.history.slice(0,20);
-    s.scores={}; saveS(s); buildCard();
-    alert('Round saved'+(diff!=null?` · differential ${diff}`:' (add rating & slope for handicap)'));
-  };
-}
+function renderHandicap(){const s=S(),hist=s.history||[];if(!hist.length){$('hcIndex').textContent='—';return;}const diffs=hist.filter(r=>r.diff!=null).map(r=>r.diff).sort((a,b)=>a-b);if(!diffs.length){$('hcIndex').textContent='—';$('hcNote').textContent='Add course rating & slope, then finish a round to compute.';return;}const u=Math.max(1,Math.round(diffs.length*0.4));const idx=(diffs.slice(0,u).reduce((a,b)=>a+b,0)/u)*0.96;$('hcIndex').textContent=idx.toFixed(1);$('hcNote').textContent=`Estimate from your best ${u} of ${diffs.length} round${diffs.length>1?'s':''}. Unofficial.`;}
 
-// ---------- glance ----------
+// score modal
+function fillModal(){const h=curHole();if(!h)return;const s=S(),sc=s.scores||{},pt=s.putts||{};$('smHole').textContent='Hole '+h.ref+(h.par?(' · Par '+h.par):'');$('smSub').textContent=teesLabel()+' tees';$('smScore').textContent=sc[h.ref]||'–';$('smPutts').textContent=pt[h.ref]||'–';const t=runTotals();$('smTot').textContent=t.thru?`Round: ${t.gross} (${sgn(t.toPar||0)}) thru ${t.thru}`:'';}
+function openModal(){$('scoreModal').classList.remove('hidden');fillModal();}
+function closeModal(){$('scoreModal').classList.add('hidden');}
+
+// glance
 async function reqWake(){try{if('wakeLock'in navigator)wakeLock=await navigator.wakeLock.request('screen');}catch(e){}}
 function enterGlance(){glanceOn=true;$('glance').classList.remove('hidden');reqWake();render();}
 function exitGlance(){glanceOn=false;$('glance').classList.add('hidden');if(wakeLock){wakeLock.release();wakeLock=null;}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&glanceOn)reqWake();});
 
-// ---------- tabs ----------
-function showTab(t){
-  curTab=t;
-  $('view-play').classList.toggle('hidden',t!=='play');
-  $('view-map').classList.toggle('hidden',t!=='map');
-  $('view-card').classList.toggle('hidden',t!=='card');
-  $('tabbar').querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
-  if(t==='map'){ if(!mapInited)initMap(); setTimeout(()=>{if(map){map.invalidateSize();focusHole();updateDyn();}},120); }
-  if(t==='card') buildCard();
-}
+// tabs
+function showTab(t){curTab=t;$('view-map').classList.toggle('hidden',t!=='map');$('view-play').classList.toggle('hidden',t!=='play');$('view-card').classList.toggle('hidden',t!=='card');$('tabbar').querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));if(t==='map'){if(!mapInited)initMap();setTimeout(()=>{if(map){map.invalidateSize();focusHole();updateDyn();applyHeading();}},120);}if(t==='card')buildCard();}
 
-// ---------- geolocation / start ----------
+// geolocation
 function start(){
-  $('gateWrap').classList.add('hidden'); $('view-play').classList.remove('hidden'); $('tabbar').classList.remove('hidden');
+  $('gateWrap').classList.add('hidden'); $('tabbar').classList.remove('hidden'); buildTees(); showTab('map');
   if(!navigator.geolocation){$('list').innerHTML='<div class="status">This browser can’t access location.</div>';return;}
   navigator.geolocation.watchPosition(p=>{
     const first=!pos; pos={lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy};
-    if(first){loadWind(pos.lat,pos.lon);loadCourse(pos.lat,pos.lon);}
-    render(); if(mapInited)updateDyn();
-  },err=>{
-    $('list').innerHTML='<div class="status">Location blocked. Enable it for Safari in Settings › Privacy › Location, then reload.<br><small>('+err.message+')</small></div>';
-  },{enableHighAccuracy:true,maximumAge:1500,timeout:15000});
+    if(p.coords.heading!=null&&!isNaN(p.coords.heading)&&(p.coords.speed==null||p.coords.speed>0.4))lastHeading=p.coords.heading;
+    if(first){loadWind(pos.lat,pos.lon);loadCourse(pos.lat,pos.lon);if(map)map.setView([pos.lat,pos.lon],17);}
+    render(); if(mapInited){updateDyn();applyHeading();}
+  },err=>{$('list').innerHTML='<div class="status">Location blocked. Enable it for Safari in Settings › Privacy › Location, then reload.<br><small>('+err.message+')</small></div>';},
+  {enableHighAccuracy:true,maximumAge:1200,timeout:15000});
 }
 function step(n){if(!holes.length)return;autoHole=false;setAuto();let i=holes.findIndex(h=>h.ref===selectedRef);if(i<0)i=0;i=(i+n+holes.length)%holes.length;selectedRef=holes[i].ref;render();focusHole();}
 
 $('startBtn').onclick=start;
-$('prevHole').onclick=()=>step(-1);
-$('nextHole').onclick=()=>step(1);
+$('prevHole').onclick=()=>step(-1); $('nextHole').onclick=()=>step(1);
+$('mPrev').onclick=()=>step(-1); $('mNext').onclick=()=>step(1);
 $('autoBtn').onclick=()=>{autoHole=!autoHole;setAuto();render();};
+$('mAuto').onclick=()=>{autoHole=!autoHole;setAuto();render();focusHole();};
+$('mHeading').onclick=()=>{headingUp=!headingUp;$('mHeading').className='mtoggle '+(headingUp?'on':'off');if(map&&map.setBearing){if(headingUp)applyHeading();else map.setBearing(0);}};
 $('refreshBtn').onclick=()=>{if(!pos)return;$('list').innerHTML='<div class="status"><div class="spin"></div><br>Refreshing…</div>';loadWind(pos.lat,pos.lon);loadCourse(pos.lat,pos.lon);};
-$('glanceBtn').onclick=enterGlance;
-$('glance').onclick=exitGlance;
+$('glanceBtn').onclick=enterGlance; $('glance').onclick=exitGlance;
+$('mScoreBtn').onclick=openModal; $('smClose').onclick=closeModal;
+$('smSaveNext').onclick=()=>{closeModal();step(1);};
+document.querySelectorAll('.hscell .stp button, .sm-row .stp button').forEach(b=>b.onclick=()=>changeStat(b.dataset.k,+b.dataset.d));
+$('newRound').onclick=()=>{if(!confirm('Clear current scores for a new round?'))return;const s=S();s.scores={};s.putts={};saveS(s);buildCard();render();};
+$('rating').onchange=()=>{const s=S();s.rating=$('rating').value;saveS(s);};
+$('slope').onchange=()=>{const s=S();s.slope=$('slope').value;saveS(s);};
+$('finishRound').onclick=()=>{const s=S(),sc=s.scores||{};let gross=0,par=0;for(let r=1;r<=18;r++){if(sc[r]){gross+=sc[r];const h=holes.find(x=>x.ref===r);if(h&&h.par)par+=+h.par;}}if(!gross){alert('Enter some scores first.');return;}const rating=parseFloat(s.rating)||null,slope=parseInt(s.slope)||null;const diff=(rating&&slope)?Math.round(((gross-rating)*113/slope)*10)/10:null;s.history=s.history||[];s.history.unshift({date:new Date().toISOString().slice(0,10),course:courseName,tees:teesLabel(),gross,par,diff});s.history=s.history.slice(0,20);s.scores={};s.putts={};saveS(s);buildCard();render();alert('Round saved'+(diff!=null?` · differential ${diff}`:' (add rating & slope for handicap)'));};
 $('tabbar').querySelectorAll('button').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
-bindCard();
 </script>
 </body>
 </html>
