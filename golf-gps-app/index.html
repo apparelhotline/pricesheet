@@ -75,6 +75,15 @@
   @keyframes sp{to{transform:rotate(360deg);}}
   .muted{color:#9fcdb4;font-size:11px;text-align:center;margin-top:18px;line-height:1.5;}
   .hidden{display:none;}
+
+  /* glance mode (full-screen, screen-awake) */
+  #glance{position:fixed;inset:0;background:radial-gradient(120% 120% at 50% 20%,#0d2c1e,#05130c);color:#fff;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;}
+  #glance .gh{font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:#5bd98f;font-weight:700;}
+  #glance .gy{font-size:42vw;font-weight:800;line-height:.85;margin:10px 0;text-shadow:0 6px 24px rgba(0,0,0,.4);}
+  #glance .gf{display:flex;gap:26px;font-size:8vw;font-weight:800;color:#cfe6d8;}
+  #glance .gf small{display:block;font-size:3vw;letter-spacing:.12em;color:#6fae8c;font-weight:700;margin-top:2px;}
+  #glance .gw{margin-top:22px;font-size:4.6vw;color:#9fcdb4;}
+  #glance .gx{position:absolute;bottom:34px;font-size:12px;color:#5f8f76;}
 </style>
 </head>
 <body>
@@ -126,6 +135,8 @@
       </div>
     </div>
 
+    <button class="btn" id="glanceBtn">👁 Glance mode — big number, screen stays on</button>
+
     <div class="secthead">
       <span id="detailHead">This hole</span>
       <button class="refresh" id="refreshBtn">↻ Refresh course</button>
@@ -138,6 +149,17 @@
   </div>
 </div>
 
+<div id="glance" class="hidden">
+  <div class="gh" id="gHole">Hole —</div>
+  <div class="gy" id="gYds">—</div>
+  <div class="gf">
+    <div><span id="gFront">—</span><small>FRONT</small></div>
+    <div><span id="gBack">—</span><small>BACK</small></div>
+  </div>
+  <div class="gw" id="gWind">&nbsp;</div>
+  <div class="gx">Tap anywhere to exit · screen stays on</div>
+</div>
+
 <script>
 const M2YD = 1.09361, R_EARTH = 6371000;
 const toRad = d => d*Math.PI/180;
@@ -145,6 +167,8 @@ let pos = null;          // {lat, lon, acc}
 let holes = [];          // [{ref, par, line:[{lat,lon}], green:{...}, tee:{...}}]
 let selectedRef = null;  // currently shown hole ref
 let autoHole = true;     // follow GPS to pick the hole
+let wakeLock = null;     // screen wake lock sentinel
+let glanceOn = false;    // full-screen glance mode active
 
 const $ = id => document.getElementById(id);
 
@@ -303,6 +327,13 @@ function render(){
     $('fFront').textContent=yd(front);
     $('fCenter').textContent=yd(center);
     $('fBack').textContent=yd(back);
+    if(glanceOn){
+      $('gHole').textContent='Hole '+h.ref+(h.par?(' · Par '+h.par):'');
+      $('gYds').textContent=yd(center);
+      $('gFront').textContent=yd(front);
+      $('gBack').textContent=yd(back);
+      $('gWind').textContent=$('windSpd').textContent+' · '+$('windDir').textContent;
+    }
     rows.push(['🟢','Green '+(h.pin?'(pin)':'center'),'',yd(center)]);
     rows.push(['🟩','Front edge','carry',yd(front)]);
     rows.push(['🟫','Back edge','full',yd(back)]);
@@ -339,6 +370,16 @@ function step(n){
   let i=holes.findIndex(h=>h.ref===selectedRef); if(i<0)i=0;
   i=(i+n+holes.length)%holes.length; selectedRef=holes[i].ref; render();
 }
+// ---------- glance mode (keeps screen awake) ----------
+async function reqWake(){
+  try{ if('wakeLock' in navigator){ wakeLock = await navigator.wakeLock.request('screen'); } }catch(e){}
+}
+function enterGlance(){ glanceOn=true; $('glance').classList.remove('hidden'); reqWake(); render(); }
+function exitGlance(){ glanceOn=false; $('glance').classList.add('hidden'); if(wakeLock){ wakeLock.release(); wakeLock=null; } }
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible' && glanceOn) reqWake(); });
+$('glanceBtn').addEventListener('click', enterGlance);
+$('glance').addEventListener('click', exitGlance);
+
 $('startBtn').addEventListener('click', start);
 $('prevHole').addEventListener('click', ()=>step(-1));
 $('nextHole').addEventListener('click', ()=>step(1));
