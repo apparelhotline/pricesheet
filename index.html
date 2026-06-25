@@ -752,6 +752,23 @@
     background:#fff;
   }
 
+  /* Vape / Pre-Roll live mini-tables */
+  .two-col-tables{
+    display:grid; grid-template-columns: repeat(2, 1fr);
+    gap:18px; align-items:start;
+  }
+  .mini-table-title{
+    font-family: var(--font-mono);
+    font-size:9.5px; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--ink-2);
+    font-weight:600;
+    margin:0 0 6px;
+  }
+  body.tone-inverted .mini-table-title{ color:#fff; }
+  @media screen and (max-width: 600px){
+    .two-col-tables{ grid-template-columns: 1fr; }
+  }
+
   /* Footer */
   .pf{
     margin-top:18px;
@@ -1425,8 +1442,8 @@
     </footer>
   </section>
 
-  <!-- ============== PAGE 4 — HASH & CONCENTRATE + VAPE/PRE-ROLL TBD ============== -->
-  <section class="page" data-screen-label="04 Hash & Concentrate + TBD">
+  <!-- ============== PAGE 4 — HASH & CONCENTRATE + VAPE/PRE-ROLL ============== -->
+  <section class="page" data-screen-label="04 Hash & Concentrate + Vape/Pre-Roll">
 
     <header class="ph">
       <div class="lockup">
@@ -1467,34 +1484,52 @@
       </div>
     </div>
 
-    <!-- Vape & Pre-roll placeholders -->
-    <div class="section placeholder-section">
+    <!-- Vape & Pre-Roll · Live -->
+    <div class="section">
       <div class="sh">
         <span class="num">§ 06–07</span>
-        <h2>Vape &amp; Pre-Roll · Coming Next</h2>
-        <span class="tag">To fulfil later</span>
+        <h2>Vape &amp; Pre-Roll · Live</h2>
+        <span class="tag">Rotating · Pricing dynamic</span>
       </div>
 
-      <div class="grid">
-        <div class="placeholder-card">
-          <div class="label">Vape · TBD</div>
-          <div class="desc">Carts, syringe refills, 1g disposables. Drop in SKUs, cost, MSRP and pack count when ready.</div>
-          <div class="skuline">
-            <span>UNIT COST $—</span>
-            <span>MSRP $—</span>
-            <span>QTY 1 EACH</span>
+      <div class="two-col-tables">
+        <div class="mini-table-block">
+          <h3 class="mini-table-title">Vape</h3>
+          <div class="strain-table-wrap">
+            <table class="strain-table" id="vape-table">
+              <thead>
+                <tr>
+                  <th style="width:46%">Type</th>
+                  <th style="width:18%; text-align:right">Cost</th>
+                  <th style="width:18%; text-align:right">MSRP</th>
+                  <th style="width:18%; text-align:right">Pack / QTY</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
           </div>
         </div>
 
-        <div class="placeholder-card">
-          <div class="label">Pre-Roll · TBD</div>
-          <div class="desc">Singles, 6-packs, hash-infused, kief-infused. Drop in SKUs, cost per unit / per box and MSRP when ready.</div>
-          <div class="skuline">
-            <span>COST / UNIT $—</span>
-            <span>25 PACK $—</span>
-            <span>MSRP $—</span>
+        <div class="mini-table-block">
+          <h3 class="mini-table-title">Pre-Roll</h3>
+          <div class="strain-table-wrap">
+            <table class="strain-table" id="preroll-table">
+              <thead>
+                <tr>
+                  <th style="width:46%">Type</th>
+                  <th style="width:18%; text-align:right">Cost</th>
+                  <th style="width:18%; text-align:right">MSRP</th>
+                  <th style="width:18%; text-align:right">Pack / QTY</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
           </div>
         </div>
+      </div>
+
+      <div class="hashc-note">
+        <b>Vape &amp; pre-roll now live</b> — carts, syringe refills, disposables, infused &amp; multi-packs. Pricing rotates; inquire for live availability, bulk and white-label / private-label runs.
       </div>
     </div>
 
@@ -1531,8 +1566,8 @@
         <div>03 &nbsp; <b>Goldy's Flower</b></div>
         <div>04 &nbsp; <b>Goldy's Gummies</b></div>
         <div>05 &nbsp; <b>Hash &amp; Concentrate</b></div>
-        <div>06 &nbsp; <b>Vape — TBD</b></div>
-        <div>07 &nbsp; <b>Pre-roll — TBD</b></div>
+        <div>06 &nbsp; <b>Vape</b></div>
+        <div>07 &nbsp; <b>Pre-roll</b></div>
       </div>
     </div>
 
@@ -1669,6 +1704,41 @@
       </tr>
     `);
   });
+
+  // -------- Vape & Pre-Roll (live) --------
+  // Cost / MSRP ship blank ("$ —") and are filled in live at order entry,
+  // exactly like the Hash & Concentrate table above.
+  const vape = [
+    ["Cart · 510 Thread",          "1 g · each"],
+    ["Cart · 510 Thread",          "0.5 g · each"],
+    ["Syringe Refill · Distillate","1 g"],
+    ["Disposable",                 "1 g · each"],
+    ["Disposable",                 "2 g · each"],
+    ["Pod · Closed System",        "1 g"],
+  ];
+  const preroll = [
+    ["Single",          "1 g · each"],
+    ["6-Pack",          "6 × 0.5 g"],
+    ["Hash-Infused",    "each"],
+    ["Kief-Infused",    "each"],
+    ["25 Pack · Box",   "25 ct"],
+  ];
+  const renderMiniTable = (id, rows) => {
+    const body = document.querySelector('#' + id + ' tbody');
+    if (!body) return;
+    rows.forEach(([type, pack]) => {
+      body.insertAdjacentHTML('beforeend', `
+        <tr>
+          <td class="item" contenteditable="true" spellcheck="false">${type}</td>
+          <td class="moq"  contenteditable="true" spellcheck="false">$ —</td>
+          <td class="moq"  contenteditable="true" spellcheck="false">$ —</td>
+          <td class="moq"  contenteditable="true" spellcheck="false">${pack}</td>
+        </tr>
+      `);
+    });
+  };
+  renderMiniTable('vape-table', vape);
+  renderMiniTable('preroll-table', preroll);
 
   // ============ EDIT-MODE / DRAG-DROP / ADD-PRODUCT ============
   const STORAGE_KEY = 'priceSheetGridState_v1';
@@ -2060,6 +2130,16 @@
     document.querySelectorAll('#hash-table tbody tr').forEach((row, i) => {
       row.querySelectorAll('td[contenteditable]').forEach((cell, j) => {
         if (!cell.dataset.editKey) cell.dataset.editKey = 'hash__' + i + '__' + (hashLabels[j] || ('col' + j));
+      });
+    });
+
+    // Vape & Pre-Roll tables
+    const vpLabels = ['type','cost','msrp','pack'];
+    [['vape-table','vape'], ['preroll-table','preroll']].forEach(([tableId, prefix]) => {
+      document.querySelectorAll('#' + tableId + ' tbody tr').forEach((row, i) => {
+        row.querySelectorAll('td[contenteditable]').forEach((cell, j) => {
+          if (!cell.dataset.editKey) cell.dataset.editKey = prefix + '__' + i + '__' + (vpLabels[j] || ('col' + j));
+        });
       });
     });
   }
